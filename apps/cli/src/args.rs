@@ -115,6 +115,22 @@ pub struct Args {
     #[arg(long)]
     pub neural_context: Option<usize>,
 
+    /// 试验：回放时用知意的选词模型重排第一页候选（解压的 safetensors 模型目录）
+    #[arg(long)]
+    pub zhiyi: Option<PathBuf>,
+
+    /// 知意重排看前这么多个候选（知意是 2 × 每页候选数）
+    #[arg(long, default_value_t = 18)]
+    pub zhiyi_top: usize,
+
+    /// 知意重排里语言模型分的权重（知意配它自己的三元模型是 1.0）
+    #[arg(long, default_value_t = 1.0)]
+    pub zhiyi_lm_weight: f64,
+
+    /// 知意重排里中文位置先验的权重（我们原来的顺序带着个人学习；知意是 0）
+    #[arg(long, default_value_t = 0.0)]
+    pub zhiyi_rank_weight: f64,
+
     /// 神经重打分走后台线程（输入法壳里的接法）：查询先按词级模型出候选，再请求 / 等待重打分后重查一次；结果应与同步一致
     #[arg(long)]
     pub neural_async: bool,

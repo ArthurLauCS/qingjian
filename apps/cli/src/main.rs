@@ -15,6 +15,7 @@ mod replay;
 mod rescoring;
 mod tuning;
 mod userwords;
+mod zhiyi;
 
 use std::path::Path;
 use std::sync::Arc;
@@ -89,8 +90,29 @@ fn run() -> Result<(), CliError> {
         // （`build_engine` 那份的所有权已经交给引擎了）
         let code = args.code.as_deref().map(load_code_scheme).transpose()?;
         let shuangpin = load_shuangpin_scheme(&args)?;
-        let report = replay::run(&mut engine, path, args.misses, code, shuangpin)?;
+        let mut reranker = args
+            .zhiyi
+            .as_deref()
+            .map(|dir| {
+                zhiyi::Reranker::load(
+                    dir,
+                    args.zhiyi_top,
+                    (args.zhiyi_lm_weight, args.zhiyi_rank_weight),
+                )
+            })
+            .transpose()?;
+        let report = replay::run(
+            &mut engine,
+            path,
+            args.misses,
+            code,
+            shuangpin,
+            reranker.as_mut(),
+        )?;
         print!("{report}");
+        if let Some(reranker) = &reranker {
+            println!("{}", reranker.summary());
+        }
         return Ok(());
     }
     if let Some(model) = &args.eval_generate {
@@ -104,14 +126,29 @@ fn run() -> Result<(), CliError> {
         return Ok(());
     }
     if !args.eval_text.is_empty() {
+        let mut reranker = args
+            .zhiyi
+            .as_deref()
+            .map(|dir| {
+                zhiyi::Reranker::load(
+                    dir,
+                    args.zhiyi_top,
+                    (args.zhiyi_lm_weight, args.zhiyi_rank_weight),
+                )
+            })
+            .transpose()?;
         let report = eval::run(
             &mut engine,
             &args.eval_text,
             args.eval_save.as_deref(),
             args.misses,
             args.eval_details.as_deref(),
+            reranker.as_mut(),
         )?;
         print!("{report}");
+        if let Some(reranker) = &reranker {
+            println!("{}", reranker.summary());
+        }
         return Ok(());
     }
     if args.inputs.is_empty() {

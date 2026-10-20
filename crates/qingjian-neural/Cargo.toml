@@ -15,6 +15,8 @@ default = []
 accelerate = ["candle-core/accelerate", "candle-nn/accelerate"]
 # Apple GPU
 metal = ["candle-core/metal", "candle-nn/metal"]
+# 试验：知意的选词模型（只给 CLI 回放对比用，带上 tokenizers）
+zhiyi = ["dep:tokenizers"]
 
 [dependencies]
 qingjian-core.workspace = true
@@ -25,6 +27,7 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+tokenizers = { version = "0.22.2", default-features = false, features = ["fancy-regex"], optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2.workspace = true
