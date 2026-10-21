@@ -116,18 +116,8 @@ if [[ -f data/generated/dict.tsv || -f data/generated/dict.qj ]]; then
     mkdir -p "$APP/Contents/Resources/codes"
     cp data/generated/codes/*.qj assets/stroke/LICENSE-CNS11643.txt "$APP/Contents/Resources/codes/"
   fi
-  # 含章·知微（字级 Transformer）：三件套与单文件放 data/models/hanzhang-zhiwei/。
-  model_dir="${QINGJIAN_MODEL_DIR:-data/models/hanzhang-zhiwei}"
-  if [[ -f "$model_dir/model.safetensors" ]]; then
-    QINGJIAN_MODEL_DIR="$model_dir" tools/release/pack-model.sh
-  fi
-  if [[ -f "$model_dir/hanzhang-zhiwei-small.qjm" ]]; then
-    mkdir -p "$APP/Contents/Resources/models/hanzhang-zhiwei"
-    cp "$model_dir/hanzhang-zhiwei-small.qjm" "$APP/Contents/Resources/models/hanzhang-zhiwei/"
-    chmod 644 "$APP/Contents/Resources/models/hanzhang-zhiwei/hanzhang-zhiwei-small.qjm"
-    echo "打包含章·知微：$model_dir/hanzhang-zhiwei-small.qjm"
-  fi
   # 含章·通变（P2C，带噪拼音 → 汉字）：放 Resources/models/hanzhang-tongbian/。
+  # 含章·知微（字级模型）不随包：有通变时三个桌面平台都不加载它，用户自己放进数据目录 models/hanzhang-zhiwei/ 仍认
   p2c_dir="${QINGJIAN_P2C_MODEL_DIR:-data/models/hanzhang-tongbian}"
   if [[ -f "$p2c_dir/model.safetensors" ]]; then
     QINGJIAN_MODEL_DIR="$p2c_dir" tools/release/pack-model.sh
