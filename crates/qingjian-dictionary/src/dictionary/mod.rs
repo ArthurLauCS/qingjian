@@ -94,6 +94,9 @@ pub struct Dictionary {
 
     /// `.qj` 里的来历（名称、许可证、署名）；TSV 解析的没有。
     metadata: Option<Metadata>,
+
+    /// 补充词库（通用大词库）：命中带上 [`Match::secondary`]，排序与整句里低主词库一档。不落盘，由装配方标。
+    secondary: bool,
 }
 
 impl Dictionary {
@@ -229,6 +232,7 @@ impl Dictionary {
             spilled: Text::Owned(spilled),
             total_frequency,
             metadata: None,
+            secondary: false,
         }
     }
 
@@ -356,6 +360,7 @@ impl Dictionary {
             spilled,
             total_frequency,
             metadata: Some(container.metadata().clone()),
+            secondary: false,
         })
     }
 
@@ -377,6 +382,15 @@ impl Dictionary {
         }
         writer.write_to(path)?;
         Ok(())
+    }
+
+    /// 标成补充词库，见 [`Match::secondary`]。
+    pub fn set_secondary(&mut self, secondary: bool) {
+        self.secondary = secondary;
+    }
+
+    pub fn is_secondary(&self) -> bool {
+        self.secondary
     }
 
     /// `.qj` 里的来历；TSV 解析的返回 `None`。
@@ -410,6 +424,7 @@ impl Dictionary {
                     pinyin: key,
                     frequency: slot.frequency,
                     tones: self.tones(position, slot),
+                    secondary: self.secondary,
                     exact: true,
                 }
             })
@@ -643,6 +658,7 @@ impl Dictionary {
                 pinyin: key,
                 frequency: slot.frequency,
                 tones: self.tones(position, slot),
+                secondary: self.secondary,
                 exact,
             });
         }

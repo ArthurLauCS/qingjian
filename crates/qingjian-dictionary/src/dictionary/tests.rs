@@ -250,6 +250,7 @@ fn legacy_qj_umlaut_keys_remain_queryable() {
         spilled: Text::default(),
         total_frequency: 190,
         metadata: None,
+        secondary: false,
     };
     let dir = std::env::temp_dir().join("qingjian-dictionary-tests");
     std::fs::create_dir_all(&dir).unwrap();

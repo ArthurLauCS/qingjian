@@ -39,3 +39,6 @@ pub use matching::Match;
 pub use pattern::{SyllablePattern, canonical_syllable};
 pub use tones::{Tones, split_tone};
 pub use word_list::WordList;
+
+/// 随包通用大词库的文件名主干（`dicts/general.qj`）：缺省打开，各壳加载时标成补充词库（[`Dictionary::set_secondary`]）。
+pub const GENERAL_DICTIONARY: &str = "general";

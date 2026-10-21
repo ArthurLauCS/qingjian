@@ -603,10 +603,12 @@ impl Engine {
         all
     }
 
-    /// 全部词库的词频之和，词频归一化成概率时用。
+    /// 全部词库的词频之和，词频归一化成概率时用。补充词库不算：它的词频是按主词库换算过来的，
+    /// 算进去会把所有兜底打分一起压低。
     pub(super) fn total_frequency(&self) -> u64 {
         self.all_dictionaries()
             .iter()
+            .filter(|d| !d.is_secondary())
             .map(|d| d.total_frequency())
             .sum()
     }

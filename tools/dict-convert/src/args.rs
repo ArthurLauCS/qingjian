@@ -50,6 +50,15 @@ pub enum Command {
         /// 领域词在语料里出现不少于这个次数就留在基础词库，否则拆到 dicts/<领域>.qj
         #[arg(long, default_value_t = 50)]
         domain_keep_min: u64,
+
+        /// 青简词库全量（数字声调版 `词\t拼音\t权重`）：已有的词补上声调，没有的换算词频，已清洗的写 dict-cleaned.tsv、其余写 dict-general.tsv
+        /// 与 dicts/general.qj（都不进语言模型分词）
+        #[arg(long)]
+        general: Option<PathBuf>,
+
+        /// 青简词库已清洗的子集（同格式，只看第一列），这些词与基础词库同一档
+        #[arg(long, requires = "general")]
+        cleaned: Option<PathBuf>,
     },
 
     /// 单字声调表：通用词表（带数字声调）→ tones.tsv（`字\t带调音节…`），编进 Core 给注音按声调排序。
@@ -225,7 +234,7 @@ pub enum Command {
         /// 打包哪种数据
         kind: PackKind,
 
-        /// 输入文件；`dict` 一个 TSV，`lm` 两个（一元表、二元表），`model` 一个目录。缺省从输出目录里找同名 TSV（`model` 缺省 data/models/hanzhang-zhiwei）
+        /// 输入文件；`dict` 一个或几个 TSV（几个合成一本；缺省 dict.tsv，有 dict-cleaned.tsv 就一起），`lm` 两个（一元表、二元表），`model` 一个目录。缺省从输出目录里找同名 TSV（`model` 缺省 data/models/hanzhang-zhiwei）
         #[arg(long, num_args = 1..)]
         input: Vec<PathBuf>,
 

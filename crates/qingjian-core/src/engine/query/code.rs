@@ -53,7 +53,7 @@ impl Engine {
                 self.personal(),
                 self.chain.context(),
                 item.hit.text,
-                sentence::fallback_log_prob(item.hit.frequency, log_total),
+                sentence::fallback_log_prob(item.hit.frequency, item.hit.secondary, log_total),
             );
             (choice, log_prob)
         });

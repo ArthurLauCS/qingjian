@@ -46,12 +46,16 @@ cargo run --release -p qingjian-dict-convert -- bigram --phrases assets/lexicon/
 # 4e. 中英混杂词（C盘 / B站 / U盘 / T恤）：assets/lexicon/mixed_words.tsv（词\t拼音\t次数，字母音节 + 汉字拼音），
 #     与 phrases / domain_words 一样走 lexicon --extra-words；语言模型走 bigram --brand 直接写一元（--phrases 的合成要成分词在语料里，C 不是 token）。
 #     次数对着同音竞争词定：C盘 8000 > 裁判 5416 可以抢首选；B站 要 40000：本站 7533 次里六成在句首（维基页脚），--brand 的句首二元按八分之一算，得盖过 4562；B股 / H股 / G盘 / F盘 / X光 压到几百，别压过 不顾 / 回顾 / 光盘 / 翻盘 / 星光。
+# 4f. 青简词库：数字声调版全量（158 万条）与已清洗子集两个文件放在仓库外，第 4 步那条 lexicon 加 --general / --cleaned 给路径。
+#     基础词库已有的词补声调；没有的换算词频，已清洗的写 data/generated/dict-cleaned.tsv（pack dict 与 dict.tsv 合成 dict.qj，同一档），
+#     其余写 dict-general.tsv 与 dicts/general.qj（随包，缺省开着、排序低一档）。都不进 bigram 分词，dict.tsv 除声调外不变，语言模型不用重跑
+cargo run --release -p qingjian-dict-convert -- lexicon --pinyin data/generated/pinyin-llm.jsonl --frequency data/generated/lm-unigram.tsv --extra-words assets/lexicon/mined_words.tsv --extra-words assets/lexicon/phrases.tsv --extra-words assets/lexicon/brand.tsv --extra-words assets/lexicon/domain_words.tsv --extra-words assets/lexicon/mixed_words.tsv --general <qingjian-full.tone-numbers.tsv> --cleaned <subsets/curated-machine-draft.tone-numbers.tsv>
 # 5. 英文词表
 cargo run --release -p qingjian-dict-convert -- english assets/lexicon/05_english/00_all_words.tsv assets/lexicon/05_english/07_display_forms.tsv
 uv run tools/corpus/english_frequency.py data/generated/english.tsv -o data/generated/english-frequency.tsv
 cargo run --release -p qingjian-dict-convert -- english assets/lexicon/05_english/00_all_words.tsv assets/lexicon/05_english/07_display_forms.tsv --frequency data/generated/english-frequency.tsv
 # 6. 打包（bundle.sh 会自动做；领域词库的 .qj 第 4 步已经写好，bundle.sh 直接拷进 Resources/dicts/）
-cargo run --release -p qingjian-dict-convert -- pack dict --name 青简基础词库 --license "MIT AND Unicode-3.0"
+cargo run --release -p qingjian-dict-convert -- pack dict --name 青简基础词库 --license "MIT AND Unicode-3.0 AND GPL-3.0-or-later"
 ```
 
 生僻字表 `01_characters/rare_chars.tsv` 不在原数据包里，由 `tools/corpus/rare_chars.py` 从两张表合成（来源、读音出处与许可见脚本文件头）：

@@ -5,6 +5,7 @@ use bamboo_slip::taffy::{
     LengthPercentageAuto, NodeId, Rect, Size, Style,
 };
 use bamboo_slip::{Button, Checkbox, RenderError, SettingRow, Ui, Visual};
+use qingjian_dictionary::GENERAL_DICTIONARY;
 
 use crate::library::{Entry, Kind};
 use crate::message::Message;
@@ -89,26 +90,35 @@ pub fn entry_row(
     )
 }
 
-/// 随包领域词库：两列勾选，名字后面跟条数。
+/// 随包词库（通用词库与领域词库）：两列勾选，名字后面跟条数。
 pub fn domain_grid(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderError> {
     let config = &page.settings.config.dictionaries;
     let mut cells = Vec::new();
     for entry in &page.settings.library.domains {
-        let on = config.is_domain_enabled(&entry.stem);
-        let domains: Vec<String> = if on {
-            config
-                .domains
-                .iter()
-                .filter(|stem| **stem != entry.stem)
-                .cloned()
-                .collect()
+        // 通用词库缺省开着，关掉是记进 disabled；领域词库缺省关着，打开是记进 domains
+        let (on, message) = if entry.stem == GENERAL_DICTIONARY {
+            (
+                config.is_enabled(&entry.stem),
+                toggle_disabled(Kind::Dictionary, &config.disabled, &entry.stem),
+            )
         } else {
-            config
-                .domains
-                .iter()
-                .cloned()
-                .chain(std::iter::once(entry.stem.clone()))
-                .collect()
+            let on = config.is_domain_enabled(&entry.stem);
+            let domains: Vec<String> = if on {
+                config
+                    .domains
+                    .iter()
+                    .filter(|stem| **stem != entry.stem)
+                    .cloned()
+                    .collect()
+            } else {
+                config
+                    .domains
+                    .iter()
+                    .cloned()
+                    .chain(std::iter::once(entry.stem.clone()))
+                    .collect()
+            };
+            (on, Message::SetList("dictionaries", "domains", domains))
         };
         // 随包词库的名字都带着这个前缀，页上已经分了组，去掉
         let name = entry
@@ -117,12 +127,7 @@ pub fn domain_grid(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderEr
             .unwrap_or(&entry.name);
         let checkbox = Checkbox::new(on && !entry.broken, name)
             .disabled(entry.broken)
-            .build(
-                ui,
-                &page.theme,
-                ("domain", entry.stem.as_str()),
-                Message::SetList("dictionaries", "domains", domains),
-            )?;
+            .build(ui, &page.theme, ("domain", entry.stem.as_str()), message)?;
         let detail = text(ui, page, &count(entry.entries))?;
         cells.push(ui.scene().node(
             Style {
