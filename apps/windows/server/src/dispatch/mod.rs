@@ -132,9 +132,6 @@ pub struct Router {
     /// 去哪找本地模型。
     model_dirs: ModelDirs,
 
-    /// 知意没用上 DirectML、在 CPU 上跑：档位压到省电。
-    zhiyi_on_cpu: bool,
-
     /// 随包的方案目录（启动时找好的，见 [`schemes::find_bundled_schemes`]）；没有为 `None`。
     bundled_schemes: Option<PathBuf>,
 
@@ -192,7 +189,6 @@ impl Router {
             panel: None,
             last_panel: None,
             model_dirs: ModelDirs::default(),
-            zhiyi_on_cpu: false,
             bundled_schemes: None,
             scheme_slot: SchemeSlot::default(),
             model_loader: None,

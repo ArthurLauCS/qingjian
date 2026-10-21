@@ -1,9 +1,9 @@
-//! int8 ONNX 版，ONNX Runtime 跑（Windows 用）：运行库在运行时按路径加载，有 DX12 显卡走 DirectML，没有退回 CPU。
+//! int8 ONNX 版，ONNX Runtime 跑（Windows 用）：运行库在运行时按路径加载，只用 CPU。
+//! 试过 DirectML：每次序列长度都不同，集显（Radeon 880M）上一次 200 ms，比 CPU 两线程（30 ms）慢得多，见 docs/notes/crate-notes.md。
 
 use std::path::Path;
 use std::sync::{Mutex, OnceLock};
 
-use ort::ep::DirectML;
 use ort::session::Session;
 use ort::session::builder::GraphOptimizationLevel;
 use ort::value::Tensor;
@@ -17,42 +17,22 @@ const MODEL_FILE: &str = "laya.int8g.onnx";
 pub(super) struct OnnxForward {
     /// `Session::run` 要 `&mut`；打分本来就一次一条。
     session: Mutex<Session>,
-    gpu: bool,
 }
 
 impl OnnxForward {
-    pub fn load(dir: &Path, runtime: &Path, cpu_threads: usize) -> Result<Self, NeuralError> {
+    pub fn load(dir: &Path, runtime: &Path, threads: usize) -> Result<Self, NeuralError> {
         load_runtime(runtime)?;
-        let model = dir.join(MODEL_FILE);
-        // DirectML 不支持内存复用模式与并行执行，按 ONNX Runtime 文档关掉
-        let gpu = Session::builder()
-            .and_then(|builder| builder.with_memory_pattern(false).map_err(Into::into))
-            .and_then(|builder| builder.with_parallel_execution(false).map_err(Into::into))
+        let session = Session::builder()
             .and_then(|builder| {
                 builder
-                    .with_execution_providers([DirectML::default().build().error_on_failure()])
+                    .with_optimization_level(GraphOptimizationLevel::Level3)
                     .map_err(Into::into)
             })
-            .and_then(|mut builder| builder.commit_from_file(&model));
-        let (session, gpu) = match gpu {
-            Ok(session) => (session, true),
-            Err(error) => {
-                tracing::info!(%error, "知意用不了 DirectML，改用 CPU");
-                let session = Session::builder()
-                    .and_then(|builder| {
-                        builder
-                            .with_optimization_level(GraphOptimizationLevel::Level3)
-                            .map_err(Into::into)
-                    })
-                    .and_then(|builder| builder.with_intra_threads(cpu_threads).map_err(Into::into))
-                    .and_then(|mut builder| builder.commit_from_file(&model))
-                    .map_err(onnx_error)?;
-                (session, false)
-            }
-        };
+            .and_then(|builder| builder.with_intra_threads(threads).map_err(Into::into))
+            .and_then(|mut builder| builder.commit_from_file(dir.join(MODEL_FILE)))
+            .map_err(onnx_error)?;
         Ok(Self {
             session: Mutex::new(session),
-            gpu,
         })
     }
 }
@@ -83,10 +63,6 @@ impl Forward for OnnxForward {
             .map_err(onnx_error)?;
         Ok(logits.to_vec())
     }
-
-    fn on_gpu(&self) -> bool {
-        self.gpu
-    }
 }
 
 /// 整个进程只加载一次运行库；第二次起用第一次的结果（换路径也不重载）。
@@ -94,13 +70,6 @@ fn load_runtime(path: &Path) -> Result<(), NeuralError> {
     static LOADED: OnceLock<Result<(), String>> = OnceLock::new();
     LOADED
         .get_or_init(|| {
-            // 先按路径载入同目录的 DirectML.dll：onnxruntime.dll 再按名字找时就用它，不会找到系统目录里那份旧的
-            if let Some(directml) = path.parent().map(|dir| dir.join("DirectML.dll"))
-                && directml.is_file()
-                && let Err(error) = ort::util::preload_dylib(&directml)
-            {
-                tracing::warn!(%error, "载入 DirectML.dll 失败");
-            }
             ort::init_from(path)
                 .map(|builder| {
                     // ONNX Runtime 的 Windows 版缺省开着遥测（ETW），关掉

@@ -10,19 +10,16 @@ use qingjian_neural::{CharScorer, NeuralError, P2cScorer};
 
 use super::models::ModelFiles;
 
-/// 知意在 CPU 上跑时用几个线程：多了发热，选词一次几十毫秒也够。
-const ZHIYI_CPU_THREADS: usize = 2;
+/// 知意用几个线程：多了发热，两个线程准确档一次也只要 30–40 ms。
+const ZHIYI_THREADS: usize = 2;
 
 /// 加载线程送回来的模型。
 pub(super) enum LoadedModel {
     /// 含章：整句重打分。
     Sentence(Box<dyn SentenceScorer>),
 
-    /// 知意：选词重排；`gpu` 是跑在 DirectML 上。
-    Choice {
-        model: Arc<dyn ChoiceModel>,
-        gpu: bool,
-    },
+    /// 知意：选词重排。
+    Choice(Arc<dyn ChoiceModel>),
 }
 
 /// 一次进行中的加载。
@@ -99,25 +96,13 @@ fn load_sentence(path: &std::path::Path) -> Result<(LoadedModel, &'static str), 
     }
 }
 
-/// 预热一次：DirectML 第一次前向要编译着色器。
+/// 预热一次：第一次前向要做图优化。
 fn load_zhiyi(
     dir: &std::path::Path,
     runtime: &std::path::Path,
 ) -> Result<(LoadedModel, &'static str), NeuralError> {
-    let scorer = ChoiceScorer::load_onnx(dir, runtime, ZHIYI_CPU_THREADS)?;
+    let scorer = ChoiceScorer::load_onnx(dir, runtime, ZHIYI_THREADS)?;
     let typed = scorer.letter_units("ni");
     scorer.score("", &typed, &["ni", "nin"])?;
-    let gpu = scorer.on_gpu();
-    let kind = if gpu {
-        "知意（DirectML）"
-    } else {
-        "知意（CPU）"
-    };
-    Ok((
-        LoadedModel::Choice {
-            model: Arc::new(scorer),
-            gpu,
-        },
-        kind,
-    ))
+    Ok((LoadedModel::Choice(Arc::new(scorer)), "知意"))
 }

@@ -2,7 +2,6 @@
 
 use std::path::Path;
 
-use candle_core::Device;
 use serde::Deserialize;
 
 use super::encoder::Encoder;
@@ -27,7 +26,6 @@ struct EncoderConfig {
 pub(super) struct CandleForward {
     encoder: Encoder,
     head: ChoiceHead,
-    device: Device,
 }
 
 impl CandleForward {
@@ -45,7 +43,6 @@ impl CandleForward {
         Ok(Self {
             encoder: Encoder::load(&weights, &sliding, &device)?,
             head: ChoiceHead::load(&weights)?,
-            device,
         })
     }
 }
@@ -54,9 +51,5 @@ impl Forward for CandleForward {
     fn logits(&self, sequence: &Sequence) -> Result<Vec<f32>, NeuralError> {
         let encoded = self.encoder.forward(&sequence.ids, &sequence.units)?;
         Ok(self.head.scores(&encoded, &sequence.markers)?)
-    }
-
-    fn on_gpu(&self) -> bool {
-        !self.device.is_cpu()
     }
 }

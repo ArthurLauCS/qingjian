@@ -48,10 +48,10 @@ impl ChoiceScorer {
         Self::with_forward(dir, Box::new(CandleForward::load(dir)?))
     }
 
-    /// int8 ONNX 版：`runtime` 是 ONNX Runtime 动态库（`onnxruntime.dll`），有能用的显卡走 DirectML，否则 CPU 跑 `cpu_threads` 个线程。
+    /// int8 ONNX 版：`runtime` 是 ONNX Runtime 动态库（`onnxruntime.dll`），CPU 跑 `threads` 个线程。
     #[cfg(feature = "zhiyi-onnx")]
-    pub fn load_onnx(dir: &Path, runtime: &Path, cpu_threads: usize) -> Result<Self, NeuralError> {
-        let forward = onnx_forward::OnnxForward::load(dir, runtime, cpu_threads)?;
+    pub fn load_onnx(dir: &Path, runtime: &Path, threads: usize) -> Result<Self, NeuralError> {
+        let forward = onnx_forward::OnnxForward::load(dir, runtime, threads)?;
         Self::with_forward(dir, Box::new(forward))
     }
 
@@ -96,11 +96,6 @@ impl ChoiceScorer {
             units: units.to_vec(),
             markers: markers.to_vec(),
         })
-    }
-
-    /// 跑在 GPU 上（Metal / DirectML）。
-    pub fn on_gpu(&self) -> bool {
-        self.forward.on_gpu()
     }
 
     fn encode(&self, text: &str) -> Result<Vec<u32>, NeuralError> {

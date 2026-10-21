@@ -48,7 +48,7 @@ impl ModelDirs {
         dir.join("laya.int8g.onnx").is_file().then_some(dir)
     }
 
-    /// 装机时与 exe 同级，开发时是 `build.ps1` 取下来的那份；DirectML.dll 都在它旁边。
+    /// 装机时与 exe 同级，开发时是 `build.ps1` 取下来的那份。
     fn onnx_runtime(&self) -> Option<PathBuf> {
         [
             self.bundled_root.join("onnxruntime.dll"),

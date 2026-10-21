@@ -247,7 +247,7 @@ Windows 和 Linux 以前没有这一页，这次都有了。
 | 下好了 | 开关 `model.name`：开了写这个模型，关了写回 `tongbian`；下完自动打开 |
 
 知意开着时多一行「档位」（分段：省电 / 均衡 / 准确，`model.zhiyi_tier`）。
-下载先 Gitee 后 GitHub（模型仓库 `qingjian-team/qingjian-models` 的 Release，标签写死在 `jobs/model_download/pack.rs`），
+下载同时问 Gitee 与 GitHub 要清单、先答的那边先下，某块失败换另一边（模型仓库 `qingjian-team/qingjian-models` 的 Release，标签写死在 `jobs/model_download/pack.rs`），
 逐块核对 SHA-256 再核对整个压缩包，解到临时目录后换进用户目录的 `models/zhiyi/`（Windows 是 int8 ONNX 版 `models/zhiyi-onnx/`）、`models/hanzhang-zhiwei/`。关掉窗口下载就停，下次从头下。
 Linux 的输入法还没接，support 表登记「待实现」，侧栏不出这一页。
 

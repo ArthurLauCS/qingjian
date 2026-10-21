@@ -12,8 +12,8 @@ mod state;
 use std::time::Duration;
 
 use qingjian_core::CandidateLayout;
+use qingjian_platform::LocalModelConfig;
 use qingjian_platform::protocol::SessionId;
-use qingjian_platform::{LocalModelConfig, ZhiyiTier};
 
 pub(crate) use self::loader::ModelLoader;
 use self::loader::{Loaded, LoadedModel};
@@ -48,14 +48,9 @@ impl Router {
         }
     }
 
-    /// 知意在 CPU 上跑时一律用省电档，免得发热。
     fn apply_choice_tier(&mut self) {
-        let tier = if self.zhiyi_on_cpu {
-            ZhiyiTier::Saver
-        } else {
-            self.applied_model.zhiyi_tier
-        };
-        self.engine.set_choice_tier(tier.choice_tier());
+        self.engine
+            .set_choice_tier(self.applied_model.zhiyi_tier.choice_tier());
     }
 
     /// 在后台线程加载选的模型；没有模型文件就什么都不做。
@@ -78,8 +73,6 @@ impl Router {
         self.model_loader = None;
         self.engine.set_async_sentence_scorer(None);
         self.engine.set_choice_model(None);
-        self.zhiyi_on_cpu = false;
-        self.apply_choice_tier();
         self.rescore.stop();
     }
 
@@ -97,10 +90,8 @@ impl Router {
                             LoadedModel::Sentence(scorer) => {
                                 self.engine.set_async_sentence_scorer(Some(scorer));
                             }
-                            LoadedModel::Choice { model, gpu } => {
+                            LoadedModel::Choice(model) => {
                                 self.engine.set_choice_model(Some(model));
-                                self.zhiyi_on_cpu = !gpu;
-                                self.apply_choice_tier();
                             }
                         }
                         // 模型上线了：日志里补一条会话信息，之后的条目知道重排开着
