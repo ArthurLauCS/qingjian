@@ -11,7 +11,6 @@ mod weights;
 use std::collections::HashMap;
 use std::path::Path;
 
-use candle_core::Device;
 use serde::Deserialize;
 use tokenizers::Tokenizer;
 
@@ -51,7 +50,7 @@ pub struct ChoiceScorer {
 
 impl ChoiceScorer {
     pub fn load(dir: &Path) -> Result<Self, NeuralError> {
-        let device = Device::Cpu;
+        let device = crate::scorer::default_device()?;
         let config: Config = read_json(&dir.join("config.json"))?;
         let vocab: UnifiedVocab = read_json(&dir.join("unified_vocab.json"))?;
         let sliding: Vec<bool> = config

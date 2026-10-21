@@ -30,7 +30,8 @@ struct Layer {
 /// mmBERT-small 留下的 12 层编码器。
 pub(super) struct Encoder {
     tok_emb: Tensor,
-    vocab_remap: Tensor,
+    /// 分词器 id → 嵌入行。在 CPU 上查表，不必上 GPU。
+    vocab_remap: Vec<u32>,
     unit_emb: Tensor,
     emb_norm: Tensor,
     layers: Vec<Layer>,
@@ -56,8 +57,8 @@ impl Encoder {
             });
         }
         Ok(Self {
-            tok_emb: w.get("encoder.embeddings.tok_embeddings.weight")?,
-            vocab_remap: w.raw("vocab_remap")?,
+            tok_emb: w.raw("encoder.embeddings.tok_embeddings.weight")?,
+            vocab_remap: w.table("vocab_remap")?,
             unit_emb: w.get("unit_emb.weight")?,
             emb_norm: w.get("encoder.embeddings.norm.weight")?,
             layers,
@@ -70,13 +71,17 @@ impl Encoder {
     /// 返回 `[T, 384]`。
     pub fn forward(&self, ids: &[u32], units: &[u32]) -> Result<Tensor> {
         let t = ids.len();
-        let ids = Tensor::new(ids, &self.device)?;
-        let rows = self
-            .vocab_remap
-            .index_select(&ids, 0)?
-            .to_dtype(candle_core::DType::U32)?;
+        let rows: Vec<u32> = ids
+            .iter()
+            .map(|&id| self.vocab_remap.get(id as usize).copied().unwrap_or(0))
+            .collect();
+        let rows = Tensor::new(rows, &self.device)?;
         let units = Tensor::new(units, &self.device)?;
-        let x = (self.tok_emb.index_select(&rows, 0)? + self.unit_emb.index_select(&units, 0)?)?;
+        let tokens = self
+            .tok_emb
+            .index_select(&rows, 0)?
+            .to_dtype(candle_core::DType::F32)?;
+        let x = (tokens + self.unit_emb.index_select(&units, 0)?)?;
         let mut x = layer_norm(&x, &self.emb_norm, None)?;
         let (cos, sin) = rope(t, &self.device)?;
         let window = window_mask(t, &self.device)?;
