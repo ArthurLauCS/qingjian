@@ -58,7 +58,7 @@ pub use engine::{
     VocabularySummary, VocabularyTracker, book_scale, is_valid_aux_code_key,
 };
 pub use fuzzy::FuzzyRules;
-pub use history::InputHistory;
+pub use history::{DEFAULT_FRESH_SECONDS, InputHistory};
 pub use japanese::RomajiComposer;
 pub use panel::{
     NoPanelHistory, PANEL_COLUMNS, PanelGroup, PanelHistory, PanelSection, PanelUse, SymbolPanel,

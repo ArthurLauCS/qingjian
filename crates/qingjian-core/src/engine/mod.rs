@@ -250,7 +250,7 @@ pub struct Engine {
     /// 整句转换的格子候选缓存：跨按键复用，学习数据一变就清（见 [`Self::forget_span_cache`]）。
     span_cache: std::cell::RefCell<sentence::SpanCache>,
 
-    /// 本次会话经我们上屏的文本，应用不给上下文时用它联想。
+    /// 本次会话经我们上屏的文本，按应用分开记；应用不给光标前文时给模型当前文。
     history: InputHistory,
 
     /// 最近一次联想请求的序号，0 表示还没发过。

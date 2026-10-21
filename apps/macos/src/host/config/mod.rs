@@ -51,6 +51,8 @@ impl Host {
             .set_shuangpin_raw_preedit(config.general.shuangpin_raw_preedit);
         self.engine
             .set_hold_selections(config.general.hold_selections);
+        self.engine
+            .set_context_memory(config.model.context_memory_seconds);
         self.engine.set_learning(config.general.learning);
         logging::set_level(config.general.log_level);
         self.translation_keys = config.shortcut.translation_keys();

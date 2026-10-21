@@ -111,6 +111,7 @@ define_class!(
                 }
                 host::with(|h| {
                     h.engine.set_application(bundle);
+                    h.engine.enter_input_box();
                     h.refresh_text_replacements();
                     h.reload_config_if_changed();
                     h.indicator.activate();

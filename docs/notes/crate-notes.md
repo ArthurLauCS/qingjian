@@ -209,7 +209,7 @@ Engine 侧在 `engine/rescoring/`：接了打分器就取 Viterbi 前 `RESCORE_P
 按键取的是**当前这批 patterns 覆盖的字母**而不是整个作用域——英文尾巴那条只转换 head，拿整段当条件会让它凭空背上没覆盖的字母；
 同步打分器（`with_sentence_scorer`，CLI 评测）当场补分，
 异步的（`with_async_sentence_scorer`，后台线程 `RescoreWorker`）查询不等模型：缺分的记下来，壳停键后 `request_rescoring`、`poll_rescoring` 到了再 `query` 一次；`poll_rescoring` 只在最新那次请求的结果到了才返回 `true`（每次请求带序号，旧请求的结果照样进缓存），壳据此停轮询。
-前文优先用壳给的应用光标前文（`set_rescoring_context`），没有用本会话最近 64 个上屏字符。CLI `--neural <导出目录>`（`--neural-weight` / `--neural-context` / `--neural-async`）。
+前文优先用壳给的应用光标前文（`set_rescoring_context`），没有用当前应用最近 64 个上屏字符：`InputHistory` 按 `set_application` 的应用分开记（每个 256 字、最多 16 个应用），`[model] context_memory_seconds`（缺省 60，0 不过期）没上屏就过期，mac `activateServer` 调 `enter_input_box` 清当前应用的，Linux 按 `EngineSession` 每个输入上下文一份；Windows 还没有「换了输入框」的信号。CLI `--neural <导出目录>`（`--neural-weight` / `--neural-context` / `--neural-async`）。
 
 P2C 教师强制打分 `CharScorer::score_p2c(keys, texts)`：前缀 `<eos> + 完整拼音 + <sep>`，只累加候选字符的 log 概率（不计 EOS），
 共享拼音前缀 KV，候选批量前向；超过上下文时报错，不截断拼音。CLI 实验入口 `--eval-p2c data/models/hanzhang-tongbian/hanzhang-tongbian-small.qjm --eval-text data/eval/sentences.tsv`，
