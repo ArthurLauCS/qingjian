@@ -9,6 +9,7 @@ use std::sync::mpsc::{TryRecvError, channel};
 use qingjian_core::sentence::SentenceScorer;
 use qingjian_neural::zhiyi::ChoiceScorer;
 use qingjian_neural::{CharScorer, NeuralError, P2cScorer};
+use qingjian_platform::LocalModel;
 
 mod loaded;
 mod rescore_monitor;
@@ -19,28 +20,39 @@ pub(super) use rescore_monitor::RescoreMonitor;
 use super::*;
 
 impl Host {
-    /// 在后台线程加载模型并预热（第一次前向要编译 Metal 内核，几百毫秒），加载完由 [`Self::attach_loaded_model`] 接上。
-    /// 没有模型文件就什么都不做。
-    pub(super) fn load_local_model(&mut self) {
+    /// 在后台线程加载选的模型并预热（第一次前向要编译 Metal 内核，几百毫秒），加载完由 [`Self::attach_loaded_model`] 接上。
+    /// 选的知微、知意还没下载就用通变；一个模型文件都没有就什么都不做。
+    pub(super) fn load_local_model(&mut self, wanted: LocalModel) {
         if self.model_loader.is_some()
             || self.engine.has_sentence_scorer()
             || self.engine.has_choice_model()
         {
             return;
         }
-        if let Some(dir) = paths::zhiyi_model_dir() {
-            self.load_zhiyi_model(dir);
-            return;
+        if wanted == LocalModel::Zhiyi {
+            match paths::zhiyi_model_dir() {
+                Some(dir) => return self.load_zhiyi_model(dir),
+                None => tracing::warn!("选了知意但没下载，改用含章·通变"),
+            }
         }
-        // P2C 优先：冻结集 8322 句上比字级模型的重排高 0.69 个点、延迟还低（docs/notes/model-eval.md）
-        let (path, p2c) = match paths::p2c_model_path() {
-            Some(path) => (path, true),
-            None => match paths::model_path() {
-                Some(path) => (path, false),
-                None => {
-                    tracing::info!("没有本地模型文件，不重排");
-                    return;
-                }
+        let zhiwei = (wanted == LocalModel::Zhiwei)
+            .then(paths::user_zhiwei_model_path)
+            .flatten();
+        if wanted == LocalModel::Zhiwei && zhiwei.is_none() {
+            tracing::warn!("选了含章·知微但没下载，改用含章·通变");
+        }
+        // 没选知微时通变优先：冻结集 8322 句上比字级模型的重排高 0.69 个点、延迟还低（docs/notes/model-eval.md）
+        let (path, p2c) = match zhiwei {
+            Some(path) => (path, false),
+            None => match paths::p2c_model_path() {
+                Some(path) => (path, true),
+                None => match paths::model_path() {
+                    Some(path) => (path, false),
+                    None => {
+                        tracing::info!("没有本地模型文件，不重排");
+                        return;
+                    }
+                },
             },
         };
         let (tx, rx) = channel::<Result<LoadedModel, NeuralError>>();
