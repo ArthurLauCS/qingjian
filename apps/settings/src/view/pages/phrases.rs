@@ -36,7 +36,7 @@ pub fn phrases(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderE
         ui,
         page,
         SettingRow::new("新增短语")
-            .info("输入码敲全后，短语出现在固定的候选位置，空格或数字键上屏；同一个输入码的位置不能重复")
+            .info("敲输入码时，短语出现在固定的候选位置")
             .control(add),
         "phrases",
     )?);
@@ -48,9 +48,7 @@ pub fn phrases(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderE
             ui,
             page,
             "也用系统的文本替换",
-            Some(
-                "系统设置「键盘 → 文本替换」里输入码全是小写字母的条目也能打；它们不在上面列出，要改请到系统设置",
-            ),
+            Some("系统「文本替换」里的条目也能打"),
             ("general", "system_text_replacements"),
             config.general.system_text_replacements,
             false,
@@ -179,7 +177,7 @@ fn editor(ui: &mut Ui<Message>, page: &Page) -> Result<(), RenderError> {
             Message::PhrasePosition(1),
         )?;
     let position = SettingRow::new("位置")
-        .info("短语占第几个候选，1–9；跨页时按当前页的序号选")
+        .info("短语排在第几个候选")
         .control(position)
         .build(ui, theme)?;
     let content = TextField::new(text)

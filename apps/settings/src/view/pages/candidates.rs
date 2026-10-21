@@ -59,16 +59,14 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             .control(language)
             .build(ui, theme)?,
         SettingRow::new("输出字形")
-            .info("只换字形、不换用语（软件 → 軟件）；台湾与香港的字形取舍不同（裡 / 裏）")
+            .info("软件 → 軟件")
             .control(traditional)
             .build(ui, theme)?,
         toggle_info(
             ui,
             page,
             "译词显示词性",
-            Some(
-                "关掉后候选旁只显示译词，不显示 v. / n. / adj. 等标注（如 develop 而非 v. develop）",
-            ),
+            Some("如 v. develop"),
             ("general", "translation_pos"),
             general.translation_pos,
             general.learning_language_off(),
@@ -79,7 +77,7 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             ui,
             page,
             "拼音行显示声调",
-            Some("候选窗口顶部的拼音按高亮候选标声调，如 gān'gà；应用里的拼音不变"),
+            Some("如 gān'gà"),
             ("general", "show_tones"),
             general.show_tones,
             false,
@@ -122,7 +120,7 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             ui,
             page,
             "学习输入习惯",
-            Some("关掉后不再学，已学的照样用"),
+            Some("关掉后不再学新习惯"),
             ("general", "learning"),
             general.learning,
             false,
@@ -131,7 +129,7 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             ui,
             page,
             "本地整句模型",
-            Some("在本机给整句重新排序，不联网"),
+            Some("在本机排整句，不联网"),
             ("model", "enabled"),
             config.model.enabled,
             false,
