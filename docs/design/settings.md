@@ -28,7 +28,7 @@
 | 9 | 统计 | 柱状图 | 输入量、词汇 | 统计 |
 | 10 | 生词本 | 卡片 | 时间线、词表、导出 | 新加 |
 | 11 | 高级 | 齿轮 | 配置文件、日志、学习数据 | 高级、关于 |
-| 12 | 实验功能 | 烧瓶 | 下载、启用知意与含章·知微（只 macOS） | 新加 |
+| 12 | 实验功能 | 烧瓶 | 下载、启用知意与含章·知微（macOS、Windows） | 新加 |
 | 13 | 关于 | 竹简 | 版本、更新、许可、数据来源、隐私 | 关于 |
 
 ## 各页
@@ -248,8 +248,8 @@ Windows 和 Linux 以前没有这一页，这次都有了。
 
 知意开着时多一行「档位」（分段：省电 / 均衡 / 准确，`model.zhiyi_tier`）。
 下载先 Gitee 后 GitHub（模型仓库 `qingjian-team/qingjian-models` 的 Release，标签写死在 `jobs/model_download/pack.rs`），
-逐块核对 SHA-256 再核对整个压缩包，解到临时目录后换进用户目录的 `models/zhiyi/`、`models/hanzhang-zhiwei/`。关掉窗口下载就停，下次从头下。
-Windows、Linux 的输入法还没接，support 表登记「待实现」，侧栏不出这一页。
+逐块核对 SHA-256 再核对整个压缩包，解到临时目录后换进用户目录的 `models/zhiyi/`（Windows 是 int8 ONNX 版 `models/zhiyi-onnx/`）、`models/hanzhang-zhiwei/`。关掉窗口下载就停，下次从头下。
+Linux 的输入法还没接，support 表登记「待实现」，侧栏不出这一页。
 
 ### 13 关于
 

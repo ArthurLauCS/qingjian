@@ -117,7 +117,7 @@ impl Feature {
             // Fcitx 面板与应用里的行内拼音共用一串，还没分开
             Self::ShowTones => [Yes, Yes, Todo],
             // Windows、Linux 的服务进程还没接知意；没有 GPU 时 CPU 上打分要发烫，先只开 macOS（Metal）
-            Self::ExperimentalModels => [Yes, Todo, Todo],
+            Self::ExperimentalModels => [Yes, Yes, Todo],
         }
     }
 

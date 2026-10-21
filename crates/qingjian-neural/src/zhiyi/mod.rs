@@ -1,11 +1,17 @@
-//! 试验：知意输入法的选词模型（知意 1.4V2-Long-L12，safetensors 版）给候选打分，CLI 回放对比与 Core 的选词重排共用。
-//! 结构与输入格式按模型包里的 README 实现：mmBERT-small 留 12 层的编码器 + 两层选词头，线性层加载时量化成 Q8_0。
-//! 权重 2026-10-20 起是 Apache-2.0，现在不随包，放用户目录；目录里要有 `model.safetensors`、`config.json`、`tokenizer.json`、`unified_vocab.json`。
+//! 试验：知意输入法的选词模型（知意 1.4V2-Long-L12）给候选打分，CLI 回放对比与 Core 的选词重排共用。
+//! 两种权重：safetensors 版由 candle 跑（[`candle_forward`]，结构按模型包里的 README 实现：mmBERT-small 留 12 层的编码器 + 两层选词头），
+//! int8 ONNX 版由 ONNX Runtime 跑（[`onnx_forward`]，Windows 用）。分词、对齐、序列拼法两边共用。
+//! 权重 2026-10-20 起是 Apache-2.0，不随包，放用户目录；目录里要有 `tokenizer.json`、`unified_vocab.json`，
+//! 再加 `model.safetensors` + `config.json`，或 `laya.int8g.onnx`。
 
+mod candle_forward;
 mod choice_model;
 mod encoder;
+mod forward;
 mod head;
 mod input;
+#[cfg(feature = "zhiyi-onnx")]
+mod onnx_forward;
 mod weights;
 
 use std::collections::HashMap;
@@ -15,20 +21,9 @@ use serde::Deserialize;
 use tokenizers::Tokenizer;
 
 use crate::NeuralError;
-use encoder::Encoder;
-use head::ChoiceHead;
-use weights::Weights;
-
-/// `config.json` 里用得上的部分。
-#[derive(Deserialize)]
-struct Config {
-    encoder: EncoderConfig,
-}
-
-#[derive(Deserialize)]
-struct EncoderConfig {
-    layer_types: Vec<String>,
-}
+use candle_forward::CandleForward;
+use forward::Forward;
+use input::Sequence;
 
 /// `unified_vocab.json` 里用得上的部分。
 #[derive(Deserialize)]
@@ -39,8 +34,7 @@ struct UnifiedVocab {
 
 /// 加载好的选词模型。
 pub struct ChoiceScorer {
-    encoder: Encoder,
-    head: ChoiceHead,
+    forward: Box<dyn Forward>,
     tokenizer: Tokenizer,
     /// 拼音单元名（`f:zhong` / `p:g`）→ 单元号。
     units: HashMap<String, u32>,
@@ -49,22 +43,24 @@ pub struct ChoiceScorer {
 }
 
 impl ChoiceScorer {
+    /// safetensors 版：加载时把线性层量化成 Q8_0，要一两秒。
     pub fn load(dir: &Path) -> Result<Self, NeuralError> {
-        let device = crate::scorer::default_device()?;
-        let config: Config = read_json(&dir.join("config.json"))?;
+        Self::with_forward(dir, Box::new(CandleForward::load(dir)?))
+    }
+
+    /// int8 ONNX 版：`runtime` 是 ONNX Runtime 动态库（`onnxruntime.dll`），有能用的显卡走 DirectML，否则 CPU 跑 `cpu_threads` 个线程。
+    #[cfg(feature = "zhiyi-onnx")]
+    pub fn load_onnx(dir: &Path, runtime: &Path, cpu_threads: usize) -> Result<Self, NeuralError> {
+        let forward = onnx_forward::OnnxForward::load(dir, runtime, cpu_threads)?;
+        Self::with_forward(dir, Box::new(forward))
+    }
+
+    fn with_forward(dir: &Path, forward: Box<dyn Forward>) -> Result<Self, NeuralError> {
         let vocab: UnifiedVocab = read_json(&dir.join("unified_vocab.json"))?;
-        let sliding: Vec<bool> = config
-            .encoder
-            .layer_types
-            .iter()
-            .map(|kind| kind == "sliding_attention")
-            .collect();
-        let weights = Weights::load(&dir.join("model.safetensors"), &device)?;
         let tokenizer = Tokenizer::from_file(dir.join("tokenizer.json"))
             .map_err(|_| NeuralError::Corrupt("tokenizer.json"))?;
         Ok(Self {
-            encoder: Encoder::load(&weights, &sliding, &device)?,
-            head: ChoiceHead::load(&weights)?,
+            forward,
             tokenizer,
             units: vocab
                 .units
@@ -85,7 +81,7 @@ impl ChoiceScorer {
         candidates: &[&str],
     ) -> Result<Vec<f32>, NeuralError> {
         let sequence = self.sequence(context, typed, candidates)?;
-        self.score_ids(&sequence.ids, &sequence.units, &sequence.markers)
+        self.forward.logits(&sequence)
     }
 
     /// 直接按 token 序列打分（测试向量用）。
@@ -95,8 +91,16 @@ impl ChoiceScorer {
         units: &[u32],
         markers: &[u32],
     ) -> Result<Vec<f32>, NeuralError> {
-        let encoded = self.encoder.forward(ids, units)?;
-        Ok(self.head.scores(&encoded, markers)?)
+        self.forward.logits(&Sequence {
+            ids: ids.to_vec(),
+            units: units.to_vec(),
+            markers: markers.to_vec(),
+        })
+    }
+
+    /// 跑在 GPU 上（Metal / DirectML）。
+    pub fn on_gpu(&self) -> bool {
+        self.forward.on_gpu()
     }
 
     fn encode(&self, text: &str) -> Result<Vec<u32>, NeuralError> {

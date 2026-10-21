@@ -24,15 +24,30 @@ pub struct Pack {
 }
 
 impl Pack {
+    /// macOS 用 safetensors 版（candle 跑）。
+    #[cfg(not(windows))]
+    const ZHIYI: Self = Self {
+        model: LocalModel::Zhiyi,
+        tag: "zhiyi-v1.0.0",
+        archive_dir: "zhiyi",
+        install_dir: "models/zhiyi",
+        marker: "model.safetensors",
+        size: "154 MB",
+    };
+
+    /// Windows 用 int8 ONNX 版（ONNX Runtime 跑）。
+    #[cfg(windows)]
+    const ZHIYI: Self = Self {
+        model: LocalModel::Zhiyi,
+        tag: "zhiyi-onnx-v1.0.0",
+        archive_dir: "zhiyi-onnx",
+        install_dir: "models/zhiyi-onnx",
+        marker: "laya.int8g.onnx",
+        size: "70 MB",
+    };
+
     pub const ALL: [Self; 2] = [
-        Self {
-            model: LocalModel::Zhiyi,
-            tag: "zhiyi-v1.0.0",
-            archive_dir: "zhiyi",
-            install_dir: "models/zhiyi",
-            marker: "model.safetensors",
-            size: "154 MB",
-        },
+        Self::ZHIYI,
         Self {
             model: LocalModel::Zhiwei,
             tag: "hanzhang-zhiwei-v1.0.0",

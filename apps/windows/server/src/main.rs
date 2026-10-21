@@ -243,8 +243,13 @@ fn main() {
     dispatch::attach_cloud(&mut engine, &config.predict, usage_path);
     let router_config = RouterConfig::from(&config);
     let mut router = Router::new(engine, router_config.clone());
-    let model_path = dispatch::find_model(user_dir().as_deref(), &root);
-    router.configure_local_model(model_path.clone(), &config.model);
+    router.configure_local_model(
+        dispatch::ModelDirs {
+            user: user_dir(),
+            bundled_root: root.clone(),
+        },
+        &config.model,
+    );
     router.configure_schemes(&config, dispatch::find_bundled_schemes(&root));
     if let Some(path) = config_path() {
         let user = user_dir();
@@ -274,7 +279,7 @@ fn main() {
         scheme = %router.scheme_name(),
         fuzzy = config.fuzzy.any(),
         cloud = config.predict.enabled,
-        model = model_path.as_deref().map(|p| p.display().to_string()).unwrap_or_default(),
+        model = config.model.name.key(),
         model_enabled = config.model.enabled,
         sessions = router.session_count(),
         "青简 Windows Server 就绪"
