@@ -16,8 +16,8 @@
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
-  <a href="https://qingjian.app/docs/getting-started/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, inicio manual"></a>
-  <a href="https://qingjian.app/docs/getting-started/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: compilar desde el código fuente"></a>
+  <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, inicio manual"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: compilar desde el código fuente"></a>
 </p>
 
 Qingjian es un método de entrada. Escribes como lo harías normalmente: introduces pinyin, eliges un candidato, escribes una frase completa. Una traducción junto a cada candidato hace que el aprendizaje de idiomas ocurra de forma natural mientras escribes. La traducción es siempre información auxiliar; nunca ocupa el lugar del texto que estás escribiendo.
@@ -29,7 +29,7 @@ El vídeo muestra en macOS la entrada de frases completas, la reordenación de c
 ## Descarga y primeros pasos
 
 - **macOS, Windows**: [descarga Qingjian](https://qingjian.app/download); los pasos de instalación están en la [documentación de usuario](https://qingjian.app/docs/getting-started/install).
-- **Linux**: Fcitx5 y Fcitx4 se instalan desde el código fuente y usan el panel de candidatos predeterminado del sistema; por ahora el servicio en segundo plano se inicia a mano. Consulta la [instalación en Linux](https://qingjian.app/docs/getting-started/linux).
+- **Linux**: Fcitx5 y Fcitx4 se instalan desde el código fuente y usan el panel de candidatos predeterminado del sistema; por ahora el servicio en segundo plano se inicia a mano. Consulta la [instalación en Linux](https://qingjian.app/docs/platforms/linux).
 
 Las versiones de macOS y Windows siguen en fase beta. Tras instalarlo, selecciona Qingjian, elige el idioma que quieres aprender en «Preferencias / Ajustes → General» y empieza a escribir. Si es la primera vez, empieza por [Primera entrada](https://qingjian.app/docs/getting-started/first-input).
 
@@ -49,7 +49,7 @@ La página «Estadísticas» muestra además el volumen escrito hoy, en los últ
 
 La conversión de pinyin, la consulta de diccionarios, el modelo local y el aprendizaje de tus hábitos de escritura se realizan en tu dispositivo. El volumen escrito y las estadísticas de vocabulario también se guardan solo en este equipo y nunca se suben; Qingjian no necesita cuenta. El registro de entrada y las estadísticas se guardan por separado: el registro se puede desactivar o borrar en Ajustes sin afectar a las estadísticas. La búsqueda de actualizaciones pide la lista de versiones al sitio web y se puede desactivar en Ajustes.
 
-La **predicción en la nube**, opcional, **está desactivada por defecto**. Si la activas, Qingjian envía tu entrada actual y el texto cercano directamente al proveedor de IA que tú mismo configures, para obtener candidatos o completar frases; las solicitudes no pasan por los servidores de Qingjian. Qué se envía y qué se guarda en este equipo se explica en [Datos y registros](https://qingjian.app/docs/help/data-and-logs).
+La **predicción en la nube**, opcional, **está desactivada por defecto**. Si la activas, Qingjian envía tu entrada actual y el texto cercano directamente al proveedor de IA que tú mismo configures, para obtener candidatos o completar frases; las solicitudes no pasan por los servidores de Qingjian. Qué se envía y qué se guarda en este equipo se explica en [Privacidad](https://qingjian.app/docs/help/privacy).
 
 ## Documentación, comentarios y cómo contribuir
 

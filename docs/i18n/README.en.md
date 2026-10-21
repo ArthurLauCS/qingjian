@@ -16,8 +16,8 @@
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
-  <a href="https://qingjian.app/docs/getting-started/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manual start"></a>
-  <a href="https://qingjian.app/docs/getting-started/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: build from source"></a>
+  <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manual start"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: build from source"></a>
 </p>
 
 Qingjian is an input method. You type the way you normally would: enter pinyin, choose a candidate, write a whole sentence. A gloss beside each candidate lets language learning happen naturally while you type. The gloss is always auxiliary information; it never takes the place of the text you are entering.
@@ -29,7 +29,7 @@ The video shows sentence input, candidate reordering and candidate glosses on ma
 ## Download and get started
 
 - **macOS, Windows**: [Download Qingjian](https://qingjian.app/download); for installation steps see the [user docs](https://qingjian.app/docs/getting-started/install).
-- **Linux**: Fcitx5 and Fcitx4 are installed from source and use the system's default candidate panel; the background service currently has to be started by hand — see [Linux installation](https://qingjian.app/docs/getting-started/linux).
+- **Linux**: Fcitx5 and Fcitx4 are installed from source and use the system's default candidate panel; the background service currently has to be started by hand — see [Linux installation](https://qingjian.app/docs/platforms/linux).
 
 The macOS and Windows builds are still in beta. After installing, select Qingjian, choose the language you want to learn under "Preferences / Settings → General", and start typing. For a first run, read [First input](https://qingjian.app/docs/getting-started/first-input).
 
@@ -49,7 +49,7 @@ The Statistics page also shows today's, last-seven-day and lifetime input volume
 
 Pinyin conversion, dictionary lookup, the local model and typing-habit learning all happen on your device. Input volume and vocabulary statistics are stored only on this machine as well, and are never uploaded; Qingjian needs no account. The input log and the statistics are stored separately: the log can be turned off or cleared in Settings without affecting the statistics. Update checks ask the website for the release list and can be turned off in Settings.
 
-The optional **cloud prediction is off by default**. Once it is on, Qingjian sends your current input and nearby text directly to the AI provider you configure yourself, to get candidates or sentence completions; requests do not go through Qingjian's servers. For what is sent and what is stored on this machine, see [Data and logs](https://qingjian.app/docs/help/data-and-logs).
+The optional **cloud prediction is off by default**. Once it is on, Qingjian sends your current input and nearby text directly to the AI provider you configure yourself, to get candidates or sentence completions; requests do not go through Qingjian's servers. For what is sent and what is stored on this machine, see [Privacy](https://qingjian.app/docs/help/privacy).
 
 ## Docs, feedback and contributing
 

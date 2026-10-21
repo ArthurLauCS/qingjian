@@ -237,7 +237,7 @@ impl QingjianInputController {
                     return true;
                 }
                 // 翻页键：翻得动就翻页；`-` / `=` 翻不动时当普通字符落进英文直输段
-                //（没有上一页时 `-` 就是 `-`，见 docs/user/getting-started/keys.md 的 `[general] page_keys`）
+                //（没有上一页时 `-` 就是 `-`，见 docs/user/personalize/keys-settings.md 的「翻页键」）
                 c if page_step.is_some() => {
                     if !self.page_key(c, page_step, !question, client) {
                         host::with(|h| h.engine.push(c));

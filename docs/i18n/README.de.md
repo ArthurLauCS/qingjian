@@ -16,8 +16,8 @@
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
-  <a href="https://qingjian.app/docs/getting-started/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manueller Start"></a>
-  <a href="https://qingjian.app/docs/getting-started/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: aus dem Quellcode bauen"></a>
+  <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manueller Start"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: aus dem Quellcode bauen"></a>
 </p>
 
 Qingjian ist eine Eingabemethode. Du tippst wie gewohnt: Pinyin eingeben, einen Kandidaten wählen, ganze Sätze schreiben. Eine Übersetzung neben jedem Kandidaten lässt dich ganz nebenbei beim täglichen Tippen eine Sprache lernen. Die Übersetzung ist immer nur eine Zusatzinformation und tritt nie an die Stelle des Textes, den du eingibst.
@@ -29,7 +29,7 @@ Das Video zeigt unter macOS die Satzeingabe, das Umsortieren der Kandidaten und 
 ## Herunterladen und loslegen
 
 - **macOS, Windows**: [Qingjian herunterladen](https://qingjian.app/download); die Installationsschritte stehen in der [Benutzerdokumentation](https://qingjian.app/docs/getting-started/install).
-- **Linux**: Fcitx5 und Fcitx4 werden aus dem Quellcode installiert und nutzen das Standard-Kandidatenfenster des Systems; der Hintergrunddienst muss derzeit von Hand gestartet werden, siehe [Installation unter Linux](https://qingjian.app/docs/getting-started/linux).
+- **Linux**: Fcitx5 und Fcitx4 werden aus dem Quellcode installiert und nutzen das Standard-Kandidatenfenster des Systems; der Hintergrunddienst muss derzeit von Hand gestartet werden, siehe [Installation unter Linux](https://qingjian.app/docs/platforms/linux).
 
 Die Versionen für macOS und Windows befinden sich noch in der Beta-Phase. Wähle nach der Installation Qingjian aus, lege unter „Einstellungen → Allgemein“ die Sprache fest, die du lernen möchtest, und fang an zu tippen. Für den Einstieg lies [Die erste Eingabe](https://qingjian.app/docs/getting-started/first-input).
 
@@ -49,7 +49,7 @@ Die Seite „Statistik“ zeigt zudem die Eingabemenge von heute, der letzten 7 
 
 Pinyin-Umwandlung, Wörterbuchsuche, das lokale Modell und das Lernen deiner Tippgewohnheiten laufen auf deinem Gerät. Auch Eingabemenge und Vokabelstatistik werden nur auf diesem Rechner gespeichert und nie hochgeladen; Qingjian braucht kein Konto. Eingabeprotokoll und Statistik werden getrennt gespeichert: Das Protokoll lässt sich in den Einstellungen abschalten oder löschen, ohne die Statistik zu berühren. Die Update-Prüfung ruft die Versionsliste von der Website ab und lässt sich in den Einstellungen abschalten.
 
-Die optionale **Cloud-Vorhersage ist standardmäßig aus**. Schaltest du sie ein, sendet Qingjian deine aktuelle Eingabe und den umgebenden Text direkt an den KI-Anbieter, den du selbst eingerichtet hast, um Kandidaten oder Satzvervollständigungen zu erhalten; die Anfragen laufen nicht über Server von Qingjian. Was gesendet und was auf diesem Rechner gespeichert wird, steht unter [Daten und Protokolle](https://qingjian.app/docs/help/data-and-logs).
+Die optionale **Cloud-Vorhersage ist standardmäßig aus**. Schaltest du sie ein, sendet Qingjian deine aktuelle Eingabe und den umgebenden Text direkt an den KI-Anbieter, den du selbst eingerichtet hast, um Kandidaten oder Satzvervollständigungen zu erhalten; die Anfragen laufen nicht über Server von Qingjian. Was gesendet und was auf diesem Rechner gespeichert wird, steht unter [Datenschutz](https://qingjian.app/docs/help/privacy).
 
 ## Dokumentation, Feedback und Mitwirken
 

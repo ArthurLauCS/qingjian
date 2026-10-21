@@ -217,7 +217,7 @@ impl Session {
     }
 
     /// 这个方向还翻得动吗（不改状态地问一句）。翻页键「翻不动就落字」用，见
-    /// `docs/user/getting-started/keys.md` 的 `[general] page_keys`。
+    /// `docs/user/personalize/keys-settings.md` 的「翻页键」。
     pub fn can_turn_page(&self, delta: isize) -> bool {
         self.page_target(delta).is_some()
     }

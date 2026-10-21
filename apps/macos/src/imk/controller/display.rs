@@ -260,7 +260,7 @@ impl QingjianInputController {
     }
 
     /// 翻页键：翻得动就翻页并吃键，返回 `true`。`-` / `=` 在**没有上一页 / 下一页**时返回 `false`，
-    /// 由调用方按普通字符处理 —— 没有上一页时 `-` 就是 `-`（见 `docs/user/getting-started/keys.md`
+    /// 由调用方按普通字符处理 —— 没有上一页时 `-` 就是 `-`（见 `docs/user/personalize/keys-settings.md`
     /// 的 `[general] page_keys`）。`fall_through` 为假时（问字模式里按键是问题内容）翻不动也吃键；
     /// 别的翻页键（`[` `]` `,` `.`）一律吃键；`step` 是 [`Self::page_step`] 的结果，`None` 时不是翻页键 —— 落字会往文档里插标点。非翻页键一律返回 `false`。
     pub(super) fn page_key(

@@ -3,7 +3,7 @@
 Kotlin 的 `InputMethodService` 壳 + Rust 的 `libqingjian_android.so`。Android 的输入法跑在自己的进程里，
 没有 Server / 薄壳之分，Engine 直接装在 `.so` 里，经 JNI 调用。
 
-功能怎么用见 [docs/user/getting-started/android.md](../../docs/user/getting-started/android.md)，各功能怎么接到 Core、取舍与踩坑见 [docs/notes/android.md](../../docs/notes/android.md)。
+功能怎么用见 [docs/user/platforms/android.md](../../docs/user/platforms/android.md)，各功能怎么接到 Core、取舍与踩坑见 [docs/notes/android.md](../../docs/notes/android.md)。
 
 ## 目录
 

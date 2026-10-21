@@ -1,6 +1,6 @@
 # Android 实现要点
 
-`apps/android` 的功能怎么接到 Core、各处的取舍。目录与构建见 [apps/android/README.md](../../apps/android/README.md)，用户怎么用见 [user/getting-started/android.md](../user/getting-started/android.md)。
+`apps/android` 的功能怎么接到 Core、各处的取舍。目录与构建见 [apps/android/README.md](../../apps/android/README.md)，用户怎么用见 [user/platforms/android.md](../user/platforms/android.md)。
 
 ## 键盘
 

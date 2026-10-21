@@ -368,7 +368,7 @@ fn build_engine(args: &Args) -> Result<Engine, CliError> {
         };
     }
     // 两条轴：拼音侧看 `[general] scheme`，形码侧看 `[general] code`；`--code` 给了码表就算开着形码。
-    // 两边都开就是混输，见 docs/user/input/fuzzy-and-shuangpin.md
+    // 两边都开就是混输，见 docs/user/input/wubi.md
     let scheme = if custom.is_some() {
         Scheme::Custom
     } else {

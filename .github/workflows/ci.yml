@@ -168,7 +168,7 @@ jobs:
       - name: Test (IMK shell)
         run: cargo test -p qingjian-macos --locked
 
-  # 最老的受支持发行版。docs/user/getting-started/linux.md 写着「Fcitx4 提供 Ubuntu 22.04
+  # 最老的受支持发行版。docs/user/platforms/linux.md 写着「Fcitx4 提供 Ubuntu 22.04
   # 源码安装」并记了「已验证 Ubuntu 22.04 的 GTK3 文本框输入」，而上面 core job 跑在
   # ubuntu-26.04。两边差四年：22.04 是 glibc 2.35 / GCC 11，26.04 是 glibc 2.39+ / GCC 15。
   # 依赖或代码只要用一个 2.35 之后才有的符号，26.04 上全绿、22.04 上一装就崩——
