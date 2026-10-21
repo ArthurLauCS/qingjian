@@ -39,8 +39,14 @@ impl ChoiceWorker {
                     let texts: Vec<&str> = request.texts.iter().map(String::as_str).collect();
                     let started = std::time::Instant::now();
                     let logits = model.score(&request.context, &request.typed, &texts);
-                    tracing::debug!(
+                    // 排查「有没有看光标前的字」靠这一条：只记前文的来源与长度，不记内容
+                    tracing::info!(
                         texts = texts.len(),
+                        context = if request.from_app {
+                            "应用"
+                        } else {
+                            "会话历史"
+                        },
                         context_chars = request.context.chars().count(),
                         ms = started.elapsed().as_millis(),
                         "选词模型打分完成"

@@ -107,6 +107,7 @@ impl Engine {
         };
         let request = ChoiceRequest {
             context,
+            from_app: self.rescoring_before.is_some(),
             typed: whole[0].1.clone(),
             texts: whole.iter().map(|(i, _)| items[*i].text.clone()).collect(),
         };
