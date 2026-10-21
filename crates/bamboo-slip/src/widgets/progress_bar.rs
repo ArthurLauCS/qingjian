@@ -27,24 +27,28 @@ impl ProgressBar {
         let colors = &theme.colors;
         let height = theme.px(HEIGHT);
         let radius = height / 2.0;
-        let fill = ui.scene().node(
-            Style {
-                position: Position::Absolute,
-                size: taffy::Size {
-                    width: Dimension::percent(self.fraction),
-                    height: Dimension::length(height),
+        // 宽 0 的填充 tiny_skia 画不了，会报 empty paths
+        let mut fill = Vec::new();
+        if self.fraction > 0.0 {
+            fill.push(ui.scene().node(
+                Style {
+                    position: Position::Absolute,
+                    size: taffy::Size {
+                        width: Dimension::percent(self.fraction),
+                        height: Dimension::length(height),
+                    },
+                    inset: Rect {
+                        left: LengthPercentageAuto::length(0.0),
+                        right: LengthPercentageAuto::auto(),
+                        top: LengthPercentageAuto::length(0.0),
+                        bottom: LengthPercentageAuto::auto(),
+                    },
+                    ..Style::default()
                 },
-                inset: Rect {
-                    left: LengthPercentageAuto::length(0.0),
-                    right: LengthPercentageAuto::auto(),
-                    top: LengthPercentageAuto::length(0.0),
-                    bottom: LengthPercentageAuto::auto(),
-                },
-                ..Style::default()
-            },
-            Visual::solid(colors.accent, radius),
-            &[],
-        )?;
+                Visual::solid(colors.accent, radius),
+                &[],
+            )?);
+        }
         ui.scene().node(
             Style {
                 size: taffy::Size {
@@ -55,7 +59,7 @@ impl ProgressBar {
                 ..Style::default()
             },
             Visual::solid(colors.well, radius),
-            &[fill],
+            &fill,
         )
     }
 }
