@@ -223,6 +223,9 @@ impl Host {
             let config = self.settings.config().clone();
             self.apply_scheme(&config);
         }
+        if super::dictionaries::dictionary_files() != self.dictionary_files {
+            self.reload_dictionaries();
+        }
     }
 
     /// 激活期间的定时器每秒调一次：看配置文件，再看学习数据要不要落盘。
