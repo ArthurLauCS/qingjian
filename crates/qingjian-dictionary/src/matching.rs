@@ -1,3 +1,5 @@
+use crate::tones::Tones;
+
 /// 一次查询命中的词目，全部借用自词库。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Match<'a> {
@@ -9,6 +11,9 @@ pub struct Match<'a> {
 
     /// 静态词频。
     pub frequency: u32,
+
+    /// 逐音节声调；词库没标的是不知道。
+    pub tones: Tones<'a>,
 
     /// 音节数与查询模式的长度一致（而不是以查询为前缀的更长词）。
     pub exact: bool,

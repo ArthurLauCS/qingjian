@@ -43,7 +43,7 @@ pub enum Command {
         #[arg(long)]
         emit_ambiguous: Option<PathBuf>,
 
-        /// 额外并入的词（`词\t次数`，`mine` 挖出来的 oov-candidates.tsv，可给多个）：词库里没有的按次数当词频加进去，读音同领域词
+        /// 额外并入的词（`词\t拼音\t次数`，拼音可空：`mine` 挖出来的 oov-filtered.tsv，可给多个）：词库里没有的按次数当词频加进去，读音同领域词
         #[arg(long)]
         extra_words: Vec<PathBuf>,
 
