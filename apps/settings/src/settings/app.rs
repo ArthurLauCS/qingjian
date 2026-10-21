@@ -104,11 +104,16 @@ impl App for Settings {
                     });
                 }
             }
-            Message::Import(kind) => match self.import.start(kind, self.waker.clone()) {
-                Ok(true) => self.notice = Some((kind.slot(), "正在导入…".to_owned())),
-                Ok(false) => {}
-                Err(error) => self.notice = Some((kind.slot(), error)),
-            },
+            Message::Import(kind) => {
+                match self
+                    .import
+                    .start(kind, self.code_target(), self.waker.clone())
+                {
+                    Ok(true) => self.notice = Some((kind.slot(), "正在导入…".to_owned())),
+                    Ok(false) => {}
+                    Err(error) => self.notice = Some((kind.slot(), error)),
+                }
+            }
             Message::Remove(kind, stem) => {
                 if let Err(error) = library::remove(kind, &stem) {
                     self.notice = Some((kind.slot(), error));

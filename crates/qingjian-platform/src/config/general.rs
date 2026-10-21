@@ -38,6 +38,9 @@ pub struct GeneralConfig {
     /// 译文整体关掉（[`Self::learning_language`] 为 `off`）时此项无效果。
     pub translation_pos: bool,
 
+    /// 候选窗口顶部的拼音行按高亮候选显示带调拼音（`gān'gà`），应用里的拼音不变。缺省关。
+    pub show_tones: bool,
+
     /// 每页候选数，1–9。
     pub page_size: usize,
 
@@ -105,7 +108,7 @@ pub struct GeneralConfig {
     /// 关掉后青简保持中文模式，切换键与语言栏按钮都不再切过去；要打英文请用系统快捷键切到别的输入法。
     pub english_mode: bool,
 
-    /// Windows：首次使用时默认英文；按应用记忆时用于没有记录的应用。
+    /// 默认英文：Windows 是首次使用时，按应用记忆时用于没有记录的应用；Linux 是每个新输入上下文。
     pub default_english: bool,
 
     /// Windows：按应用 exe 名记住中英状态，仅保存在本次 Server 运行期间。
@@ -199,6 +202,7 @@ impl Default for GeneralConfig {
         Self {
             learning_language: "en".to_owned(),
             translation_pos: true,
+            show_tones: false,
             page_size: MAX_PAGE_SIZE,
             page_keys: PAGE_KEY_OPTIONS[0].to_owned(),
             appearance: Some(Appearance::default()),

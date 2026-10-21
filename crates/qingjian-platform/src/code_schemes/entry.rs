@@ -20,6 +20,9 @@ pub struct CodeSchemeEntry {
 
     pub table: PathBuf,
 
+    /// 用户导入的、给这套方案的形码词库（见 [`super::list_words`]），载入时并进码表。
+    pub words: Vec<PathBuf>,
+
     pub auto_commit: bool,
 
     pub top: bool,
@@ -39,9 +42,17 @@ impl CodeSchemeEntry {
         self
     }
 
-    /// 读码表，装成 Core 的方案。
+    /// 读码表并上用户的形码词库，装成 Core 的方案。词库坏了只记日志、跳过：一本词库不能拖垮整套方案。
     pub fn load(&self) -> Result<CodeScheme, DictionaryError> {
-        let table = CodeTable::from_path(&self.table)?;
+        let mut table = CodeTable::from_path(&self.table)?;
+        for path in &self.words {
+            match CodeTable::from_path(path) {
+                Ok(words) => table.merge(words),
+                Err(error) => {
+                    tracing::warn!(file = %path.display(), %error, "形码词库读不了，跳过");
+                }
+            }
+        }
         let mut scheme = CodeScheme::new(self.log_key(), table);
         scheme.auto_commit = self.auto_commit;
         scheme.top = self.top;

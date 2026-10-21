@@ -139,6 +139,8 @@ pub fn init(mtm: MainThreadMarker, info: &BundleInfo) -> Result<(), HostError> {
             applied_dictionaries: DictionariesConfig::default(),
             applied_aux_code: None,
             aux_files: Vec::new(),
+            code_word_files: Vec::new(),
+            dictionary_files: Vec::new(),
             aux_code_show: false,
             dictionary_list: Vec::new(),
             learning_language,

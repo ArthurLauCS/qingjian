@@ -97,6 +97,12 @@ pub struct Host {
     /// 上次装码表时用户 `codes/` 与 `schemes/` 的文件快照：设置程序导入或改了方案，下一次看配置时就重装。
     aux_files: Vec<(PathBuf, Option<std::time::SystemTime>, u64)>,
 
+    /// 上次装形码方案时用户 `code_dicts/` 的文件快照：设置程序导入或移除了五笔词库，下一次看配置时就重装方案。
+    code_word_files: Vec<(PathBuf, Option<std::time::SystemTime>, u64)>,
+
+    /// 上次装附加词库时用户 `dicts/` 的文件快照：设置程序导入的词库不一定改配置（本来就没关着），靠它发现新文件。
+    dictionary_files: Vec<(PathBuf, Option<std::time::SystemTime>, u64)>,
+
     /// 候选词后面带上辅码（配置 `[general] aux_code_show`）。
     pub aux_code_show: bool,
 

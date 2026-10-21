@@ -195,3 +195,35 @@ fn rules_changed_in_the_config_apply_without_rereading_the_table() {
     assert_eq!(scheme.key, "marker");
     assert!(!scheme.auto_commit && scheme.top);
 }
+
+#[test]
+fn imported_code_words_join_their_own_scheme() {
+    let root = scratch("words");
+    let bundled = bundled(&root);
+    let user = root.join("user");
+    write(&user.join("schemes/huma/scheme.toml"), "");
+    write(&user.join("schemes/huma/table.tsv"), "一\tyi\t1\n");
+    let words = user.join("code_dicts/mine.tsv");
+    write(&words, "# scheme: wubi86\n青简\tgetu\t1\n");
+    write(
+        &user.join("code_dicts/huma-words.tsv"),
+        "# scheme: huma\n青简\tqj\t1\n",
+    );
+    let mut engine = Engine::new(Dictionary::parse("开\tkai\t100\n").unwrap());
+    let mut slot = SchemeSlot::default();
+    let mut config = config("pinyin", "wubi86");
+
+    slot.apply(&mut engine, &config, Some(&user), Some(&bundled));
+    let table = engine.code_table().unwrap();
+    assert_eq!(table.len(), 2);
+    assert_eq!(table.lookup("getu", 10)[0].text, "青简");
+    assert!(table.lookup("qj", 10).is_empty());
+
+    // 词库改了、关掉了都要重装，不能当成同一张码表
+    write(&words, "# scheme: wubi86\n青简\tgetu\t1\n小青\tihge\t1\n");
+    slot.apply(&mut engine, &config, Some(&user), Some(&bundled));
+    assert_eq!(engine.code_table().unwrap().len(), 3);
+    config.dictionaries.disabled = vec!["mine".to_owned()];
+    slot.apply(&mut engine, &config, Some(&user), Some(&bundled));
+    assert_eq!(engine.code_table().unwrap().len(), 1);
+}

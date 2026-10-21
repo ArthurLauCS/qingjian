@@ -42,6 +42,7 @@ impl Host {
             .set_aux_keep_empty(config.general.aux_code_keep_empty);
         self.engine.set_aux_enabled(config.aux_code.enabled);
         self.engine.set_aux_show(config.general.aux_code_show);
+        self.engine.set_show_tones(config.general.show_tones);
         self.aux_code_show = config.general.aux_code_show;
         if force || self.applied_aux_code.as_ref() != Some(&config.aux_code) {
             self.reload_aux_codes();
@@ -219,6 +220,13 @@ impl Host {
             self.apply_config(false);
         }
         self.reload_aux_codes_if_changed();
+        if code_word_files() != self.code_word_files {
+            let config = self.settings.config().clone();
+            self.apply_scheme(&config);
+        }
+        if super::dictionaries::dictionary_files() != self.dictionary_files {
+            self.reload_dictionaries();
+        }
     }
 
     /// 激活期间的定时器每秒调一次：看配置文件，再看学习数据要不要落盘。
@@ -286,5 +294,16 @@ impl Host {
             paths::user_data_dir().as_deref(),
             paths::bundled_schemes_dir().as_deref(),
         );
+        self.code_word_files = code_word_files();
     }
+}
+
+/// 用户 `code_dicts/` 的快照，只 stat。
+fn code_word_files() -> Vec<(std::path::PathBuf, Option<std::time::SystemTime>, u64)> {
+    paths::user_data_dir()
+        .map(|dir| {
+            let dir = qingjian_platform::code_schemes::user_words_dir(&dir);
+            qingjian_platform::code_schemes::words_snapshot(&dir)
+        })
+        .unwrap_or_default()
 }

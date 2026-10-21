@@ -4,7 +4,7 @@
 //! 反正 Engine 的缓冲区也是全进程一份，会话状态跟着它走。
 //! 候选的分页与云端词的位置由 Core 的 [`CandidateLayout`] 定，这里只管高亮与页码。
 
-use qingjian_core::{Candidate, CandidateLayout, Cell, GRID_ROWS, Grid};
+use qingjian_core::{Candidate, CandidateLayout, Cell, GRID_ROWS, Grid, Query};
 
 use crate::candidates::Preedit;
 
@@ -25,6 +25,9 @@ pub struct Session {
     /// 候选窗口顶部显示的拼音行（分段 + 光标）。
     pub preedit: Option<Preedit>,
 
+    /// 这轮查询的结果（候选已挪进 `layout`）：高亮换了候选时拼音行按它的读音重切，见 [`Query::follow`]。
+    pub spelling: Option<Query>,
+
     /// 横排展开成矩阵时的视口；`None` 是单行。新一轮查询收回单行。
     pub grid: Option<Grid>,
 }
@@ -39,6 +42,7 @@ impl Session {
         slots: usize,
     ) {
         self.preedit = preedit;
+        self.spelling = None;
         self.layout = CandidateLayout::new(candidates, page_size, slots);
         self.highlighted = (0..self.layout.len())
             .find(|&i| self.layout.candidate(i).is_some())

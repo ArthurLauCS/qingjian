@@ -236,3 +236,17 @@ fn switching_back_to_pinyin_drops_the_code_table() {
     engine.set_input("kaifa");
     assert_eq!(engine.query().unwrap().candidates.items[0].text, "开发");
 }
+
+#[test]
+fn mixed_input_works_with_shuangpin() {
+    // 拼音侧换成双拼也是混输：编码照查码表，双拼的键按双拼切
+    let mut engine = mixed();
+    engine.set_shuangpin(Some(crate::shuangpin::Scheme::Xiaohe));
+    assert_eq!(code_texts(&mut engine, "gant"), ["开发"]);
+    assert_eq!(code_texts(&mut engine, "ggll"), ["一"]);
+    assert_eq!(
+        code_texts(&mut engine, "kdfa").first().map(String::as_str),
+        Some("开发")
+    );
+    assert_eq!(code_texts(&mut engine, "xm"), ["先"]);
+}

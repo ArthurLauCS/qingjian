@@ -30,6 +30,10 @@ pub enum DictionaryError {
     #[error("no usable code entries in this file")]
     NoCodeEntries,
 
+    /// 要导入成拼音词库的文件第二列是形码编码（五笔词库），见 [`crate::import::import_code_words`]。
+    #[error("the second column holds shape codes, not pinyin")]
+    CodeWords,
+
     /// 方案的词码规则写错了（词长不到 2，或公式不是「大写选字 + 小写选码位」成对写）。
     #[error("invalid word rule: {0}")]
     InvalidWordRule(String),

@@ -103,6 +103,9 @@ fn import_one(source: &Path, user_dir: &Path) -> String {
         Err(error) => {
             tracing::warn!(%error, file = %source.display(), "词库导入失败");
             match error {
+                DictionaryError::CodeWords => {
+                    "导入失败：这是五笔词库（第二列是编码），手机上还不能导入五笔词库".to_owned()
+                }
                 DictionaryError::Corrupt(_) | DictionaryError::Line { .. } => {
                     "导入失败：没有可用的词条，每行应是「词<Tab>拼音<Tab>词频」".to_owned()
                 }

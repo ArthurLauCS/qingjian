@@ -25,6 +25,7 @@ mod prediction;
 mod privacy;
 mod query;
 mod raw;
+mod reading;
 mod rescoring;
 mod session;
 mod setup;
@@ -328,6 +329,9 @@ pub struct Engine {
     /// 由壳装配时告知（辅码态不受它管，看码有引导意义）。
     aux_show: bool,
 
+    /// 拼音行按高亮候选显示带调拼音（配置项 `[general] show_tones`，缺省关），见 [`Self::toned_syllables`]。
+    show_tones: bool,
+
     /// 进辅码态的触发键，配置项 `[general] aux_code_key`，缺省 [`DEFAULT_AUX_CODE_KEY`]。
     aux_code_key: char,
 
@@ -515,6 +519,7 @@ impl Engine {
             aux_code: None,
             aux_enabled: false,
             aux_show: false,
+            show_tones: false,
             aux_code_key: DEFAULT_AUX_CODE_KEY,
             aux_keep_empty: true,
             aux_codes: Vec::new(),

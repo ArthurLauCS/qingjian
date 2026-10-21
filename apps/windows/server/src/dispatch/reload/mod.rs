@@ -125,6 +125,7 @@ impl Router {
     ) {
         let last_mtime = mtime(&config_path);
         let code_files = dirs.code_snapshot();
+        let code_word_files = dirs.code_word_snapshot();
         let dictionary_files = dirs.dict_snapshot();
         let updates = dirs.user_root.as_deref().map(|dir| {
             qingjian_update::Checker::new(dir.join(UPDATE_STATE_FILE), env!("CARGO_PKG_VERSION"))
@@ -135,6 +136,7 @@ impl Router {
             root,
             dirs,
             code_files,
+            code_word_files,
             last_mtime,
             applied_predict: config.predict.clone(),
             applied_dictionaries: config.dictionaries.clone(),
@@ -191,11 +193,20 @@ impl Router {
             reload.code_files = current;
             changed
         };
+        let words_changed = {
+            let current = reload.dirs.code_word_snapshot();
+            let changed = current != reload.code_word_files;
+            reload.code_word_files = current;
+            changed
+        };
         let path = reload.config_path.clone();
         if codes_changed {
             self.reload_aux_codes();
         }
         if !config_changed {
+            if words_changed && let Ok(config) = Config::load(&path) {
+                self.reload_schemes(&config);
+            }
             return;
         }
         match Config::load(&path) {
@@ -228,6 +239,7 @@ impl Router {
             .set_aux_keep_empty(config.general.aux_code_keep_empty);
         self.engine.set_aux_enabled(config.aux_code.enabled);
         self.engine.set_aux_show(config.general.aux_code_show);
+        self.engine.set_show_tones(config.general.show_tones);
         self.engine.set_chinese_first(config.general.chinese_first);
         self.engine
             .set_emoji_limit(usize::from(config.general.emoji.get()));

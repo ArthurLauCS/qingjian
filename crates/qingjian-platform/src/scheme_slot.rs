@@ -11,10 +11,10 @@ use qingjian_core::Engine;
 
 use crate::code_schemes::{self, CodeSchemeEntry};
 use crate::shuangpin_schemes::{self, ShuangpinSchemeEntry};
-use crate::{Config, Scheme, scheme_label, scheme_name};
+use crate::{Config, DictionariesConfig, Scheme, scheme_label, scheme_name};
 
-/// 码表文件的修改时间与长度：两者都没变就当没改。
-type Stamp = (Option<SystemTime>, u64);
+/// 码表与各本形码词库的修改时间与长度：都没变就当没改。
+type Stamp = Vec<(Option<SystemTime>, u64)>;
 
 /// 当前装上的用户双拼方案与形码方案（含码表文件的指纹）；没选或没装上为 `None`。
 #[derive(Debug, Default)]
@@ -90,10 +90,15 @@ impl SchemeSlot {
             if found.is_none() {
                 tracing::warn!(id, "选了形码方案但找不到，仍按拼音输入");
             }
-            found.map(|entry| entry.with_rules(config.code_rules(&id)))
+            found.map(|mut entry| {
+                entry
+                    .words
+                    .retain(|path| is_enabled(&config.dictionaries, path));
+                entry.with_rules(config.code_rules(&id))
+            })
         });
         let wanted = entry.map(|entry| {
-            let stamp = stamp(&entry.table);
+            let stamp = stamp(&entry);
             (entry, stamp)
         });
         if let (Some((entry, stamp)), Some((loaded, loaded_stamp))) = (&wanted, &self.code)
@@ -110,6 +115,7 @@ impl SchemeSlot {
                 tracing::info!(
                     id = %entry.id,
                     table = %entry.table.display(),
+                    words = entry.words.len(),
                     entries = scheme.table.len(),
                     "形码方案已载入"
                 );
@@ -149,11 +155,23 @@ impl SchemeSlot {
 
 /// 换了这几项才要重读码表；只改规则不用。
 fn same_table(a: &CodeSchemeEntry, b: &CodeSchemeEntry) -> bool {
-    a.id == b.id && a.table == b.table && a.code_length == b.code_length
+    a.id == b.id && a.table == b.table && a.words == b.words && a.code_length == b.code_length
 }
 
-fn stamp(path: &Path) -> Stamp {
-    std::fs::metadata(path).map_or((None, 0), |metadata| {
-        (metadata.modified().ok(), metadata.len())
-    })
+/// 形码词库与拼音词库共用 `[dictionaries] disabled`，按文件名开关。
+fn is_enabled(config: &DictionariesConfig, path: &Path) -> bool {
+    path.file_stem()
+        .and_then(|stem| stem.to_str())
+        .is_none_or(|stem| config.is_enabled(stem))
+}
+
+fn stamp(entry: &CodeSchemeEntry) -> Stamp {
+    std::iter::once(&entry.table)
+        .chain(&entry.words)
+        .map(|path| {
+            std::fs::metadata(path).map_or((None, 0), |metadata| {
+                (metadata.modified().ok(), metadata.len())
+            })
+        })
+        .collect()
 }

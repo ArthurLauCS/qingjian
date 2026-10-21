@@ -1,8 +1,11 @@
 //! 导入词库：把用户给的文件（青简 TSV、Rime `.dict.yaml`、现成的 `.qj`）变成用户词库目录里的一个 `.qj`。
 //!
 //! 导入时只做格式转换，不做拼音校验：不合法的音节查不到而已，不影响别的词。
+//! 第二列是形码编码的（五笔词库）不进拼音词库，报 [`DictionaryError::CodeWords`]，由调用方改走 [`import_code_words`]。
 //! 目标文件名取源文件的主干（`law.dict.yaml` → `law.qj`），已存在就覆盖（重新导入即更新）。
 
+mod code_words;
+mod format;
 mod imported;
 mod rime;
 
@@ -13,6 +16,8 @@ use qingjian_format::{Container, Metadata};
 use crate::dictionary::Dictionary;
 use crate::error::DictionaryError;
 
+pub use code_words::{code_words_scheme, import_code_words};
+pub use format::is_code_table;
 pub use imported::Imported;
 // `dict-convert wubi` 也读 Rime `.dict.yaml`（形码码表的第二列是编码，转换方式一样），共用这一个解析器
 pub use rime::{Parsed, looks_like_rime, to_tsv};
@@ -39,6 +44,9 @@ pub fn import(source: &Path, dest_dir: &Path) -> Result<Imported, DictionaryErro
         } else {
             (text, None)
         };
+        if format::is_code_table(&tsv) {
+            return Err(DictionaryError::CodeWords);
+        }
         let dictionary = Dictionary::parse(&tsv)?;
         let metadata = Metadata {
             name: name.unwrap_or_else(|| stem.clone()),
@@ -110,6 +118,41 @@ mod tests {
             dictionary.lookup(&["min", "fa", "dian"], false)[0].text,
             "民法典"
         );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn imports_tone_numbered_pinyin() {
+        let dir =
+            std::env::temp_dir().join(format!("qingjian-import-tones-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let tsv = dir.join("toned.tsv");
+        std::fs::write(&tsv, "东西\tdong1 xi5\t20\n绿色\tlv4 se4\t10\n").unwrap();
+        assert!(!format::is_code_table(
+            &std::fs::read_to_string(&tsv).unwrap()
+        ));
+        let imported = import(&tsv, &dir.join("dicts")).unwrap();
+        let dictionary = Dictionary::from_path(&imported.path).unwrap();
+        let hit = dictionary.lookup(&["dong", "xi"], false)[0];
+        assert_eq!((hit.text, hit.pinyin), ("东西", "dong xi"));
+        assert_eq!(hit.tones.to_vec(2), [1, 5]);
+        assert_eq!(dictionary.lookup(&["lv", "se"], false)[0].text, "绿色");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn refuses_wubi_words_as_pinyin() {
+        let dir = std::env::temp_dir().join(format!("qingjian-import-wubi-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let tsv = dir.join("wubi-test.tsv");
+        std::fs::write(&tsv, "拉混\truji\t1\n青简\tgetu\t1\n").unwrap();
+        assert!(matches!(
+            import(&tsv, &dir.join("dicts")),
+            Err(DictionaryError::CodeWords)
+        ));
+        assert!(!dir.join("dicts/wubi-test.qj").exists());
         std::fs::remove_dir_all(&dir).unwrap();
     }
 

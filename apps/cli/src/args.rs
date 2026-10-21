@@ -53,6 +53,10 @@ pub struct Args {
     #[arg(long)]
     pub extra_dict: Vec<PathBuf>,
 
+    /// 通用词库（补充词库，排序低主词库一档）。缺省：data/generated/dicts/general.qj 存在就用它；给 `none` 不加载
+    #[arg(long)]
+    pub general_dict: Option<PathBuf>,
+
     /// 辅码码表（.qj，或 `词<TAB>码` 的 TSV；也可以是写了 `type = "aux"` 的方案目录，带上它的词码规则），可给多个一起筛。给了之后 `kaifa;kf` 这样的输入
     /// 按辅码态走：触发键进辅码态、之后的字母按码缩小候选
     #[arg(long)]
@@ -89,6 +93,10 @@ pub struct Args {
     /// 打开中文优先（配置 `[general]` chinese_first = true）：整段是英文词时中文候选排第一、英文第二，评测两种排法用
     #[arg(long)]
     pub chinese_first: bool,
+
+    /// 候选旁显示带调拼音（配置 `[general]` show_tones = true）
+    #[arg(long)]
+    pub show_tones: bool,
 
     /// 双拼方案（xiaohe / ziranma / microsoft / sogou / abc / xiaolang / shoudao / jiajia / ziguang，或用户双拼方案的目录），覆盖配置里的 `[general]` scheme；off 强制全拼
     #[arg(long)]

@@ -401,3 +401,40 @@ fn fitting_text_cuts_it_and_adds_an_ellipsis() {
     assert!(text.measure(&fitted, &style).width <= width / 2.0 + 0.5);
     assert_eq!(text.fit(whole, &style, 1.0), "…");
 }
+
+#[test]
+fn menu_ignores_clicks_on_disabled_items() {
+    let mut text = TextPainter::new(FontLibrary::system("en").unwrap());
+    let mut interaction = Interaction::new();
+    let theme = WidgetTheme::new(WidgetColors::LIGHT, 1.0);
+    let mut ui = Ui::new(&interaction);
+    let menu = Menu::new(
+        &["one", "two", "three"],
+        Some(0),
+        (0.0, 0.0, 100.0, 20.0),
+        (400.0, 400.0),
+    )
+    .disabled(&[1])
+    .build(&mut ui, &theme, "menu", Message::Pick, Message::Up)
+    .unwrap();
+    let root = ui
+        .scene()
+        .node(
+            Style {
+                size: taffy::Size {
+                    width: taffy::Dimension::length(400.0),
+                    height: taffy::Dimension::length(400.0),
+                },
+                ..Style::default()
+            },
+            Visual::Group,
+            &[menu],
+        )
+        .unwrap();
+    let (mut scene, elements) = ui.finish();
+    layout(&mut scene, root, &mut text);
+    interaction.attach(&scene, root, elements).unwrap();
+    let item = |index: usize| Key::ROOT.child("menu").child(index);
+    assert!(click(&mut interaction, item(1)).is_empty());
+    assert_eq!(click(&mut interaction, item(2)), vec![Message::Pick(2)]);
+}

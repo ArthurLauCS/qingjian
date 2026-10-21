@@ -5,6 +5,7 @@ use std::time::{Instant, SystemTime};
 
 use qingjian_core::Language;
 use qingjian_dictionary::Dictionary;
+use qingjian_platform::code_schemes;
 use qingjian_platform::code_tables::AuxCodeSources;
 use qingjian_platform::{AuxCodeConfig, DictionariesConfig, UpdateConfig, extra_dictionaries};
 use qingjian_predict::PredictConfig;
@@ -48,6 +49,14 @@ impl DataDirs {
         self.aux_sources().snapshot()
     }
 
+    /// 用户 `code_dicts/`（导入的五笔词库）的同一份快照；没有用户目录为空。
+    pub(super) fn code_word_snapshot(&self) -> Vec<(PathBuf, Option<SystemTime>, u64)> {
+        self.user_root
+            .as_deref()
+            .map(|dir| code_schemes::words_snapshot(&code_schemes::user_words_dir(dir)))
+            .unwrap_or_default()
+    }
+
     /// 用户 `dicts/` 的同一份快照；没配目录为空。
     pub(super) fn dict_snapshot(&self) -> Vec<(PathBuf, Option<SystemTime>, u64)> {
         self.user_dicts
@@ -74,6 +83,9 @@ pub(crate) struct ConfigReload {
     /// 上次看到的码表文件快照（逐文件 mtime + 长度）：设置页刚导入一张表、或手工拷进半个
     /// `.qj` 后补全，都靠它即时生效。
     pub(super) code_files: Vec<(PathBuf, Option<SystemTime>, u64)>,
+
+    /// 上次看到的形码词库快照：变了就按当前配置重装形码方案。
+    pub(super) code_word_files: Vec<(PathBuf, Option<SystemTime>, u64)>,
 
     /// 上次看到的 mtime。
     pub(super) last_mtime: Option<SystemTime>,

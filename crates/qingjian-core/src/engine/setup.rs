@@ -100,6 +100,11 @@ impl Engine {
         self.aux_show = show;
     }
 
+    /// 换「候选上显示声调」开关（配置项 `[general] show_tones`，缺省关）。
+    pub fn set_show_tones(&mut self, show: bool) {
+        self.show_tones = show;
+    }
+
     /// 設置是否啟用注音模式。開啟後鍵盤輸入按大千佈局解析。
     /// 学习开关（`[general] learning`）：关掉后不再记词频、用户词、个人 n-gram 与敲错表，已学的照常参与排序；
     /// 私密输入是另一个独立的开关（[`Self::set_private`]）。
@@ -603,10 +608,12 @@ impl Engine {
         all
     }
 
-    /// 全部词库的词频之和，词频归一化成概率时用。
+    /// 全部词库的词频之和，词频归一化成概率时用。补充词库不算：它的词频是按主词库换算过来的，
+    /// 算进去会把所有兜底打分一起压低。
     pub(super) fn total_frequency(&self) -> u64 {
         self.all_dictionaries()
             .iter()
+            .filter(|d| !d.is_secondary())
             .map(|d| d.total_frequency())
             .sum()
     }

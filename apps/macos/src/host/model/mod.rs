@@ -218,7 +218,11 @@ impl Host {
         self.engine.annotate(&mut query.candidates);
         let preedit = Preedit::from_marked(&query.marked_segments(), query.segments_cursor());
         let cloud = self.session.layout.cloud().to_vec();
-        self.reset_session(preedit, query.candidates.items);
+        let candidates = std::mem::take(&mut query.candidates.items);
+        self.reset_session(preedit, candidates);
+        self.session.spelling = Some(query);
+        // 高亮回到首选，切法不变，应用里的 marked text 不用动；只换窗口拼音行（带调拼音）
+        self.follow_highlight();
         if !cloud.is_empty() {
             self.session.layout.set_cloud(cloud);
         }

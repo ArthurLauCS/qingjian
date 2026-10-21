@@ -45,7 +45,7 @@ impl Engine {
                 self.personal(),
                 self.chain.context(),
                 hit.text,
-                sentence::fallback_log_prob(hit.frequency, log_total),
+                sentence::fallback_log_prob(hit.frequency, hit.secondary, log_total),
             );
             (choice, log_prob)
         });
@@ -80,6 +80,7 @@ impl Engine {
             .map(|shape| display::marked(shape, items.first(), tail));
         Query {
             segmentations: Vec::new(),
+            spelled: 0,
             candidates: CandidateList { items },
             tail: tail.to_owned(),
             text: self.composition.text().to_owned(),
@@ -88,6 +89,7 @@ impl Engine {
             decoded_keys: true,
             shuangpin_raw_preedit: false,
             typed_display,
+            typed_case: None,
             pinyin_choices,
             correction: None,
             held: String::new(),

@@ -12,6 +12,8 @@ use crate::view::Page;
 /// 形码方案下拉框里「关」那一项。
 pub const CODE_OFF: &str = "关";
 
+const CODE_OFF_KEY: &str = "off";
+
 /// 下拉框的本地名，菜单靠它找位置。
 pub fn anchor(popup: Popup) -> &'static str {
     match popup {
@@ -49,6 +51,19 @@ pub fn scheme_options(page: &Page) -> Vec<(String, String)> {
         .map(builtin)
         .chain(custom)
         .chain(Scheme::ALL[split..].iter().map(builtin))
+        .collect()
+}
+
+/// 形码下拉的选项（名字，配置写法）：「关」在最前，后面是各套方案。
+pub fn code_options(page: &Page) -> Vec<(String, String)> {
+    std::iter::once((CODE_OFF.to_owned(), CODE_OFF_KEY.to_owned()))
+        .chain(
+            page.settings
+                .library
+                .code_schemes
+                .iter()
+                .map(|entry| (entry.label.clone(), entry.id.clone())),
+        )
         .collect()
 }
 
@@ -92,18 +107,10 @@ pub fn menu(
                 ("scheme", labels, strings(values), selected)
             }
             Popup::Code => {
-                let schemes = &page.settings.library.code_schemes;
-                let current = general.code();
-                let labels = std::iter::once(CODE_OFF.to_owned())
-                    .chain(schemes.iter().map(|entry| entry.label.clone()))
-                    .collect();
-                let values: Vec<String> = std::iter::once("off".to_owned())
-                    .chain(schemes.iter().map(|entry| entry.id.clone()))
-                    .collect();
-                let selected = match current {
-                    None => Some(0),
-                    Some(id) => values.iter().position(|value| *value == id),
-                };
+                let current = general.code().unwrap_or_else(|| CODE_OFF_KEY.to_owned());
+                let (labels, values): (Vec<String>, Vec<String>) =
+                    code_options(page).into_iter().unzip();
+                let selected = values.iter().position(|value| *value == current);
                 ("code", labels, strings(values), selected)
             }
             Popup::LearningLanguage => (
@@ -194,8 +201,19 @@ pub fn menu(
         Popup::AuxScheme => "aux_code",
         _ => "general",
     };
+    // 拼音与形码不能都关（关了就什么也打不了）：一边关着时，另一边的「关」变灰
+    let off = match popup {
+        Popup::Scheme if general.code().is_none() => Some(Scheme::Off.key()),
+        Popup::Code if !general.scheme().is_on() => Some(CODE_OFF_KEY),
+        _ => None,
+    };
+    let disabled: Vec<usize> = off
+        .and_then(|off| values.iter().position(|value| value.as_str() == Some(off)))
+        .into_iter()
+        .collect();
     let items: Vec<&str> = labels.iter().map(String::as_str).collect();
     Menu::new(&items, selected, rect, window)
+        .disabled(&disabled)
         .build(
             ui,
             &page.theme,

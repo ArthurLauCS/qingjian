@@ -87,6 +87,8 @@ mod tests {
             text,
             pinyin,
             frequency,
+            tones: Default::default(),
+            secondary: false,
             exact,
         }
     }

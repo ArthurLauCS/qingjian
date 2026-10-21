@@ -17,6 +17,7 @@ impl Engine {
         }
         Query {
             segmentations: Vec::new(),
+            spelled: 0,
             candidates: CandidateList { items },
             tail: scope.to_owned(),
             text: self.composition.text().to_owned(),
@@ -25,6 +26,7 @@ impl Engine {
             decoded_keys: self.shuangpin.is_some() || self.zhuyin,
             shuangpin_raw_preedit: false,
             typed_display: None,
+            typed_case: None,
             pinyin_choices: Vec::new(),
             correction: None,
             aux: None,
@@ -49,6 +51,7 @@ impl Engine {
         }];
         Query {
             segmentations: Vec::new(),
+            spelled: 0,
             candidates: CandidateList { items },
             tail: scope.to_owned(),
             text: self.composition.text().to_owned(),
@@ -57,6 +60,7 @@ impl Engine {
             decoded_keys: self.shuangpin.is_some() || self.zhuyin,
             shuangpin_raw_preedit: false,
             typed_display: None,
+            typed_case: None,
             pinyin_choices: Vec::new(),
             correction: None,
             aux: None,
@@ -97,6 +101,7 @@ impl Engine {
         items.sort_by_key(|c| c.kind.follows_word());
         Query {
             segmentations: Vec::new(),
+            spelled: 0,
             candidates: CandidateList { items },
             tail: scope.to_owned(),
             text: self.composition.text().to_owned(),
@@ -105,6 +110,7 @@ impl Engine {
             decoded_keys: self.shuangpin.is_some() || self.zhuyin,
             shuangpin_raw_preedit: false,
             typed_display: None,
+            typed_case: None,
             pinyin_choices: Vec::new(),
             correction: None,
             aux: None,
@@ -157,6 +163,7 @@ impl Engine {
         };
         Query {
             segmentations: Vec::new(),
+            spelled: 0,
             candidates,
             tail,
             text: self.composition.text().to_owned(),
@@ -165,6 +172,7 @@ impl Engine {
             decoded_keys: self.shuangpin.is_some() || self.zhuyin,
             shuangpin_raw_preedit: false,
             typed_display: None,
+            typed_case: None,
             pinyin_choices: Vec::new(),
             correction: None,
             aux: None,

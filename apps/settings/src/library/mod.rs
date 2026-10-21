@@ -9,7 +9,8 @@ pub use kind::Kind;
 
 use std::path::{Path, PathBuf};
 
-use qingjian_dictionary::{AuxCodeTable, Dictionary, aux_code_table_info};
+use qingjian_dictionary::import::code_words_scheme;
+use qingjian_dictionary::{AuxCodeTable, CodeTable, Dictionary, aux_code_table_info};
 use qingjian_platform::aux_schemes::{self, AuxSchemeEntry};
 use qingjian_platform::code_schemes::{self, CodeSchemeEntry};
 use qingjian_platform::shuangpin_schemes::{self, ShuangpinSchemeEntry};
@@ -21,6 +22,9 @@ pub struct Library {
     pub domains: Vec<Entry>,
 
     pub dictionaries: Vec<Entry>,
+
+    /// 导入的形码词库，名字后面带着给哪套方案。
+    pub code_words: Vec<Entry>,
 
     pub bundled_codes: Vec<Entry>,
 
@@ -47,15 +51,25 @@ impl Library {
             })
             .unwrap_or_default()
         };
+        let code_schemes = scan_code_schemes();
         Self {
             domains: scan(Kind::Dictionary, Kind::Dictionary.bundled_dir()),
             dictionaries: scan(Kind::Dictionary, Kind::Dictionary.user_dir()),
+            code_words: scan_code_words(&code_schemes),
             bundled_codes: scan(Kind::CodeTable, Kind::CodeTable.bundled_dir()),
             codes: scan(Kind::CodeTable, Kind::CodeTable.user_dir()),
             aux_schemes: scan_aux_schemes(),
-            code_schemes: scan_code_schemes(),
+            code_schemes,
             shuangpin_schemes: scan_shuangpin_schemes(),
         }
+    }
+
+    /// 形码方案的名字；没装着这套方案时用 id。
+    pub fn code_scheme_label(&self, id: &str) -> String {
+        self.code_schemes
+            .iter()
+            .find(|entry| entry.id == id)
+            .map_or_else(|| id.to_owned(), |entry| entry.label.clone())
     }
 
     /// 能选的辅码，与输入法挑的先后一致（见 `AuxCodeSources::options`）：随包的、导入的、方案；id 重了的只留前面那套。
@@ -103,6 +117,37 @@ fn aux_scheme_entry(scheme: AuxSchemeEntry) -> Entry {
     }
 }
 
+fn scan_code_words(schemes: &[CodeSchemeEntry]) -> Vec<Entry> {
+    let Some(dir) = Kind::CodeWords.user_dir() else {
+        return Vec::new();
+    };
+    code_schemes::list_words(&dir)
+        .into_iter()
+        .map(|words| {
+            let label = schemes
+                .iter()
+                .find(|entry| entry.id == words.scheme)
+                .map_or(words.scheme.as_str(), |entry| entry.label.as_str());
+            code_words_entry(words.stem, &words.path, label)
+        })
+        .collect()
+}
+
+/// 名字是「文件名（方案名）」：同一个导入入口进来的，得看得出哪本是五笔的。
+fn code_words_entry(stem: String, path: &Path, scheme: &str) -> Entry {
+    let table = CodeTable::from_path(path);
+    if let Err(error) = &table {
+        tracing::warn!(path = %path.display(), %error, "形码词库打不开");
+    }
+    Entry {
+        name: format!("{stem}（{scheme}）"),
+        stem,
+        entries: table.as_ref().map_or(0, CodeTable::len),
+        license: String::new(),
+        broken: table.is_err(),
+    }
+}
+
 fn scan_code_schemes() -> Vec<CodeSchemeEntry> {
     code_schemes::list(paths::user_dir().as_deref(), bundled_schemes().as_deref())
 }
@@ -135,6 +180,10 @@ fn entry(kind: Kind, stem: String, path: &Path) -> Entry {
                 }
             }
         },
+        Kind::CodeWords => {
+            let scheme = code_words_scheme(path).unwrap_or_default();
+            code_words_entry(stem, path, &scheme)
+        }
         Kind::CodeTable => {
             let info = aux_code_table_info(path);
             Entry {

@@ -14,7 +14,7 @@ use crate::support::Feature;
 use crate::view::Page;
 use crate::view::parts::controls::{percent_slider, select, toggle_info, toggle_with};
 use crate::view::parts::lists::{entry_row, import_row};
-use crate::view::parts::menus::{CODE_OFF, scheme_options};
+use crate::view::parts::menus::{CODE_OFF, code_options, scheme_options};
 
 pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderError> {
     let theme = &page.theme;
@@ -75,13 +75,12 @@ pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErr
                 .find(|entry| entry.id == *id)
                 .map_or_else(|| format!("{id}（找不到）"), |entry| entry.label.clone()),
         };
-        let names: Vec<&str> = std::iter::once(CODE_OFF)
-            .chain(schemes.iter().map(|entry| entry.label.as_str()))
-            .collect();
+        let options = code_options(page);
+        let names: Vec<&str> = options.iter().map(|(label, _)| label.as_str()).collect();
         let control = select(ui, page, Popup::Code, (&current, &names), 160.0, false)?;
         rows.push(
             SettingRow::new("形码")
-                .info("跟拼音同时开就是混输，形码打全的词排在前面；自己的方案放在数据目录的 schemes 文件夹里")
+                .info("跟拼音同时开就是混输，形码打全的词排在前面；拼音和形码不能都关；自己的方案放在数据目录的 schemes 文件夹里")
                 .control(control)
                 .build(ui, theme)?,
         );

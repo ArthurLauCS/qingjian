@@ -1,4 +1,4 @@
-//! 「候选」页：每页几个、译文、输出字形，候选后面的 emoji / 颜文字 / 符号，排序（学习、本地整句模型），英文词。
+//! 「候选」页：每页几个、译文、输出字形、拼音行声调，候选后面的 emoji / 颜文字 / 符号，排序（学习、本地整句模型），英文词。
 
 use bamboo_slip::taffy::NodeId;
 use bamboo_slip::{RenderError, SettingRow, Stepper, Ui, group, section_title};
@@ -6,6 +6,7 @@ use qingjian_core::{LEARNING_LANGUAGES, TraditionalVariant};
 use qingjian_platform::{EmojiCount, MAX_PAGE_SIZE};
 
 use crate::message::{Message, Popup};
+use crate::support::Feature;
 use crate::view::Page;
 use crate::view::parts::controls::{select, toggle_info, toggle_with};
 
@@ -49,7 +50,7 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
         150.0,
         false,
     )?;
-    let rows = vec![
+    let mut rows = vec![
         SettingRow::new("每页候选数")
             .control(stepper)
             .build(ui, theme)?,
@@ -73,6 +74,17 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             general.learning_language_off(),
         )?,
     ];
+    if Feature::ShowTones.here() {
+        rows.push(toggle_info(
+            ui,
+            page,
+            "拼音行显示声调",
+            Some("候选窗口顶部的拼音按高亮候选标声调，如 gān'gà；应用里的拼音不变"),
+            ("general", "show_tones"),
+            general.show_tones,
+            false,
+        )?);
+    }
     out.push(section_title(ui, theme, "显示")?);
     out.push(group(ui, theme, &rows)?);
 

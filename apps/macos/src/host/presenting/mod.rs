@@ -89,6 +89,29 @@ impl Host {
             .reset(preedit, candidates, page_size, self.cloud_slots);
     }
 
+    /// 拼音行跟着高亮候选：按它的读音重切（`ganga` 高亮 尴尬 是 `gan'ga`），带调拼音开着时窗口里标声调。
+    /// 切法变了返回应用里 marked text（不带调）的新文本与光标。
+    pub fn follow_highlight(&mut self) -> Option<(String, usize)> {
+        if self.engine.symbol_panel().is_some() {
+            return None;
+        }
+        let Session {
+            layout,
+            highlighted,
+            spelling,
+            preedit,
+            ..
+        } = &mut self.session;
+        let query = spelling.as_mut()?;
+        let candidate = layout.candidate(*highlighted);
+        let before = query.spelled;
+        query.follow(candidate);
+        let toned = candidate.and_then(|c| self.engine.toned_syllables(c));
+        let (segments, cursor) = query.window_segments(toned.as_deref());
+        *preedit = Preedit::from_marked(&segments, cursor);
+        (query.spelled != before).then(|| (query.marked_text(), query.marked_cursor()))
+    }
+
     /// 按会话状态画候选窗口。候选为空且没有 preedit 时收窗。
     pub fn render(&mut self) {
         if self.engine.symbol_panel().is_some() {
