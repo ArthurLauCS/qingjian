@@ -52,6 +52,17 @@ pub enum Command {
         domain_keep_min: u64,
     },
 
+    /// 单字声调表：通用词表（带数字声调）→ tones.tsv（`字\t带调音节…`），编进 Core 给注音按声调排序。
+    /// 生成后放到 `crates/qingjian-core/data/tones.tsv`（`--out-dir crates/qingjian-core/data`）
+    Tones {
+        /// 通用词表（`word\tpinyin\t…`，首行表头）
+        #[arg(
+            long,
+            default_value = "assets/lexicon/02_common/modern_chinese_common_words.tsv"
+        )]
+        words: PathBuf,
+    },
+
     /// 形码码表（五笔）：Rime `.dict.yaml` → `词\t编码\t词频`。词频由青简词库按词面回填，不用码表自带的权重
     Wubi {
         /// 输入的 Rime 码表（`.dict.yaml`，如极点 86 五笔）

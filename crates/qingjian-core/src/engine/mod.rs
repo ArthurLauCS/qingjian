@@ -32,6 +32,7 @@ mod statistics;
 mod timings;
 mod translator;
 mod vocabulary;
+mod voice;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -74,7 +75,7 @@ use crate::emoji::EmojiTable;
 use crate::english;
 use crate::fuzzy::{Expanded, FuzzyRules};
 use crate::history::InputHistory;
-use crate::panel::SymbolPanel;
+use crate::panel::{NoPanelHistory, PanelHistory, SymbolPanel};
 use crate::parser::{self, ParseError, Segmentation};
 use crate::punctuation::Punctuation;
 use crate::ranking::{self, Scored};
@@ -224,6 +225,9 @@ pub struct Engine {
     /// 输入统计的累计方（打了多少字）；缺省不记。
     meter: Box<dyn UsageMeter>,
 
+    /// 上屏记不记进输入统计（见 [`Self::set_metered`]）；壳的工具框（快捷翻译的原文、常用语编辑）里关掉。
+    metered: bool,
+
     /// 学习语言的词汇记录（见过 / 上屏过哪些译词）；缺省不记也不标生词。
     vocabulary: Box<dyn VocabularyTracker>,
 
@@ -269,6 +273,9 @@ pub struct Engine {
     /// 注音模式开关，開著時緩衝區裡是注音大千鍵位，查詞前先解成拼音（見 [`crate::zhuyin`]）。
     zhuyin: bool,
 
+    /// 九宫格方案：缓冲区里是数字键（可混着已选定的字母），见 [`crate::nine_key`]。
+    nine_key: bool,
+
     /// 形码方案（五笔或用户导入的）。`Some` 时编码参与查询，按前缀查表（见 [`Engine::query_code`]）。
     code: Option<CodeScheme>,
 
@@ -298,6 +305,9 @@ pub struct Engine {
 
     /// 打开着的符号面板；`None` 是没开。上屏与清空时关掉。
     panel: Option<SymbolPanel>,
+
+    /// 面板条目的使用记录：打开面板时排「常用」，从面板上屏时记一次；缺省不记。
+    panel_history: Box<dyn PanelHistory>,
 
     /// 辅码态：`None` 是拼音态，`Some` 是辅码态（空串 = 刚敲下触发键、码段还没开始）。
     /// 码段不进 `composition`：它与拼音分段记账、分段画（见 [`AuxSegment`]）。
@@ -362,6 +372,9 @@ const EMOJI_SCAN: usize = 5;
 const EMOJI_PER_WORD: usize = 2;
 const KAOMOJI_PER_WORD: usize = 1;
 const EMOJI_TOTAL: usize = 3;
+
+/// 「日期 / 时间 / 星期」这几个词排在前几条里才跟快捷写法（同 emoji 配词的范围；九宫格 7474 的日期常排第四）：再往后多半是长输入的前缀词。
+const KEYWORD_SCAN: usize = 5;
 
 /// 自动造词：用户连着选出的两个词，合起来不在词库里、且这条接续已记过这么多次，就记成用户词。
 /// 同一段拼音里连着选出来的（`qingjian` 选 青 再选 简）是「用户把它当一个词打」的强信号，两次就够；
@@ -463,6 +476,7 @@ impl Engine {
             application: None,
             committed_since_break: false,
             meter: Box::new(NoUsageMeter),
+            metered: true,
             vocabulary: Box::new(NoVocabularyTracker),
             gloss_filler: Box::new(NoGlossFiller),
             displayed: Vec::new(),
@@ -477,6 +491,7 @@ impl Engine {
             shuangpin: None,
             shuangpin_raw_preedit: false,
             zhuyin: false,
+            nine_key: false,
             code: None,
             phonetic: true,
             emoji: None,
@@ -486,6 +501,7 @@ impl Engine {
             symbols: None,
             symbol_limit: 1,
             panel: None,
+            panel_history: Box::new(NoPanelHistory),
             aux_code: None,
             aux_enabled: false,
             aux_show: false,

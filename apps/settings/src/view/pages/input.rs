@@ -3,6 +3,7 @@
 use bamboo_slip::taffy::LengthPercentage;
 use bamboo_slip::taffy::{Dimension, FlexDirection, FlexWrap, NodeId, Rect, Size, Style};
 use bamboo_slip::{Checkbox, RenderError, SettingRow, Switch, Ui, Visual, group, section_title};
+use qingjian_core::FuzzyRules;
 use qingjian_platform::{KeyHintMode, Scheme, code_schemes};
 
 use super::shortcuts;
@@ -14,19 +15,6 @@ use crate::view::Page;
 use crate::view::parts::controls::{percent_slider, select, toggle_info, toggle_with};
 use crate::view::parts::lists::{entry_row, import_row};
 use crate::view::parts::menus::{CODE_OFF, scheme_options};
-
-/// 模糊音的九条：配置键、界面名。
-const FUZZY: [(&str, &str); 9] = [
-    ("z_zh", "z = zh"),
-    ("c_ch", "c = ch"),
-    ("s_sh", "s = sh"),
-    ("n_l", "n = l"),
-    ("f_h", "f = h"),
-    ("l_r", "l = r"),
-    ("an_ang", "an = ang"),
-    ("en_eng", "en = eng"),
-    ("in_ing", "in = ing"),
-];
 
 pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderError> {
     let theme = &page.theme;
@@ -286,8 +274,9 @@ fn fuzzy(ui: &mut Ui<Message>, page: &Page, disabled: bool) -> Result<NodeId, Re
         rules.in_ing,
     ];
     let mut cells = Vec::new();
-    for ((key, label), on) in FUZZY.into_iter().zip(on) {
-        let checkbox = Checkbox::new(on, label).disabled(disabled).build(
+    for (key, on) in FuzzyRules::NAMES.into_iter().zip(on) {
+        let label = FuzzyRules::label(key);
+        let checkbox = Checkbox::new(on, &label).disabled(disabled).build(
             ui,
             &page.theme,
             ("fuzzy", key),

@@ -95,7 +95,7 @@
 - [ ] 释义表收尾：覆盖面再扩（次数阈值降到 100 约 10 万词）；JMdict 校对假名与日文词性；等级表（CEFR / JLPT 已随包，见 `assets/levels/`）
   也可做英→中、日→中方向的种子；四六级 / 商务英语词表要先找到许可干净的来源
 - [ ] 可选复习（Phase 4）：输入统计、生词识别、词汇统计（含 CEFR / JLPT 等级分布）已做（2026-09-06）；复习容易变成打扰，先不急
-- [ ] 云联想收尾（Phase 6）：密钥进钥匙串（等签名定了再做，ad-hoc 签名每次重装都弹授权）、按应用禁用、限流与用量统计
+- [ ] 云联想收尾（Phase 6）：密钥进系统密钥库——mac 钥匙串、Windows 凭据管理器（等签名定了再做，ad-hoc 签名每次重装都弹授权；安卓已用 Keystore，见 `docs/notes/android.md`）、按应用禁用、限流与用量统计
 - [ ] 个人模型（Phase 7）：小 Transformer 实验（有评测门槛），见 roadmap
 
 - [ ] ★ **主题与自绘渲染器 spike**（2026-09-13 定向，分支 `renderer-spike`，见 [design/rendering.md](../design/rendering.md)）：

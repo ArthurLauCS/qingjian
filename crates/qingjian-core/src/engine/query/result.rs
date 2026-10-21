@@ -80,6 +80,9 @@ pub struct Query {
     /// 开启双拼或注音时的显示字串（如 "ㄅㄨˋ"）。如果有此值，preedit 就优先显示它，而不是拼音。
     pub typed_display: Option<String>,
 
+    /// 九宫格的拼音列：第一个没定下来的位置上的全部写法，最可能的在前；壳点了其中一个就调 `Engine::pin_nine_key`。
+    pub pinyin_choices: Vec<String>,
+
     /// 辅码态：触发键与码段（码段可为空——刚触发）。`Some` 时 preedit 在拼音段之后多出
     /// [触发键 `Typed`][码段 `AuxCode`] 两段，候选也已经按码段筛过。
     pub aux: Option<AuxSegment>,

@@ -1,6 +1,7 @@
 //! 把数据源转换成青简的 TSV 格式，或打包成 `.qj`。
 //!
 //! - `lexicon`：青简基础词库，「输入法字词库_分类整理版」数据包（规范字 / 常用词 / THUOCL 领域词）+ Unihan 读音 + LLM 多音字标注 → `dict.tsv`
+//! - `tones`：通用词表的数字声调 → 单字声调表 `tones.tsv`（编进 Core，注音按敲的声调排序）
 //! - `wubi`：Rime 形码码表（极点 86 五笔，Apache-2.0）→ 形码方案的 `table.tsv`（`词\t编码\t词频`，词频由青简词库按词面回填）
 //! - `wubi-roots`：五笔字根表（`assets/schemes/wubi86/roots86.tsv`）+ 思源黑体（SIL OFL，不进仓库）→ `roots86-glyphs.tsv`（字根图的 SVG 路径，随包，沿用 OFL）
 //! - `cedict`：CC-CEDICT（CC BY-SA 4.0）→ `glossary-en.tsv`（释义表的备用来源，现在用 gloss-gen 的 LLM 表）
@@ -76,6 +77,11 @@ fn run() -> Result<(), ConvertError> {
             domain_keep_min,
             &args.out_dir,
         ),
+        Command::Tones { words } => {
+            let characters = lexicon::char_tones(&words, &args.out_dir.join("tones.tsv"))?;
+            tracing::info!(characters, "单字声调表已写出");
+            Ok(())
+        }
         Command::WubiRoots {
             font,
             spec,

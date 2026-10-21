@@ -405,6 +405,7 @@ fn build_engine(args: &Args) -> Result<Engine, CliError> {
         None => engine.set_shuangpin(scheme.shuangpin()),
     }
     engine.set_zhuyin_mode(scheme == Scheme::Zhuyin);
+    engine.set_nine_key(args.nine_key);
     // 拼音侧关掉且形码开着才是「只用形码」；两边都关着时留拼音兜底
     engine.set_phonetic(scheme.is_on() || !code);
     // 形码的码表由 `--code` 显式给（配置只说「用哪套」，码表文件在哪由壳决定）

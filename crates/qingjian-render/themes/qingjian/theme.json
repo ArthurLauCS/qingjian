@@ -84,6 +84,39 @@
           "color": { "if": "highlighted", "then": "@hl_faint", "else": "@faint" } },
         { "type": "use", "component": "word", "margin": [4, 0, 0, 0] }
       ]
+    },
+
+    "strip_top": {
+      "type": "frame", "when": "preedit|trailing", "padding": [2, 12, 1, 12], "gap": 16,
+      "children": [
+        { "type": "preedit", "when": "preedit", "font": "annotation",
+          "typed": "@gloss", "rest": "@faint", "struck": "@faint",
+          "caret": { "width": 1.5, "color": "@text" } },
+        { "type": "text", "bind": "trailing.text", "when": "trailing", "font": "annotation", "color": "@gloss" }
+      ]
+    },
+
+    "strip_cell": {
+      "type": "frame", "direction": "column", "padding": [3, 12, 3, 12],
+      "children": [
+        { "type": "frame", "id": "highlight", "transition": { "duration": 100, "easing": "ease-out" },
+          "when": "highlighted", "position": "absolute", "inset": [0, 2, 0, 2], "fill": "@accent", "radius": 8 },
+        { "type": "frame", "align_self": "center", "children": [
+          { "type": "icon", "icon": "cloud", "when": "cloud", "size": 14, "height": 23,
+            "color": { "if": "highlighted", "then": "@hl_cloud", "else": "@cloud" }, "margin": [0, 4, 0, 0] },
+          { "type": "text", "bind": "text", "when": "cloud",
+            "font": { "base": "candidate", "size": 19, "line_height": 23 },
+            "color": { "if": "highlighted", "then": "@hl_cloud", "else": "@cloud" } },
+          { "type": "text", "bind": "text", "when": "!cloud",
+            "font": { "base": "candidate", "size": 19, "line_height": 23 },
+            "color": { "if": "highlighted", "then": "@hl_text", "else": "@text" } }
+        ] },
+        { "type": "annotation", "bind": "annotation", "when": "annotations", "align_self": "center",
+          "font": { "base": "annotation", "size": 11.5, "line_height": 14 },
+          "gloss": { "if": "highlighted", "then": "@hl_gloss", "else": "@gloss" },
+          "fresh": { "if": "highlighted", "then": "@hl_fresh", "else": "@fresh" },
+          "faint": { "if": "highlighted", "then": "@hl_faint", "else": "@faint" } }
+      ]
     }
   },
 
@@ -115,6 +148,14 @@
         { "type": "annotation", "bind": "highlighted.annotation", "when": "highlighted.annotation",
           "font": "annotation", "gloss": "@gloss", "fresh": "@fresh", "faint": "@faint",
           "margin": [2, -5, 0, 5], "padding": [0, 0, 2, 0] }
+      ]
+    },
+    "strip": {
+      "type": "frame", "direction": "column", "fill": "@surface", "padding": [0, 0, 4, 0],
+      "children": [
+        { "type": "use", "component": "strip_top" },
+        { "type": "frame", "when": "candidates", "padding": [0, 10, 0, 10],
+          "children": [{ "type": "repeat", "bind": "candidates", "component": "strip_cell" }] }
       ]
     }
   },

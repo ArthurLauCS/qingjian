@@ -2,13 +2,12 @@
 
 use bamboo_slip::taffy::NodeId;
 use bamboo_slip::{Menu, RenderError, Ui};
-use qingjian_core::TraditionalVariant;
+use qingjian_core::{LEARNING_LANGUAGES, TraditionalVariant};
 use qingjian_platform::{EmojiCount, KeyHintMode, Scheme};
 
 use crate::message::{Message, Popup};
 use crate::support::Feature;
 use crate::view::Page;
-use crate::view::parts::controls::LANGUAGES;
 
 /// 形码方案下拉框里「关」那一项。
 pub const CODE_OFF: &str = "关";
@@ -109,17 +108,17 @@ pub fn menu(
             }
             Popup::LearningLanguage => (
                 "learning_language",
-                LANGUAGES
+                LEARNING_LANGUAGES
                     .iter()
                     .map(|(_, label)| (*label).to_owned())
                     .collect(),
                 strings(
-                    LANGUAGES
+                    LEARNING_LANGUAGES
                         .iter()
                         .map(|(code, _)| (*code).to_owned())
                         .collect(),
                 ),
-                LANGUAGES
+                LEARNING_LANGUAGES
                     .iter()
                     .position(|(code, _)| *code == general.learning_language),
             ),

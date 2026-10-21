@@ -306,6 +306,24 @@ fn shortcuts_follow_the_first_local_candidate() {
 }
 
 #[test]
+fn full_pinyin_keyword_brings_its_shortcuts() {
+    let mut engine = Engine::new(Dictionary::parse(KEYWORDS).unwrap());
+    engine.set_input("shijian");
+    let all: Vec<String> = engine
+        .query()
+        .unwrap()
+        .candidates
+        .items
+        .into_iter()
+        .map(|c| c.text)
+        .collect();
+    assert_eq!(all[0], "时间");
+    assert!(all[1].contains(':'), "时间之后紧跟现在的时间：{all:?}");
+    // 一组写法只出一遍
+    assert_eq!(all.iter().filter(|t| t.contains(':')).count(), 2);
+}
+
+#[test]
 fn ng_alone_gives_en_interjection_first_in_full_pinyin_only() {
     let mut engine = engine();
     engine.set_input("ng");

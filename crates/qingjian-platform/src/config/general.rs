@@ -25,10 +25,9 @@ pub const DEFAULT_PAGE_KEYS: (char, char) = ('[', ']');
 /// 键位提示窗口缺省的不透明度（百分比）。
 pub const DEFAULT_KEY_HINT_OPACITY: u8 = 85;
 
-/// `[general]` 分节：与具体功能无关的常规项。
-/// `learning_language` 写这个值表示不显示译文。
-pub const LEARNING_LANGUAGE_OFF: &str = "off";
+pub use qingjian_core::LEARNING_LANGUAGE_OFF;
 
+/// `[general]` 分节：与具体功能无关的常规项。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct GeneralConfig {

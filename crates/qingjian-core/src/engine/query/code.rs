@@ -36,6 +36,7 @@ impl Engine {
                 abbreviated: 0,
                 weight: self.learner.weight(hit.text),
                 penalty: 0.0,
+                tone_cost: 0,
             })
             .collect();
         let lookup = start.elapsed();
@@ -82,6 +83,7 @@ impl Engine {
             decoded_keys: false,
             shuangpin_raw_preedit: false,
             typed_display: None,
+            pinyin_choices: Vec::new(),
             correction: None,
             aux: None,
             held: String::new(),
