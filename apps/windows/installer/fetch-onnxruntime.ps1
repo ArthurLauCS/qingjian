@@ -8,6 +8,9 @@
     Server 开发时也从这里加载（见 apps\windows\server\src\dispatch\rescore\models.rs），装机时 qingjian.iss 把它们装到 exe 旁边。
 #>
 $ErrorActionPreference = 'Stop'
+# PowerShell 5.1 缺省的 TLS 版本 PyPI 不收；进度条会让 Invoke-WebRequest 慢好几倍
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+$ProgressPreference = 'SilentlyContinue'
 
 $Version = '1.24.4'
 $Packages = @(
