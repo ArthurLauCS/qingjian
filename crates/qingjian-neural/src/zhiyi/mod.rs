@@ -1,7 +1,8 @@
-//! 试验：知意输入法的选词模型（知意 1.4V2-Long-L12，safetensors 版）给候选打分，只供 CLI 回放对比。
+//! 试验：知意输入法的选词模型（知意 1.4V2-Long-L12，safetensors 版）给候选打分，CLI 回放对比与 Core 的选词重排共用。
 //! 结构与输入格式按模型包里的 README 实现：mmBERT-small 留 12 层的编码器 + 两层选词头，线性层加载时量化成 Q8_0。
-//! 权重是 GPL-3.0-only，不随包、不进壳；目录里要有 `model.safetensors`、`config.json`、`tokenizer.json`、`unified_vocab.json`。
+//! 权重 2026-10-20 起是 Apache-2.0，现在不随包，放用户目录；目录里要有 `model.safetensors`、`config.json`、`tokenizer.json`、`unified_vocab.json`。
 
+mod choice_model;
 mod encoder;
 mod head;
 mod input;

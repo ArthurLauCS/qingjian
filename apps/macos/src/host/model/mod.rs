@@ -3,13 +3,17 @@
 //! 按键回调里永远只跑词级模型；模型的意见在停键 80 毫秒后请求、二三十毫秒后到，只换候选窗口里的整句候选，
 //! 用户翻过页或动过高亮就不打扰。前文优先用应用里光标前的文字（`refresh` 每次查询前给 Engine），应用给不出退回本会话历史。
 
+use std::sync::Arc;
 use std::sync::mpsc::{TryRecvError, channel};
 
 use qingjian_core::sentence::SentenceScorer;
+use qingjian_neural::zhiyi::ChoiceScorer;
 use qingjian_neural::{CharScorer, NeuralError, P2cScorer};
 
+mod loaded;
 mod rescore_monitor;
 
+pub use loaded::LoadedModel;
 pub(super) use rescore_monitor::RescoreMonitor;
 
 use super::*;
@@ -18,7 +22,14 @@ impl Host {
     /// 在后台线程加载模型并预热（第一次前向要编译 Metal 内核，几百毫秒），加载完由 [`Self::attach_loaded_model`] 接上。
     /// 没有模型文件就什么都不做。
     pub(super) fn load_local_model(&mut self) {
-        if self.model_loader.is_some() || self.engine.has_sentence_scorer() {
+        if self.model_loader.is_some()
+            || self.engine.has_sentence_scorer()
+            || self.engine.has_choice_model()
+        {
+            return;
+        }
+        if let Some(dir) = paths::zhiyi_model_dir() {
+            self.load_zhiyi_model(dir);
             return;
         }
         // P2C 优先：冻结集 8322 句上比字级模型的重排高 0.69 个点、延迟还低（docs/notes/model-eval.md）
@@ -32,7 +43,7 @@ impl Host {
                 }
             },
         };
-        let (tx, rx) = channel::<Result<Box<dyn SentenceScorer>, NeuralError>>();
+        let (tx, rx) = channel::<Result<LoadedModel, NeuralError>>();
         let spawned = std::thread::Builder::new()
             .name("qingjian-model-load".to_owned())
             .spawn(move || {
@@ -57,10 +68,41 @@ impl Host {
                         "本地模型已加载并预热"
                     );
                 }
+                let _ = tx.send(loaded.map(LoadedModel::Sentence));
+            });
+        self.watch_model_loading(spawned.map(|_| rx));
+    }
+
+    /// 知意选词模型（试验）：加载时把线性层量化成 Q8_0，要一两秒。
+    fn load_zhiyi_model(&mut self, dir: std::path::PathBuf) {
+        let (tx, rx) = channel::<Result<LoadedModel, NeuralError>>();
+        let spawned = std::thread::Builder::new()
+            .name("qingjian-model-load".to_owned())
+            .spawn(move || {
+                let started = std::time::Instant::now();
+                let loaded = ChoiceScorer::load(&dir).and_then(|scorer| {
+                    let typed = scorer.letter_units("ni");
+                    scorer.score("", &typed, &["ni", "nin"])?;
+                    Ok(LoadedModel::Choice(Arc::new(scorer)))
+                });
+                if loaded.is_ok() {
+                    tracing::info!(
+                        path = %dir.display(),
+                        total_ms = started.elapsed().as_millis(),
+                        "知意选词模型已加载并预热"
+                    );
+                }
                 let _ = tx.send(loaded);
             });
+        self.watch_model_loading(spawned.map(|_| rx));
+    }
+
+    fn watch_model_loading(
+        &mut self,
+        spawned: std::io::Result<std::sync::mpsc::Receiver<Result<LoadedModel, NeuralError>>>,
+    ) {
         match spawned {
-            Ok(_) => {
+            Ok(rx) => {
                 self.model_loader = Some(rx);
                 self.rescore.watch_loading();
             }
@@ -75,8 +117,13 @@ impl Host {
             return;
         };
         match rx.try_recv() {
-            Ok(Ok(scorer)) => {
-                self.engine.set_async_sentence_scorer(Some(scorer));
+            Ok(Ok(loaded)) => {
+                match loaded {
+                    LoadedModel::Sentence(scorer) => {
+                        self.engine.set_async_sentence_scorer(Some(scorer))
+                    }
+                    LoadedModel::Choice(model) => self.engine.set_choice_model(Some(model)),
+                }
                 self.model_loader = None;
                 self.rescore.stop_watching();
                 // 模型上线了：日志里补一条会话信息，之后的条目知道重排开着
@@ -122,6 +169,7 @@ impl Host {
     pub(super) fn unload_local_model(&mut self) {
         self.model_loader = None;
         self.engine.set_async_sentence_scorer(None);
+        self.engine.set_choice_model(None);
         self.rescore.stop_watching();
         self.rescore.stop();
     }

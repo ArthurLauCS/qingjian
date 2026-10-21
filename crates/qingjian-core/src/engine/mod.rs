@@ -6,6 +6,7 @@
 mod alignment;
 mod annotation;
 mod aux_code;
+mod choice;
 mod code_keys;
 mod commit;
 mod composing;
@@ -43,6 +44,7 @@ use qingjian_dictionary::{AuxCodeLookup, Dictionary, Match, WordList};
 pub use alignment::Alignment;
 pub use annotation::AnnotationReport;
 pub use aux_code::is_valid_aux_code_key;
+pub use choice::ChoiceModel;
 pub use commit::{LastCommit, Transition};
 pub use gloss::{FilledGloss, GlossFiller, NoGlossFiller};
 pub use input_log::{
@@ -157,6 +159,9 @@ pub struct Engine {
 
     /// 「前文 + 整句文本 → 神经分」缓存，同步与异步打分共用。
     neural_cache: std::cell::RefCell<rescoring::NeuralCache>,
+
+    /// 选词模型（试验）：候选窗前几条交给它重排一次，见 [`choice`]。
+    choice: Option<choice::ChoiceRanker>,
 
     /// 壳给的应用里光标前的文本；`None` 时前文用本会话历史。
     rescoring_before: Option<String>,
@@ -453,6 +458,7 @@ impl Engine {
             sentence_scorer: None,
             rescorer: None,
             neural_cache: std::cell::RefCell::new(rescoring::NeuralCache::default()),
+            choice: None,
             rescoring_before: None,
             neural_weight: NEURAL_WEIGHT,
             neural_margin: NEURAL_MARGIN,

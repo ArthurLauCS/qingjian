@@ -52,6 +52,7 @@ impl Engine {
         if self.aux_filter().is_none() {
             self.insert_custom_phrases(&mut query.candidates.items);
         }
+        self.rerank_choices(&mut query.candidates.items);
         // 给输入日志留个摘要：上屏时才知道选了什么，这里才知道看到了什么
         // 九宫格没有切分，拼音取拼音行（首选读到的写法），云联想也用它问
         let pinyin = match (&query.correction, &query.typed_display) {
