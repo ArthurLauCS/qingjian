@@ -1,7 +1,7 @@
-<p align="center"><a href="README.md">简体中文</a> | <a href="README.en.md">English</a></p>
+<p align="center"><a href="../../README.md">简体中文</a> | <a href="README.zh-Hant.md">繁體中文</a> | <b>English</b> | <a href="README.ja.md">日本語</a> | <a href="README.es.md">Español</a> | <a href="README.vi.md">Tiếng Việt</a> | <a href="README.de.md">Deutsch</a></p>
 
 <p align="center">
-  <img src="assets/icon/qingjian-mark.svg" alt="Qingjian bamboo-slip icon" height="108">
+  <img src="../../assets/icon/qingjian-mark.svg" alt="Qingjian bamboo-slip icon" height="108">
 </p>
 
 <h1 align="center">Qingjian</h1>
@@ -10,11 +10,14 @@
 
 <p align="center">
   <a href="https://qingjian.app/download"><img src="https://img.shields.io/github/v/release/qingjian-team/qingjian?label=stable" alt="stable release"></a>
+  <a href="https://github.com/qingjian-team/qingjian/releases"><img src="https://img.shields.io/github/downloads/qingjian-team/qingjian/total?label=downloads" alt="GitHub downloads"></a>
+  <a href="https://github.com/qingjian-team/qingjian/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/qingjian-team/qingjian/ci.yml?branch=main&amp;label=CI" alt="CI"></a>
   <a href="https://github.com/qingjian-team/qingjian/stargazers"><img src="https://img.shields.io/github/stars/qingjian-team/qingjian?style=flat&amp;label=Stars" alt="GitHub Stars"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
-  <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue" alt="macOS 13+"></a>
-  <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue" alt="Windows 10/11"></a>
-  <a href="https://qingjian.app/docs/getting-started/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey" alt="Linux: Fcitx4 / 5, manual start"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
+  <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
+  <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
+  <a href="https://qingjian.app/docs/getting-started/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manual start"></a>
+  <a href="https://qingjian.app/docs/getting-started/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: build from source"></a>
 </p>
 
 Qingjian is an input method. You type the way you normally would: enter pinyin, choose a candidate, write a whole sentence. A gloss beside each candidate lets language learning happen naturally while you type. The gloss is always auxiliary information; it never takes the place of the text you are entering.
@@ -52,9 +55,9 @@ The optional **cloud prediction is off by default**. Once it is on, Qingjian sen
 
 - [User docs](https://qingjian.app/docs): installation, settings, input, uninstall and FAQ.
 - [Report a problem or send a suggestion](https://github.com/qingjian-team/qingjian/issues/new/choose); you can also join the [QQ beta group](https://qm.qq.com/q/jBvn2gGTxm).
-- Want to contribute? Start from the [developer docs](docs/) and the [contributing guide](docs/contributing.md).
+- Want to contribute? Start from the [developer docs](../) and the [contributing guide](../contributing.md).
 
-Qingjian is free through the [official channel](https://qingjian.app/download). The code is licensed under [GPL-3.0-or-later](LICENSE); the project name and logo are not covered by the code license. Bundled data has its own sources and licenses — see the [data provenance list](docs/design/landscape.md).
+Qingjian is free through the [official channel](https://qingjian.app/download). The code is licensed under [GPL-3.0-or-later](../../LICENSE); the project name and logo are not covered by the code license. Bundled data has its own sources and licenses — see the [data provenance list](../design/landscape.md).
 
 ## Star History
 
