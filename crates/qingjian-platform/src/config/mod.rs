@@ -57,7 +57,7 @@ pub use key_hint_mode::KeyHintMode;
 pub use layout_mode::LayoutMode;
 pub use legacy_traditional::LegacyTraditional;
 pub use log_level::LogLevel;
-pub use model::LocalModelConfig;
+pub use model::{LocalModel, LocalModelConfig, ZhiyiTier};
 pub use modifiers::Modifiers;
 pub use page_keys::PageKeys;
 pub use preedit_mode::PreeditMode;
@@ -383,8 +383,12 @@ enabled = false
 disabled = []
 
 [model]
-# 本地整句模型：随包的小模型在本机给整句候选重新排序，全程离线；停顿后几十毫秒生效。关掉只用词库统计
+# 本地模型：在本机给候选重新排序，全程离线；停顿后几十毫秒生效。关掉只用词库统计
 enabled = true
+# 用哪个：tongbian 含章·通变（随包）/ zhiwei 含章·知微 / zhiyi 知意；后两个先在设置的「实验功能」里下载，没下载就用通变
+name = "tongbian"
+# 知意的档位：saver 省电 / balanced 均衡 / accurate 准确（比的候选更多、看的前文更长，也更费电）
+zhiyi_tier = "balanced"
 # 应用读不到光标前的文字时，拿这个应用、这个输入框里刚打的字当前文；多少秒没打字就不算（0 表示一直算）
 context_memory_seconds = 60
 

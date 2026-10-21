@@ -7,6 +7,7 @@
 mod model;
 mod ranker;
 mod request;
+mod tier;
 mod worker;
 
 use std::sync::Arc;
@@ -19,18 +20,13 @@ use crate::{Candidate, CandidateKind};
 pub use model::ChoiceModel;
 pub(crate) use ranker::ChoiceRanker;
 pub(crate) use request::ChoiceRequest;
+pub use tier::ChoiceTier;
 
-/// 只看前这么多条候选（知意 `laya` 的 2 × 每页 9 条）。
+/// 最多看前这么多条候选（知意 `laya` 的 2 × 每页 9 条），各档在这以内取。
 const WINDOW: usize = 18;
 
 /// 至少这么多条可比的才重排。
 const MIN_CANDIDATES: usize = 2;
-
-/// 中文上文最多留这么多字（知意 `laya.context_chars`）。
-const CONTEXT_CHARS: usize = 128;
-
-/// 英文上文多留一些（`laya.english_context_chars`）。
-const ENGLISH_CONTEXT_CHARS: usize = 192;
 
 /// 二元 LM 分的权重（知意 `laya.ngram_weight`，它配的是自己的三元模型）。
 const LM_WEIGHT: f64 = 1.0;
@@ -60,6 +56,11 @@ impl Engine {
         self.choice = model.map(ChoiceRanker::new);
     }
 
+    /// 换档，下一次查询就按新档比。
+    pub fn set_choice_tier(&mut self, tier: ChoiceTier) {
+        self.choice_tier = tier;
+    }
+
     pub fn has_choice_model(&self) -> bool {
         self.choice.is_some()
     }
@@ -78,7 +79,7 @@ impl Engine {
         let english = self.english_mode;
         // 英文模式只比英文补全，和敲的一样的那个词留在原位；中文模式只比中文，夹在里面的英文词、emoji 不动
         let mut whole: Vec<(usize, Vec<u32>)> = Vec::new();
-        for (index, candidate) in items.iter().enumerate().take(WINDOW) {
+        for (index, candidate) in items.iter().enumerate().take(self.choice_tier.window()) {
             let units = match candidate.kind {
                 CandidateKind::English
                     if english && !candidate.text.eq_ignore_ascii_case(&keys) =>
@@ -97,11 +98,7 @@ impl Engine {
         if whole.len() < MIN_CANDIDATES {
             return;
         }
-        let limit = if english {
-            ENGLISH_CONTEXT_CHARS
-        } else {
-            CONTEXT_CHARS
-        };
+        let limit = self.choice_tier.context_chars(english);
         let context = match &self.rescoring_before {
             Some(before) => take_last_chars(before, limit),
             None => self.history.recent(limit).to_owned(),
