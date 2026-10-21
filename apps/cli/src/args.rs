@@ -94,6 +94,10 @@ pub struct Args {
     #[arg(long)]
     pub chinese_first: bool,
 
+    /// 候选旁显示带调拼音（配置 `[general]` show_tones = true）
+    #[arg(long)]
+    pub show_tones: bool,
+
     /// 双拼方案（xiaohe / ziranma / microsoft / sogou / abc / xiaolang / shoudao / jiajia / ziguang，或用户双拼方案的目录），覆盖配置里的 `[general]` scheme；off 强制全拼
     #[arg(long)]
     pub shuangpin: Option<String>,

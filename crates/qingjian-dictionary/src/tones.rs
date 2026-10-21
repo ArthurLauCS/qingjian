@@ -20,6 +20,62 @@ pub fn split_tone(syllable: &str) -> (&str, u8) {
     }
 }
 
+/// 显示用的带调符号写法：`hao` 3 → `hǎo`，`lve` 4 → `lüè`；轻声与不知道的不标。
+/// 调号标在 a、e 上，`ou` 标 o，其余标最后一个元音；没有元音的（`m`、`ng`）标在第一个字母上。
+pub fn marked(syllable: &str, tone: u8) -> String {
+    let text = syllable.replace('v', "ü");
+    if !(1..=4).contains(&tone) {
+        return text;
+    }
+    let target = ['a', 'e']
+        .iter()
+        .find_map(|v| text.find(*v))
+        .or_else(|| text.find("ou"))
+        .or_else(|| text.rfind(['i', 'o', 'u', 'ü']));
+    let mut out = String::with_capacity(text.len() + 2);
+    for (index, c) in text.char_indices() {
+        if Some(index) == target {
+            out.push(with_mark(c, tone));
+        } else {
+            out.push(c);
+        }
+        if target.is_none() && index == 0 {
+            out.push(['\u{304}', '\u{301}', '\u{30c}', '\u{300}'][usize::from(tone - 1)]);
+        }
+    }
+    out
+}
+
+/// [`marked`] 的反向：去掉调号、`ü` 写回 `v`（`lüè` → `lve`）。
+pub fn strip_marks(marked: &str) -> String {
+    marked
+        .chars()
+        .filter(|c| !('\u{300}'..='\u{30c}').contains(c))
+        .map(|c| match c {
+            'ā' | 'á' | 'ǎ' | 'à' => 'a',
+            'ē' | 'é' | 'ě' | 'è' => 'e',
+            'ī' | 'í' | 'ǐ' | 'ì' => 'i',
+            'ō' | 'ó' | 'ǒ' | 'ò' => 'o',
+            'ū' | 'ú' | 'ǔ' | 'ù' => 'u',
+            'ü' | 'ǖ' | 'ǘ' | 'ǚ' | 'ǜ' => 'v',
+            c => c,
+        })
+        .collect()
+}
+
+fn with_mark(vowel: char, tone: u8) -> char {
+    let marks = match vowel {
+        'a' => ['ā', 'á', 'ǎ', 'à'],
+        'e' => ['ē', 'é', 'ě', 'è'],
+        'i' => ['ī', 'í', 'ǐ', 'ì'],
+        'o' => ['ō', 'ó', 'ǒ', 'ò'],
+        'u' => ['ū', 'ú', 'ǔ', 'ù'],
+        'ü' => ['ǖ', 'ǘ', 'ǚ', 'ǜ'],
+        _ => return vowel,
+    };
+    marks[usize::from(tone - 1)]
+}
+
 /// 压进词目的 16 位；超过 [`PACKED_SYLLABLES`] 的只返回 [`SPILLED`]，全都不知道的是 0。
 pub(crate) fn pack(tones: &[u8]) -> u16 {
     if tones.iter().all(|&t| t == 0) {
@@ -100,6 +156,24 @@ mod tests {
         assert_eq!(split_tone("men5"), ("men", 5));
         assert_eq!(split_tone("ma0"), ("ma", 5));
         assert_eq!(split_tone("hao"), ("hao", 0));
+    }
+
+    #[test]
+    fn marks_the_right_vowel() {
+        assert_eq!(marked("hao", 3), "hǎo");
+        assert_eq!(marked("gang", 1), "gāng");
+        assert_eq!(marked("xie", 4), "xiè");
+        assert_eq!(marked("dou", 1), "dōu");
+        assert_eq!(marked("liu", 2), "liú");
+        assert_eq!(marked("gui", 4), "guì");
+        assert_eq!(marked("lv", 4), "lǜ");
+        assert_eq!(marked("nve", 4), "nüè");
+        assert_eq!(marked("me", 5), "me");
+        assert_eq!(marked("lv", 0), "lü");
+        assert_eq!(marked("m", 2), "m\u{301}");
+        for (syllable, tone) in [("nve", 4), ("guang", 3), ("m", 2), ("lv", 0)] {
+            assert_eq!(strip_marks(&marked(syllable, tone)), syllable);
+        }
     }
 
     #[test]

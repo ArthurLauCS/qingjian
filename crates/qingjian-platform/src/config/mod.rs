@@ -300,6 +300,8 @@ punct_commits = false
 aux_code_key = ";"
 # 候选上是否显示码（方括号紧跟在候选词后面，如「鹤[rbm] crane」）。缺省关
 aux_code_show = false
+# 候选窗口顶部的拼音行按高亮候选显示带调拼音（gān'gà），应用里的拼音不变；macOS、Windows 用。缺省关
+show_tones = false
 # 码段删空后是否留在辅码状态：true 删空后 ; 仍在、候选全部回来，再按一次退格才退出辅码；false 删空即回拼音状态
 aux_code_keep_empty = true
 # 拼音方案：留空或 pinyin 为全拼 / xiaohe 小鹤双拼 / ziranma 自然码 / microsoft 微软双拼 / sogou 搜狗双拼 / abc 智能ABC / xiaolang 小浪双拼 / shoudao 首道双拼 / jiajia 拼音加加 / ziguang 紫光双拼 /

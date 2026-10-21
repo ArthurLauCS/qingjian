@@ -227,6 +227,7 @@ fn main() {
     engine.set_aux_keep_empty(config.general.aux_code_keep_empty);
     engine.set_aux_enabled(config.aux_code.enabled);
     engine.set_aux_show(config.general.aux_code_show);
+    engine.set_show_tones(config.general.show_tones);
     engine.set_chinese_first(config.general.chinese_first);
     engine.set_emoji_limit(usize::from(config.general.emoji.get()));
     engine.set_kaomoji_limit(usize::from(config.general.kaomoji.get()));

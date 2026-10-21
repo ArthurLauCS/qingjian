@@ -48,6 +48,7 @@ impl Engine {
                 }
                 return Ok(Query {
                     segmentations: Vec::new(),
+                    spelled: 0,
                     candidates: CandidateList { items },
                     tail: keys.to_owned(),
                     text: self.composition.text().to_owned(),
@@ -56,6 +57,7 @@ impl Engine {
                     decoded_keys: self.shuangpin.is_some() || self.zhuyin,
                     shuangpin_raw_preedit: self.shuangpin.is_some() && self.shuangpin_raw_preedit,
                     typed_display: decoded.as_ref().map(|d| d.marked()),
+                    typed_case: None,
                     pinyin_choices: Vec::new(),
                     correction: None,
                     aux: None,
@@ -242,13 +244,13 @@ impl Engine {
             .as_ref()
             .filter(|_| head_wins)
             .map_or(tail, |t| &keys[t.head_len..]);
-        let typed_display = decoded.as_ref().map(|d| d.marked()).or_else(|| {
-            // 中文模式下 Shift 敲的大写：匹配按小写算，拼音行仍按敲的样子显示（`Cpan`）
-            (correction.is_none() && self.composition.has_shifted())
-                .then(|| join_marked_typed(&self.composition.typed_scope(), &segmentations, tail))
-        });
+        let typed_display = decoded.as_ref().map(|d| d.marked());
+        let typed_case =
+            (decoded.is_none() && correction.is_none() && self.composition.has_shifted())
+                .then(|| self.composition.typed_scope());
         Ok(Query {
             segmentations,
+            spelled: 0,
             candidates: CandidateList { items },
             tail: tail.to_owned(),
             text: self.composition.text().to_owned(),
@@ -257,6 +259,7 @@ impl Engine {
             decoded_keys: self.shuangpin.is_some() || self.zhuyin,
             shuangpin_raw_preedit: self.shuangpin.is_some() && self.shuangpin_raw_preedit,
             typed_display,
+            typed_case,
             pinyin_choices: Vec::new(),
             correction,
             aux: self.aux_segment(),

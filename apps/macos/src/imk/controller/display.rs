@@ -41,10 +41,13 @@ impl QingjianInputController {
                     cursor = query.marked_cursor();
                     preedit =
                         Preedit::from_marked(&query.marked_segments(), query.segments_cursor());
-                    query.candidates.items
+                    let candidates = std::mem::take(&mut query.candidates.items);
+                    (candidates, Some(query))
                 })
                 .unwrap_or_default();
+            let (candidates, spelling) = candidates;
             h.reset_session(preedit, candidates);
+            h.session.spelling = spelling;
             h.schedule_rescoring();
             (marked, cursor, h.preedit_mode.inline())
         }) else {
@@ -82,13 +85,19 @@ impl QingjianInputController {
         true
     }
 
-    /// 记下光标位置并按会话状态重画候选窗口。
+    /// 记下光标位置并按会话状态重画候选窗口；高亮换了切法不同的候选时 marked text 跟着换。
     pub(super) fn render(&self, client: TextClient<'_>) {
         let anchor = client.caret_rect();
-        host::with(|h| {
+        let marked = host::with(|h| {
+            let marked = h.follow_highlight().filter(|_| h.preedit_mode.inline());
             h.anchor = anchor;
             h.render();
-        });
+            marked
+        })
+        .flatten();
+        if let Some((text, cursor)) = marked {
+            client.set_marked_text(&text, cursor);
+        }
     }
 
     /// 发一次联想请求。Secure Input 里绝不发；没接联想器时是空操作。

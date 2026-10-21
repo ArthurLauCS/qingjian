@@ -11,6 +11,7 @@ TSV 解析、查询与生成工具把 `lue` / `nue` 统一成 `lve` / `nve`。
 旧 `.qj` 含这些键时，加载器建立规范化的内存词库。新 `.qj` 继续使用 mmap。
 TSV 的音节可带数字声调（`ni3`，轻声 5 或 0），键一律去调，声调只给显示（`Match::tones`，`tones.rs`）：五个音节以内压进 `Slot` 原来的 16 位填充（每音节 3 位，0 是不知道），
 更长的在那 16 位放溢出标记、声调进 `TSPL`（按词目下标升序，二分找）+ `TONE`（每音节一个 `0`–`5`）两节；没有长词带声调的词库与之前的旧文件没有这两节，旧文件填充是 0，读出来全是不知道。
+显示：`[general] show_tones` 开着时候选窗口顶部的拼音行按高亮候选标声调（`Engine::toned_syllables` 出逐音节带调拼音，`engine/reading.rs`；`Query::window_segments` 拼行，读音对不上敲的不换），应用里的 marked text 不变，帧里另给 `Frame::window_preedit`（DLL 不读）。整句从左往右取词库里最长的词，词库没标的字按单字声调表 `zhuyin::tone::usual` 补（首读音，或这个音只有一种声调），拿不准的不标；注音、九宫格不标。Linux 的 Fcitx 面板与行内拼音共用一串，还没接。
 `Dictionary::set_secondary` 标补充词库（不落盘，装配方标；随包的通用大词库 `dicts/general.qj`，文件名主干是 `GENERAL_DICTIONARY`），命中带 `Match::secondary`。
 辅码码表（`aux_code_table/`，`AuxCodeTable` = `Kind::AuxCodeTable` 的 `.qj`）是另一套存储：`TEXT` 词 arena + `CODE` 码 arena +
 `ENTR` 条目（12 字节，词字节序升序、同词相邻）+ `HASH` 词 → 条目区间起点（`qingjian_format::hash`）。查询只有
@@ -56,6 +57,8 @@ CandidateLayout 保持 `set_cloud` 的首页末尾布局与本地首项；`set_c
 （码表在 `Engine.aux_codes`，`set_aux_codes` 注入），不命中的隐藏，命中的按「完全匹配码 > 码长降序 > 原词频序」
 重排（stable sort 保住原序），命中码（没在筛码时是词的首条码）写进 `Candidate.aux_code`；码段非空时跳过整句 / 英文 / 快捷 / emoji / 自定义短语
 与云联想。preedit 分段多出 [触发键 `Typed`][码段 `MarkedKind::AuxCode`]，见 `Query::marked_segments`。
+拼音行按哪种切分画是 `Query::spelled`：缺省对着首选候选挑（与候选音节逐个相同的最多，其次是候选音节以敲的开头），壳换了高亮调 `Query::follow`（`ganga` 高亮 尴尬 是 `gan'ga`、刚啊 是 `gang'a`）；
+mac 存在 `Session::spelling`（`Host::follow_highlight`）、Windows / Linux 存在 `Composed::Candidates.spelling`，出帧时比一下高亮候选的切法，不同才重拼。Android 没有高亮移动，只跟首选。
 
 双拼 `Scheme::syllable` 优先解出键位表里的合法音节；解不出且该韵母键含 `v` 时，j / q / x / y + ü 规范化为 ju / qu / xu / yu。只补此前无效的组合，不覆盖微软 `jv` → jue 等既有解码。
 

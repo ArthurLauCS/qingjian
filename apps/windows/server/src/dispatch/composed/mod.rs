@@ -4,8 +4,8 @@ mod sentence_translation;
 mod state;
 
 use qingjian_core::{
-    Candidate, CandidateKind, CandidateLayout, CandidateList, Cell, CloudWord, GRID_ROWS, Grid,
-    Language, Query, Sense, SurroundingText, Translation,
+    Candidate, CandidateKind, CandidateLayout, CandidateList, Cell, CloudWord, Engine, GRID_ROWS,
+    Grid, Language, Query, Sense, SurroundingText, Translation,
 };
 use qingjian_platform::protocol::{Frame, PROTOCOL_VERSION, PreeditKind, PreeditSegment};
 
@@ -37,12 +37,13 @@ impl Router {
         }
         self.engine.cancel_composition_prediction();
         self.attach_loaded_model();
-        let built = self.engine.query().ok().map(|query| {
+        let built = self.engine.query().ok().map(|mut query| {
             let (preedit, cursor, typed_keys) = marked_parts(&query);
-            (query.candidates.items.clone(), preedit, cursor, typed_keys)
+            let items = std::mem::take(&mut query.candidates.items);
+            (items, preedit, cursor, typed_keys, Box::new(query))
         });
         self.composed = Some(match built {
-            Some((items, preedit, cursor, typed_keys)) => {
+            Some((items, preedit, cursor, typed_keys, spelling)) => {
                 let layout =
                     CandidateLayout::new(items, self.config.page_size, self.config.cloud_slots);
                 if self.config.cloud_enabled && self.engine.prediction_enabled() {
@@ -79,6 +80,7 @@ impl Router {
                     cursor,
                     typed_keys,
                     layout,
+                    spelling,
                     sentence_translation,
                     manual_sequence: None,
                 }
@@ -464,6 +466,7 @@ impl Router {
                 }],
                 preedit_mode: self.config.preedit,
                 cursor: *cursor,
+                window_preedit: None,
                 candidates: CandidateList { items: Vec::new() },
                 highlight: usize::MAX,
                 page: 0,
@@ -482,10 +485,27 @@ impl Router {
                 preedit,
                 cursor,
                 layout,
+                spelling,
                 ..
             }) => {
                 let page_size = self.config.page_size;
                 let highlight = self.highlight.min(layout.len().saturating_sub(1));
+                // 高亮候选的读音切法与首选不同（`ganga` 的 尴尬 / 刚啊）：拼音行按它重切
+                let candidate = layout.candidate(highlight);
+                let followed = (spelling.spelling_of(candidate) != spelling.spelled).then(|| {
+                    let mut followed = (**spelling).clone();
+                    followed.follow(candidate);
+                    followed
+                });
+                let query = followed.as_ref().unwrap_or(spelling);
+                let (preedit, cursor) = match &followed {
+                    Some(followed) => {
+                        let (preedit, cursor, _) = marked_parts(followed);
+                        (preedit, cursor)
+                    }
+                    None => (preedit.clone(), *cursor),
+                };
+                let window_preedit = window_parts(&self.engine, query, candidate, &preedit);
                 let page = highlight / page_size;
                 // 横排展开成矩阵时画视口里的几行（空位是占位候选），序号只标在高亮所在那一行；
                 // 单行时只画当前页。高亮下标跟着换成视口内的。
@@ -521,9 +541,10 @@ impl Router {
                 self.engine.annotate(&mut candidates);
                 self.annotate_sentence_translation(&mut candidates);
                 Frame {
-                    preedit: preedit.clone(),
+                    preedit,
                     preedit_mode: self.config.preedit,
-                    cursor: *cursor,
+                    cursor,
+                    window_preedit,
                     candidates,
                     highlight: highlight - first,
                     page,
@@ -557,6 +578,19 @@ fn empty_cell() -> Candidate {
         translation: None,
         aux_code: None,
     }
+}
+
+/// 候选窗口顶部的拼音行：带调拼音开着、高亮候选读得出声调时换成它的读音，与行内拼音相同时不另给。
+fn window_parts(
+    engine: &Engine,
+    query: &Query,
+    candidate: Option<&Candidate>,
+    preedit: &[PreeditSegment],
+) -> Option<Box<(Vec<PreeditSegment>, usize)>> {
+    let toned = engine.toned_syllables(candidate?)?;
+    let (segments, cursor) = query.window_segments(Some(&toned));
+    let segments: Vec<PreeditSegment> = segments.iter().map(Into::into).collect();
+    (segments != preedit).then(|| Box::new((segments, cursor)))
 }
 
 /// 一次查询的拼音行分段与光标，以及输入框另显示原始按键时的那一串。

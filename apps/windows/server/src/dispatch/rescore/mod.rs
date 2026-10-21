@@ -190,7 +190,7 @@ impl Router {
 
     /// 分回来了：按重排后的顺序重建候选布局，云端词与整句补全留着，重画当前页。
     fn requery_rescored(&mut self) {
-        let Ok(query) = self.engine.query() else {
+        let Ok(mut query) = self.engine.query() else {
             return;
         };
         let Some(Composed::Candidates {
@@ -198,6 +198,7 @@ impl Router {
             cursor,
             typed_keys,
             layout,
+            spelling,
             ..
         }) = self.composed.as_mut()
         else {
@@ -205,7 +206,7 @@ impl Router {
         };
         let cloud = layout.cloud().to_vec();
         let mut rebuilt = CandidateLayout::new(
-            query.candidates.items.clone(),
+            std::mem::take(&mut query.candidates.items),
             self.config.page_size,
             self.config.cloud_slots,
         );
@@ -218,6 +219,7 @@ impl Router {
         }
         *layout = rebuilt;
         (*preedit, *cursor, *typed_keys) = marked_parts(&query);
+        **spelling = query;
         let frame = self.self_drawn_frame();
         self.reconcile_candidates(&frame);
         // 前文在结果回来之前换过（Surrounding 晚到）：这次查询又记下了一批要打分的，再来一轮

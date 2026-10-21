@@ -38,6 +38,9 @@ pub struct GeneralConfig {
     /// 译文整体关掉（[`Self::learning_language`] 为 `off`）时此项无效果。
     pub translation_pos: bool,
 
+    /// 候选窗口顶部的拼音行按高亮候选显示带调拼音（`gān'gà`），应用里的拼音不变。缺省关。
+    pub show_tones: bool,
+
     /// 每页候选数，1–9。
     pub page_size: usize,
 
@@ -199,6 +202,7 @@ impl Default for GeneralConfig {
         Self {
             learning_language: "en".to_owned(),
             translation_pos: true,
+            show_tones: false,
             page_size: MAX_PAGE_SIZE,
             page_keys: PAGE_KEY_OPTIONS[0].to_owned(),
             appearance: Some(Appearance::default()),
