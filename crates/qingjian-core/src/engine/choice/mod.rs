@@ -11,6 +11,7 @@ mod worker;
 
 use std::sync::Arc;
 
+use super::input_log::ChoiceNote;
 use super::{Engine, take_last_chars};
 use crate::sentence::{LanguageModel, segment_text};
 use crate::{Candidate, CandidateKind};
@@ -111,7 +112,7 @@ impl Engine {
             typed: whole[0].1.clone(),
             texts: whole.iter().map(|(i, _)| items[*i].text.clone()).collect(),
         };
-        let Some(logits) = choice.cached(&request) else {
+        let Some((logits, ms)) = choice.cached(&request) else {
             *choice.wanted.borrow_mut() = Some(request);
             return;
         };
@@ -137,6 +138,12 @@ impl Engine {
             .max_by(|a, b| a.1.total_cmp(&b.1))
             .map_or(0, |(k, _)| k);
         self.last_rescored.set(true);
+        self.last_choice.set(Some(ChoiceNote {
+            from: whole[best].0 - whole[0].0,
+            ctx: request.context.chars().count(),
+            app: request.from_app,
+            ms,
+        }));
         if best != 0 {
             let candidate = items.remove(whole[best].0);
             items.insert(whole[0].0, candidate);
@@ -174,7 +181,7 @@ impl Engine {
                 continue;
             }
             updated |= chosen.serial == latest;
-            *choice.scored.borrow_mut() = Some((chosen.request, chosen.logits));
+            *choice.scored.borrow_mut() = Some((chosen.request, chosen.logits, chosen.ms));
         }
         updated
     }

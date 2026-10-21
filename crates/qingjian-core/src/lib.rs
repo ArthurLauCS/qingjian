@@ -48,7 +48,7 @@ pub use correction::Correction;
 pub use email::{EmailCompletion, email_completions};
 pub use emoji::{EmojiTable, skin_tone_variants};
 pub use engine::{
-    AnnotationReport, AuxSegment, BOOKS, Book, ChoiceModel, CloudWord, CommitEntry,
+    AnnotationReport, AuxSegment, BOOKS, Book, ChoiceModel, ChoiceNote, CloudWord, CommitEntry,
     DEFAULT_AUX_CODE_KEY, Encounter, Engine, EngineSession, FRESH_UNTIL, FilledGloss, Forgotten,
     GlossFiller, INPUT_LOG_VERSION, InputLogEntry, InputLogger, InputSource, Learner, LevelCount,
     MarkedKind, MarkedSegment, ModeKeys, NEURAL_MARGIN, NEURAL_WEIGHT, NoGlossFiller,

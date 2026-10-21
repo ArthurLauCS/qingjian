@@ -48,8 +48,8 @@ pub use choice::ChoiceModel;
 pub use commit::{LastCommit, Transition};
 pub use gloss::{FilledGloss, GlossFiller, NoGlossFiller};
 pub use input_log::{
-    CommitEntry, INPUT_LOG_VERSION, InputLogEntry, InputLogger, InputSource, LOGGED_CANDIDATES,
-    NoInputLogger,
+    ChoiceNote, CommitEntry, INPUT_LOG_VERSION, InputLogEntry, InputLogger, InputSource,
+    LOGGED_CANDIDATES, NoInputLogger,
 };
 pub use learning::{Forgotten, Learner, NoLearner};
 pub use marked::{AuxSegment, MarkedKind, MarkedSegment};
@@ -199,6 +199,9 @@ pub struct Engine {
 
     /// 最近一次查询的候选顺序是否经过神经重排（`rescore_paths` 置位，`query` 开头清零），写进输入日志。
     last_rescored: std::cell::Cell<bool>,
+
+    /// 最近一次查询里选词模型排过这页的记录（`rerank_choices` 写，`query` 开头清零），写进输入日志。
+    last_choice: std::cell::Cell<Option<input_log::ChoiceNote>>,
 
     /// 这段组句里第一次退格前的缓冲区：上屏时与最终键串不同就记一条 `retype`。
     retype_snapshot: Option<String>,
@@ -472,6 +475,7 @@ impl Engine {
             private: false,
             log_sequence: 0,
             last_rescored: std::cell::Cell::new(false),
+            last_choice: std::cell::Cell::new(None),
             retype_snapshot: None,
             held: Vec::new(),
             hold_selections: true,

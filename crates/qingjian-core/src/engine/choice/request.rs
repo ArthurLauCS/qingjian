@@ -5,7 +5,7 @@
 pub(crate) struct ChoiceRequest {
     pub context: String,
 
-    /// 前文来自应用里光标前的文字（壳给的）；`false` 是应用给不出、退回本会话最近上屏的字。只写日志用。
+    /// 前文来自应用里光标前的文字（壳给的）；`false` 是应用给不出、退回本会话最近上屏的字。只写输入日志用。
     pub from_app: bool,
 
     pub typed: Vec<u32>,

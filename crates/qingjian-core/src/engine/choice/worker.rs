@@ -12,6 +12,7 @@ pub(crate) struct Chosen {
     pub serial: u64,
     pub request: ChoiceRequest,
     pub logits: Vec<f32>,
+    pub ms: u64,
 }
 
 /// 选词模型的后台线程：一页候选要算几十毫秒，不能放在按键回调里。排队时只算最新的一条。
@@ -39,23 +40,14 @@ impl ChoiceWorker {
                     let texts: Vec<&str> = request.texts.iter().map(String::as_str).collect();
                     let started = std::time::Instant::now();
                     let logits = model.score(&request.context, &request.typed, &texts);
-                    // 排查「有没有看光标前的字」靠这一条：只记前文的来源与长度，不记内容
-                    tracing::info!(
-                        texts = texts.len(),
-                        context = if request.from_app {
-                            "应用"
-                        } else {
-                            "会话历史"
-                        },
-                        context_chars = request.context.chars().count(),
-                        ms = started.elapsed().as_millis(),
-                        "选词模型打分完成"
-                    );
+                    let ms = started.elapsed().as_millis() as u64;
+                    tracing::debug!(texts = texts.len(), ms, "选词模型打分完成");
                     if result_tx
                         .send(Chosen {
                             serial,
                             request,
                             logits,
+                            ms,
                         })
                         .is_err()
                     {

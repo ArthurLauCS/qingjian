@@ -12,7 +12,7 @@ pub(crate) struct ChoiceRanker {
     pub worker: ChoiceWorker,
 
     /// 最近打好分的一页；候选窗里一次只有一页要排，留一条就够。
-    pub scored: RefCell<Option<(ChoiceRequest, Vec<f32>)>>,
+    pub scored: RefCell<Option<(ChoiceRequest, Vec<f32>, u64)>>,
 
     /// 查询时还没分、等壳在停顿后送去后台的那页。
     pub wanted: RefCell<Option<ChoiceRequest>>,
@@ -28,11 +28,12 @@ impl ChoiceRanker {
         }
     }
 
-    pub fn cached(&self, request: &ChoiceRequest) -> Option<Vec<f32>> {
+    /// 这页的分与打分花的毫秒数。
+    pub fn cached(&self, request: &ChoiceRequest) -> Option<(Vec<f32>, u64)> {
         self.scored
             .borrow()
             .as_ref()
-            .filter(|(scored, _)| scored == request)
-            .map(|(_, logits)| logits.clone())
+            .filter(|(scored, _, _)| scored == request)
+            .map(|(_, logits, ms)| (logits.clone(), *ms))
     }
 }

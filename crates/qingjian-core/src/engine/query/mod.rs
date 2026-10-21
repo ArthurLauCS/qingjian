@@ -26,6 +26,7 @@ impl Engine {
     /// 上屏之后接着组句；见 [`Composition::scope`]。
     pub fn query(&self) -> Result<Query, ParseError> {
         self.last_rescored.set(false);
+        self.last_choice.set(None);
         let mut query = match self.query_inner() {
             Ok(query) => query,
             Err(error) => {
@@ -72,6 +73,7 @@ impl Engine {
                 .map(|c| c.text.clone())
                 .collect(),
             rescored: self.last_rescored.get(),
+            choice: self.last_choice.get(),
         });
         // 繁体输出：出 Core 的最后一步才换，并记下「繁体 → 简体」给上屏还原用。
         // 放在输入日志摘要之后，日志与学习数据一律记简体
