@@ -256,6 +256,8 @@ impl Router {
             .set_shuangpin_raw_preedit(config.general.shuangpin_raw_preedit);
         self.engine
             .set_hold_selections(config.general.hold_selections);
+        self.engine
+            .set_context_memory(config.model.context_memory_seconds);
         let previous = self.config.render_settings();
         let grid_keys = self.config.grid_keys();
         let next = RouterConfig::from(config);

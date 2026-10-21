@@ -9,10 +9,16 @@ use serde::{Deserialize, Serialize};
 pub struct LocalModelConfig {
     /// 开着就加载模型、给整句重排。
     pub enabled: bool,
+
+    /// 应用读不到光标前文时，这个应用里多少秒内上屏的字还给模型当前文；0 表示一直算。
+    pub context_memory_seconds: u64,
 }
 
 impl Default for LocalModelConfig {
     fn default() -> Self {
-        Self { enabled: true }
+        Self {
+            enabled: true,
+            context_memory_seconds: qingjian_core::DEFAULT_FRESH_SECONDS,
+        }
     }
 }

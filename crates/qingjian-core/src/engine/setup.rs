@@ -105,6 +105,11 @@ impl Engine {
         self.show_tones = show;
     }
 
+    /// 应用读不到光标前文时，本应用多少秒内上屏的字还当前文（配置项 `[model] context_memory_seconds`，0 表示一直算）。
+    pub fn set_context_memory(&mut self, seconds: u64) {
+        self.history.set_fresh_for(seconds);
+    }
+
     /// 設置是否啟用注音模式。開啟後鍵盤輸入按大千佈局解析。
     /// 学习开关（`[general] learning`）：关掉后不再记词频、用户词、个人 n-gram 与敲错表，已学的照常参与排序；
     /// 私密输入是另一个独立的开关（[`Self::set_private`]）。

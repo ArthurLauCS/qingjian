@@ -35,7 +35,7 @@ impl Engine {
     }
 
     /// 给模型看的前文：壳给了应用里的光标前文就用它（[`Self::set_rescoring_context`]），
-    /// 否则用本会话最近上屏的字符；长度按 `neural_context` 截。
+    /// 否则用当前应用最近上屏的字符（太久没打的不算）；长度按 `neural_context` 截。
     pub(super) fn rescoring_context(&self) -> String {
         if self.neural_context == 0 {
             return String::new();
