@@ -44,7 +44,6 @@ fn choice_waits_for_the_shell_then_moves_the_pick_up() {
     for c in "kaifa".chars() {
         engine.push(c);
     }
-    // 第一次查询没分：原样出候选，记下这页
     assert_eq!(first_texts(&engine), ["开发", "开罚"]);
     assert!(engine.rescoring_pending());
     assert!(engine.request_rescoring());
@@ -56,7 +55,6 @@ fn choice_waits_for_the_shell_then_moves_the_pick_up() {
     }
     assert_eq!(first_texts(&engine), ["开罚", "开发"]);
     assert!(!engine.rescoring_pending());
-    // 输入日志的那一项：原来第 2 位挪上来、前文是会话历史（空）
     let note = engine.last_choice.get().expect("排过这页");
     assert_eq!((note.from, note.ctx, note.app), (1, 0, false));
 }
