@@ -7,7 +7,7 @@ README.md 只介绍项目（各语言译本在 [i18n/](i18n/)），所有技术�
 | [design/](design/) | 设计：现在是什么样、为什么这么定 |
 | [plan/](plan/) | 计划：接下来做什么、按什么顺序 |
 | [notes/](notes/) | 工程记录：性能优化史、事故复盘、踩坑，按时间顺序写，以后复习与面试用 |
-| [user/](user/) | 用户文档：官网「文档」页的内容源，按目录结构渲染；维护约定见 [user/README.md](user/README.md) |
+| [user/](user/) | 用户文档：官网「文档」页的内容源，按目录结构渲染；中文原文在这里，各语言译本在 [user/i18n/](user/i18n/)；维护约定见 [user/README.md](user/README.md) |
 | [i18n/](i18n/) | 根目录 README.md 的各语言译本（繁體中文、English、日本語、Español、Tiếng Việt、Deutsch）；改 README 时一起改 |
 
 | 文件 | 内容 |
