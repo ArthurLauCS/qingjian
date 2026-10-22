@@ -32,6 +32,14 @@ https://github.com/user-attachments/assets/d145fde9-a641-4543-8b15-dd7a2685de3d
 - **Linux**：提供 Fcitx5 和 Fcitx4 源码安装，使用系统默认候选面板；目前需要手动启动后台服务，详见 [Linux 安装说明](https://qingjian.app/docs/platforms/linux)。
 - **Android**：预览版，功能比桌面版少；arm64 的 APK 在 [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) 下载，启用步骤见 [Android 说明](https://qingjian.app/docs/platforms/android)，从源码构建见 [apps/android](apps/android/README.md)。
 
+**官方发布渠道**：目前只有以下几个，其他地方的「青简」都不是官方发布的。
+
+- [官网下载页](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- 每版更新日志里给出的夸克网盘链接
+
+青简目前没有上架任何包管理器。
+
 macOS 与 Windows 版本仍处于测试阶段。安装后先选中青简，在「偏好设置 / 设置 → 通用」选择想学习的语言，就可以开始输入。第一次使用可从[第一次输入](https://qingjian.app/docs/getting-started/first-input)读起。
 
 ## 输入时，你会看到什么

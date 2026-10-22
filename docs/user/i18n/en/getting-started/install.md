@@ -7,6 +7,8 @@ description: "Installing on macOS and Windows: system requirements, installers, 
 The macOS and Windows versions are in beta. Get the installer from the [download page](https://qingjian.app/en/download).
 The Linux version is installed from a terminal, see [Linux](../platforms/linux.md); the Android version is installed from an APK, see [Android](../platforms/android.md).
 
+The only official release channels for now are the website's download page, [GitHub Releases](https://github.com/qingjian-team/qingjian/releases), and the Quark Drive link given in each version's changelog; a "Qingjian" from anywhere else isn't an official release. Qingjian isn't published in any package manager yet.
+
 ## macOS
 
 **Requirements**: macOS 13 or later. There is one installer for Apple Silicon and one for Intel; if you're not sure which Mac you have, choose  → About This Mac and look at the "Chip" line.

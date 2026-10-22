@@ -32,6 +32,14 @@ Video minh họa trên macOS cách nhập cả câu, sắp xếp lại từ gợ
 - **Linux**: Fcitx5 và Fcitx4 được cài từ mã nguồn và dùng bảng gợi ý mặc định của hệ thống; hiện tại cần khởi động dịch vụ nền thủ công, xem [Cài đặt trên Linux](https://qingjian.app/docs/platforms/linux).
 - **Android**: bản xem trước, ít tính năng hơn bản máy tính; tải APK arm64 tại [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest), cách bật xem [Android](https://qingjian.app/docs/platforms/android), tự biên dịch từ mã nguồn xem [apps/android](../../apps/android/README.md).
 
+**Kênh phát hành chính thức**: hiện chỉ có những kênh dưới đây; «Qingjian» ở nơi khác đều không phải bản phát hành chính thức.
+
+- [Trang tải về trên website](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- Liên kết Quark Drive ghi trong nhật ký thay đổi của từng phiên bản
+
+Qingjian hiện chưa được đưa lên trình quản lý gói nào.
+
 Bản macOS và Windows vẫn đang ở giai đoạn thử nghiệm (beta). Sau khi cài, hãy chọn Qingjian, vào «Tùy chọn / Cài đặt → Chung» để chọn ngôn ngữ muốn học, rồi bắt đầu gõ. Lần đầu sử dụng, bạn có thể đọc [Lần nhập đầu tiên](https://qingjian.app/docs/getting-started/first-input).
 
 ## Những gì bạn thấy khi gõ

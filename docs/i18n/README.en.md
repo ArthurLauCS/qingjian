@@ -32,6 +32,14 @@ The video shows sentence input, candidate reordering and candidate glosses on ma
 - **Linux**: Fcitx5 and Fcitx4 are installed from source and use the system's default candidate panel; the background service currently has to be started by hand — see [Linux installation](https://qingjian.app/docs/platforms/linux).
 - **Android**: a preview with fewer features than the desktop versions; download the arm64 APK from [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest), see [Android](https://qingjian.app/docs/platforms/android) for how to enable it, and [apps/android](../../apps/android/README.md) to build from source.
 
+**Official release channels**: these are the only ones for now; a "Qingjian" from anywhere else isn't an official release.
+
+- [The download page on the website](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- The Quark Drive link given in each version's changelog
+
+Qingjian isn't published in any package manager yet.
+
 The macOS and Windows builds are still in beta. After installing, select Qingjian, choose the language you want to learn under "Preferences / Settings → General", and start typing. For a first run, read [First input](https://qingjian.app/docs/getting-started/first-input).
 
 ## What you see while typing

@@ -32,6 +32,14 @@ https://github.com/user-attachments/assets/d145fde9-a641-4543-8b15-dd7a2685de3d
 - **Linux**：提供 Fcitx5 與 Fcitx4 原始碼安裝，使用系統預設的候選面板；目前需要手動啟動背景服務，詳見 [Linux 安裝說明](https://qingjian.app/docs/platforms/linux)。
 - **Android**：預覽版，功能比桌面版少；arm64 的 APK 在 [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) 下載，啟用步驟見 [Android 說明](https://qingjian.app/docs/platforms/android)，從原始碼建置見 [apps/android](../../apps/android/README.md)。
 
+**官方發布管道**：目前只有以下幾個，其他地方的「青簡」都不是官方發布的。
+
+- [官網下載頁](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- 每版更新日誌裡給出的夸克網盤連結
+
+青簡目前沒有上架任何套件管理器。
+
 macOS 與 Windows 版本仍在測試階段。安裝後先選取青簡，在「偏好設置 / 設置 → 通用」選擇想學習的語言，就可以開始打字。第一次使用可以從[第一次輸入](https://qingjian.app/docs/getting-started/first-input)讀起。
 
 ## 打字時，你會看到什麼

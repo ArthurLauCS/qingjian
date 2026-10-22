@@ -32,6 +32,14 @@ Das Video zeigt unter macOS die Satzeingabe, das Umsortieren der Kandidaten und 
 - **Linux**: Fcitx5 und Fcitx4 werden aus dem Quellcode installiert und nutzen das Standard-Kandidatenfenster des Systems; der Hintergrunddienst muss derzeit von Hand gestartet werden, siehe [Installation unter Linux](https://qingjian.app/docs/platforms/linux).
 - **Android**: eine Vorschau mit weniger Funktionen als die Desktop-Versionen; die arm64-APK gibt es unter [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest), zum Aktivieren siehe [Android](https://qingjian.app/docs/platforms/android), zum Bauen aus dem Quellcode [apps/android](../../apps/android/README.md).
 
+**Offizielle Bezugsquellen**: derzeit nur die folgenden; ein „Qingjian“ von anderswo ist keine offizielle Veröffentlichung.
+
+- [Die Download-Seite der Website](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- Der Quark-Drive-Link im Änderungsprotokoll der jeweiligen Version
+
+Qingjian ist bisher in keinem Paketmanager veröffentlicht.
+
 Die Versionen für macOS und Windows befinden sich noch in der Beta-Phase. Wähle nach der Installation Qingjian aus, lege unter „Einstellungen → Allgemein“ die Sprache fest, die du lernen möchtest, und fang an zu tippen. Für den Einstieg lies [Die erste Eingabe](https://qingjian.app/docs/getting-started/first-input).
 
 ## Was du beim Tippen siehst

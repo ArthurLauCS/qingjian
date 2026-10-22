@@ -32,6 +32,14 @@ https://github.com/user-attachments/assets/d145fde9-a641-4543-8b15-dd7a2685de3d
 - **Linux**：Fcitx5 と Fcitx4 はソースからインストールし、システム標準の候補パネルを使います。現時点ではバックグラウンドサービスを手動で起動する必要があります。詳しくは [Linux のインストール](https://qingjian.app/docs/platforms/linux)を参照してください。
 - **Android**：プレビュー版で、デスクトップ版より機能が少なめです。arm64 の APK は [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) からダウンロードできます。有効にする手順は [Android](https://qingjian.app/docs/platforms/android)、ソースからのビルドは [apps/android](../../apps/android/README.md) を参照してください。
 
+**公式の配布先**：現時点では次のものだけです。ほかの場所にある「青簡」は公式の配布ではありません。
+
+- [公式サイトのダウンロードページ](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- 各バージョンの更新履歴に載せている Quark ドライブのリンク
+
+青簡はまだどのパッケージマネージャーにも公開していません。
+
 macOS 版と Windows 版はまだベータ版です。インストール後に青簡を選択し、「環境設定 / 設定 → 一般」で学びたい言語を選べば、すぐに入力を始められます。初めての方は[はじめての入力](https://qingjian.app/docs/getting-started/first-input)からどうぞ。
 
 ## 入力中に表示されるもの

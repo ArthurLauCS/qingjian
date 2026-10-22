@@ -32,6 +32,14 @@ El vídeo muestra en macOS la entrada de frases completas, la reordenación de c
 - **Linux**: Fcitx5 y Fcitx4 se instalan desde el código fuente y usan el panel de candidatos predeterminado del sistema; por ahora el servicio en segundo plano se inicia a mano. Consulta la [instalación en Linux](https://qingjian.app/docs/platforms/linux).
 - **Android**: versión preliminar, con menos funciones que las de escritorio; descarga el APK arm64 en [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest). Para activarlo consulta [Android](https://qingjian.app/docs/platforms/android) y para compilarlo desde el código fuente, [apps/android](../../apps/android/README.md).
 
+**Canales oficiales de publicación**: por ahora solo son estos; un «Qingjian» de cualquier otro sitio no es una publicación oficial.
+
+- [La página de descargas del sitio web](https://qingjian.app/download)
+- [GitHub Releases](https://github.com/qingjian-team/qingjian/releases)
+- El enlace de Quark Drive que aparece en el registro de cambios de cada versión
+
+Qingjian todavía no está publicado en ningún gestor de paquetes.
+
 Las versiones de macOS y Windows siguen en fase beta. Tras instalarlo, selecciona Qingjian, elige el idioma que quieres aprender en «Preferencias / Ajustes → General» y empieza a escribir. Si es la primera vez, empieza por [Primera entrada](https://qingjian.app/docs/getting-started/first-input).
 
 ## Lo que ves al escribir
