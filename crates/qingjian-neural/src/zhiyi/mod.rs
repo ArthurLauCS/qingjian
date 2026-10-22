@@ -1,6 +1,6 @@
 //! 试验：知意输入法的选词模型（知意 1.4V2-Long-L12）给候选打分，CLI 回放对比与 Core 的选词重排共用。
-//! 两种权重：safetensors 版由 candle 跑（[`candle_forward`]，结构按模型包里的 README 实现：mmBERT-small 留 12 层的编码器 + 两层选词头），
-//! int8 ONNX 版由 ONNX Runtime 跑（[`onnx_forward`]，Windows 用）。分词、对齐、序列拼法两边共用。
+//! 两种权重：safetensors 版由 candle 跑（`candle_forward`，结构按模型包里的 README 实现：mmBERT-small 留 12 层的编码器 + 两层选词头），
+//! int8 ONNX 版由 ONNX Runtime 跑（`onnx_forward`，Windows 用）。分词、对齐、序列拼法两边共用。
 //! 权重 2026-10-20 起是 Apache-2.0，不随包，放用户目录；目录里要有 `tokenizer.json`、`unified_vocab.json`，
 //! 再加 `model.safetensors` + `config.json`，或 `laya.int8g.onnx`。
 
