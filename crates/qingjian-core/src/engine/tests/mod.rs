@@ -15,6 +15,7 @@ mod learning;
 mod lookup;
 mod nine_key;
 mod panel;
+mod polyphone;
 mod privacy;
 mod raw;
 mod reading;

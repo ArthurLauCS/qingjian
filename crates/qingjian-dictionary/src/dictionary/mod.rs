@@ -9,6 +9,10 @@ use crate::matching::Match;
 use crate::pattern::{SyllablePattern, canonical_syllable};
 use crate::tones::{self, SPILLED, Spill, Tones, split_tone};
 
+use self::readings::Readings;
+
+mod readings;
+
 /// 收窄到多小的区间就改成逐键比对。
 const LINEAR_SCAN_LIMIT: usize = 48;
 
@@ -97,6 +101,9 @@ pub struct Dictionary {
 
     /// 补充词库（通用大词库）：命中带上 [`Match::secondary`]，排序与整句里低主词库一档。不落盘，由装配方标。
     secondary: bool,
+
+    /// 多音字全部读音的词频之和，加载时从单音节的键算出来，不落盘。
+    readings: Readings,
 }
 
 impl Dictionary {
@@ -233,7 +240,9 @@ impl Dictionary {
             total_frequency,
             metadata: None,
             secondary: false,
+            readings: Readings::default(),
         }
+        .with_readings()
     }
 
     /// 按文件内容选加载方式：`.qj` 容器直接映射，否则当 TSV 解析。
@@ -361,7 +370,14 @@ impl Dictionary {
             total_frequency,
             metadata: Some(container.metadata().clone()),
             secondary: false,
-        })
+            readings: Readings::default(),
+        }
+        .with_readings())
+    }
+
+    fn with_readings(mut self) -> Self {
+        self.readings = Readings::build(&self);
+        self
     }
 
     /// 写成 `.qj`：内存里的四段原样落盘。`metadata.entries` 会填成词条数。
@@ -423,6 +439,7 @@ impl Dictionary {
                     text: self.text(slot),
                     pinyin: key,
                     frequency: slot.frequency,
+                    reading_total: self.reading_total(key, self.text(slot)),
                     tones: self.tones(position, slot),
                     secondary: self.secondary,
                     exact: true,
@@ -657,10 +674,20 @@ impl Dictionary {
                 text: self.text(slot),
                 pinyin: key,
                 frequency: slot.frequency,
+                reading_total: self.reading_total(key, self.text(slot)),
                 tones: self.tones(position, slot),
                 secondary: self.secondary,
                 exact,
             });
+        }
+    }
+
+    /// 单音节的键才可能是多音字，多音节的不查表（单字母简拼一查几万条）。
+    fn reading_total(&self, key: &str, text: &str) -> u32 {
+        if key.contains(' ') {
+            0
+        } else {
+            self.readings.total(text)
         }
     }
 

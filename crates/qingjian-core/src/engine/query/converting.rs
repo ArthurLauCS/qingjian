@@ -16,7 +16,7 @@ impl Engine {
         english_tail: Option<&EnglishTail>,
         head_wins: bool,
     ) {
-        let Some(best) = segmentations.first() else {
+        let Some(best) = self.sentence_segmentation(segmentations, typos) else {
             return;
         };
         let keys = self.composition.scope();
@@ -65,6 +65,35 @@ impl Engine {
                 }
             }
         }
+    }
+
+    /// 整句按哪种切分转：切分器只按结构排序（音节少、完整的在前），打平时靠贪心，`shangou` 排在前面的是 `shang ou`。
+    /// 打平的几种（音节数与不完整音节数都与第一种相同）各转一遍，取路径分最高的，分数相同时留排在前面的。
+    pub(in crate::engine) fn sentence_segmentation<'s>(
+        &self,
+        segmentations: &'s [Segmentation],
+        typos: bool,
+    ) -> Option<&'s Segmentation> {
+        let first = segmentations.first()?;
+        let tied = |s: &&Segmentation| {
+            s.syllables.len() == first.syllables.len()
+                && s.incomplete_count() == first.incomplete_count()
+        };
+        let mut best = (f64::NEG_INFINITY, first);
+        for segmentation in segmentations
+            .iter()
+            .take_while(tied)
+            .take(TIED_SEGMENTATIONS)
+        {
+            let score = self
+                .convert_sentence(&segmentation.patterns(), typos)
+                .filter(|conversion| !conversion.has_placeholder())
+                .map_or(f64::NEG_INFINITY, |conversion| conversion.score);
+            if score > best.0 {
+                best = (score, segmentation);
+            }
+        }
+        Some(best.1)
     }
 
     /// 整段拼音的整句候选：最优切分至少两个音节、且最优路径不止一个词时才有（空格上屏的就是它）。

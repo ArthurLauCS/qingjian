@@ -122,6 +122,7 @@ mod tests {
                     secondary: false,
                     penalty: 0.0,
                     tone: 0.0,
+                    reading: 0.0,
                 }]
             })
         };

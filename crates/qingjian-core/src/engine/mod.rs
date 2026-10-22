@@ -416,6 +416,9 @@ const RESCORE_PATHS: usize = 6;
 /// 长输入最多给几条整句候选（重排后的前几条路径）：一条不够用，长句错一个字就得拆开重打。
 const SENTENCE_CANDIDATES: usize = 3;
 
+/// 结构上打平的切分（`shang ou` / `shan gou`）最多比几种，见 [`Engine::sentence_segmentation`]。
+const TIED_SEGMENTATIONS: usize = 3;
+
 /// 短于这么多音节的不给备选整句：那时候选表里的词级候选比另一种读法有用。
 const ALTERNATE_MIN_SYLLABLES: usize = 4;
 

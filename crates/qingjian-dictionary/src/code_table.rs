@@ -152,6 +152,7 @@ impl CodeTable {
                 text: entry.text.as_str(),
                 pinyin: entry.code.as_str(),
                 frequency: entry.frequency,
+                reading_total: 0,
                 tones: Tones::default(),
                 secondary: false,
                 exact: entry.code == code,

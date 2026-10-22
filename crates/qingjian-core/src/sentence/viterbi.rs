@@ -8,7 +8,8 @@ use qingjian_dictionary::{Dictionary, Match, SyllablePattern};
 use super::{
     ABBREVIATED_SPAN_CANDIDATES, BEAM_WIDTH, Context, Conversion, LanguageModel,
     MAX_WORD_SYLLABLES, MIN_PARTIAL_LETTERS, Personal, SECONDARY_PENALTY, SPAN_CANDIDATES,
-    SentenceWord, SpanCache, SpanWord, TONE_PENALTY, fallback_log_prob, transition_log_prob,
+    SentenceWord, SpanCache, SpanWord, TONE_PENALTY, fallback_log_prob, reading_cost,
+    transition_log_prob,
 };
 use crate::ranking::weight_bonus;
 use crate::zhuyin::tone;
@@ -219,7 +220,7 @@ pub fn convert_paths(
                     start,
                     text: hit.text.clone(),
                     syllables: hit.syllables.clone(),
-                    score: score + bonus - hit.penalty - hit.tone,
+                    score: score + bonus - hit.penalty - hit.tone - hit.reading,
                     static_score,
                     back,
                     placeholder: false,
@@ -368,6 +369,7 @@ fn span_candidates(
             secondary: hit.secondary,
             penalty,
             tone,
+            reading: reading_cost(&hit),
         })
         .collect()
 }

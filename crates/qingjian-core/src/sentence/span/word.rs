@@ -19,4 +19,7 @@ pub struct SpanWord {
     /// 注音敲了声调时对不上的代价（[`super::super::TONE_PENALTY`] 乘声调代价），进路径得分时扣掉；与 `penalty` 分开记，
     /// 声调不对不算「不是敲的原样」。没有声调时是 0。
     pub tone: f64,
+
+    /// 读音少见的代价（[`super::super::reading_cost`]），进路径得分时扣掉；不是多音字时是 0。
+    pub reading: f64,
 }

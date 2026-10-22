@@ -251,6 +251,7 @@ fn legacy_qj_umlaut_keys_remain_queryable() {
         total_frequency: 190,
         metadata: None,
         secondary: false,
+        readings: Default::default(),
     };
     let dir = std::env::temp_dir().join("qingjian-dictionary-tests");
     std::fs::create_dir_all(&dir).unwrap();
@@ -318,4 +319,17 @@ fn tones_survive_qj_round_trip() {
     assert_eq!(six[0].tones.to_vec(6), [1, 4, 1, 4, 3, 4]);
     assert_eq!(six[1].tones.to_vec(6), [0; 6]);
     assert_eq!(reopened.lookup(&["lv"], false)[0].tones.get(0), 4);
+}
+
+#[test]
+fn reading_share_splits_a_polyphone_by_reading_frequency() {
+    let dictionary =
+        Dictionary::parse("区\tqu\t90\n区\tou\t9\n偶\tou\t5\n区别\tqu bie\t50\n").unwrap();
+    let ou = dictionary.lookup(&["ou"], false);
+    let share = |text: &str| ou.iter().find(|m| m.text == text).unwrap().reading_share();
+    assert!((share("区") - 10.0 / 100.0).abs() < 1e-9);
+    assert_eq!(share("偶"), 1.0);
+    // 多音节的词不查表
+    let bie = dictionary.lookup(&["qu", "bie"], false);
+    assert_eq!(bie[0].reading_share(), 1.0);
 }
