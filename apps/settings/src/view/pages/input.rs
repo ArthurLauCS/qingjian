@@ -37,7 +37,7 @@ pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErr
     let mut rows = vec![
         SettingRow::new("拼音")
             .info(if Feature::Schemes.here() {
-                "双拼与注音下 v、u、i 是按键，表达式和问字改用 Shift + V、Shift + U 进；自己的双拼方案放在数据目录的 schemes 文件夹里"
+                "双拼下表达式和问字用 Shift + V、Shift + U"
             } else {
                 "双拼与注音下 v、u、i 是按键，表达式和问字改用 Shift + V、Shift + U 进"
             })
@@ -59,7 +59,7 @@ pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErr
         ui,
         page,
         "分次选词先不上屏",
-        Some("一段拼音分几次选时，先选的词留在输入框里，整段选完再上屏；选错了按退格撤回重选"),
+        Some("分几次选的词整段选完再上屏，退格可重选"),
         ("general", "hold_selections"),
         general.hold_selections,
         false,
@@ -80,7 +80,7 @@ pub fn input(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErr
         let control = select(ui, page, Popup::Code, (&current, &names), 160.0, false)?;
         rows.push(
             SettingRow::new("形码")
-                .info("跟拼音同时开就是混输，形码打全的词排在前面；拼音和形码不能都关；自己的方案放在数据目录的 schemes 文件夹里")
+                .info("和拼音同时开就是混输")
                 .control(control)
                 .build(ui, theme)?,
         );
@@ -137,7 +137,7 @@ fn key_hint(ui: &mut Ui<Message>, page: &Page) -> Result<[NodeId; 3], RenderErro
         false,
     )?;
     let mode = SettingRow::new("键位提示")
-        .info("候选窗口旁显示键盘：双拼敲了声母后标出能接的韵母键，五笔显示字根图")
+        .info("候选窗口旁显示键位")
         .control(control)
         .build(ui, theme)?;
     let off = general.key_hint == KeyHintMode::Off;
@@ -172,7 +172,7 @@ fn aux_code(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErro
             ui,
             page,
             "启用",
-            Some("拼音打完敲触发键（缺省是分号），再敲码筛选候选"),
+            Some("拼音后敲分号，再敲码筛选候选"),
             ("aux_code", "enabled"),
             aux.enabled,
             false,
@@ -257,7 +257,7 @@ fn aux_scheme(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderError> 
         !aux.enabled || options.is_empty(),
     )?;
     SettingRow::new("辅码方案")
-        .info("同一时间用一套；导入的码表和数据目录 schemes 文件夹里的辅码方案都在这里选")
+        .info("选一套辅码")
         .control(control)
         .build(ui, &page.theme)
 }

@@ -37,6 +37,8 @@ All settings are kept in one TOML text file, `config.toml`, with a note for ever
 | `[general] learning_language` | 候选 → 译文 (Candidates → Gloss) | `off` hides glosses |
 | `[general] english_in_chinese` | 候选 → 打拼音时也给英文词 (Candidates → English words while typing pinyin) | `true` / `false` |
 | `[model] enabled` | 候选 → 本地整句模型 (Candidates → Local sentence model) | `true` / `false` |
+| `[model] name`, `zhiyi_tier` | 实验功能 (Experimental features) → which model, Zhiyi's level | `name`: `tongbian` (default), `zhiwei`, `zhiyi`; a model that isn't downloaded falls back to `tongbian`. `zhiyi_tier`: `saver`, `balanced` (default), `accurate` |
+| `[model] context_memory_seconds` | Configuration file only | When an app doesn't share the text before the cursor, how long what you just typed counts as context; default 60, 0 means always |
 | `[general] english_mode` | 中英文 → 英文模式 (Chinese/English → English mode) | `false` keeps it in Chinese |
 | `[shortcut] switch_mode` | 中英文 → 切换键 (Chinese/English → Switch key) | A list, such as `["shift", "control"]` |
 | `[general] default_english`, `remember_mode_per_app` | 中英文 → 默认英文模式, 按应用记住中英模式 (Chinese/English → Start in English mode, Remember mode per app) | `true` / `false` |

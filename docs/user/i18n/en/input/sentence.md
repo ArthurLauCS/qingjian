@@ -45,6 +45,16 @@ Qingjian ships with a small model that reorders sentence candidates on your devi
 - Once you've paged further or moved the highlight with the arrow keys, the model's result no longer replaces the page you're looking at.
 - For the first few seconds after the input method starts, the model is still loading and sentences come from the dictionary.
 - On older Macs (for example, macOS 14 without the required graphics features), the model runs on the processor instead and ranking may be a little slower.
+- The bundled model (Hanzhang Tongbian) looks only at the pinyin you typed; Zhiyi and Hanzhang Zhiwei from the experimental features also read the few dozen characters before the cursor. When an app doesn't share its text (some terminals and Electron apps), they use what you just typed in that text box instead: switching apps or text boxes starts over, and text older than a minute without typing no longer counts. That time is `context_memory_seconds` in the `[model]` section of the configuration file; 0 means always count it.
 
 If you don't want it, turn off 本地整句模型 (Local sentence model) under 设置 → 候选 (Settings → Candidates); ranking then uses the dictionary only. This doesn't affect AI services.
 To use your own model, see [Data files and logs](../advanced/data-files.md#Using-your-own-local-sentence-model).
+
+### Experimental features
+
+On macOS and Windows, 设置 → 实验功能 (Settings → Experimental features) lets you download two more models. Both have to be downloaded and turned on by hand:
+
+- **Zhiyi** (recommended): reads the characters before the cursor and the pinyin you typed, and picks the first candidate from the top few in the candidate window. It's trained and licensed by the author of [Zhiyi IME](https://github.com/dd1000001000/zhiyi_ime); about 154 MB on macOS and 70 MB on Windows. While it's on you can pick a level: 省电 (Power saving), 均衡 (Balanced) or 准确 (Accurate). Higher levels compare more candidates and read more context, and use more power; pick power saving on older computers or if typing feels slow or the machine gets hot.
+- **Hanzhang Zhiwei**: reads the characters before the cursor to reorder sentence candidates; about 52 MB.
+
+Click 下载 (Download) to see a progress bar; you can cancel. Once downloaded, the model is turned on. Only one model is used at a time: turning one on turns the other off, and with both off the bundled Tongbian is used. Models are fetched from both Gitee and GitHub, from whichever answers first, switching if one drops, and every part is checked against its checksum. Linux doesn't support these two models yet.

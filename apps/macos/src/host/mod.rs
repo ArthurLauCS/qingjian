@@ -212,11 +212,8 @@ pub struct Host {
     rescore: RescoreMonitor,
 
     /// 正在后台加载的模型；加载完接到 Engine 上就清掉。
-    model_loader: Option<
-        std::sync::mpsc::Receiver<
-            Result<Box<dyn qingjian_core::sentence::SentenceScorer>, qingjian_neural::NeuralError>,
-        >,
-    >,
+    model_loader:
+        Option<std::sync::mpsc::Receiver<Result<model::LoadedModel, qingjian_neural::NeuralError>>>,
 
     /// 上次套用的 `[model]`，变了才重载 / 卸载。
     applied_model: Option<LocalModelConfig>,

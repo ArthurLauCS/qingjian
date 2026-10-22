@@ -41,7 +41,7 @@ use self::panel::PanelGrid;
 pub use self::panel::{PanelCell, PanelFrame, PanelMouse};
 use self::reload::ConfigReload;
 pub use self::reload::{DataDirs, attach_cloud};
-pub use self::rescore::find_model;
+pub use self::rescore::{ModelDirs, find_model};
 use self::rescore::{ModelLoader, RescoreState};
 pub use self::schemes::find_bundled_schemes;
 use self::session::SessionInfo;
@@ -135,8 +135,8 @@ pub struct Router {
     /// 上次显示的面板与光标矩形，没变就不重画；面板没在显示时为 `None`。
     last_panel: Option<(PanelFrame, Option<ScreenRect>)>,
 
-    /// 本地整句模型（`.qjm` 或三件套目录）；没有模型文件为 `None`。
-    model_path: Option<PathBuf>,
+    /// 去哪找本地模型。
+    model_dirs: ModelDirs,
 
     /// 随包的方案目录（启动时找好的，见 [`schemes::find_bundled_schemes`]）；没有为 `None`。
     bundled_schemes: Option<PathBuf>,
@@ -195,7 +195,7 @@ impl Router {
             last_shown: None,
             panel: None,
             last_panel: None,
-            model_path: None,
+            model_dirs: ModelDirs::default(),
             bundled_schemes: None,
             scheme_slot: SchemeSlot::default(),
             model_loader: None,

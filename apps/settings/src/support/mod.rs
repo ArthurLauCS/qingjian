@@ -42,11 +42,13 @@ pub enum Feature {
     KeyHint,
     /// 拼音行按高亮候选显示带调拼音。
     ShowTones,
+    /// 「实验功能」页：下载、启用知意与含章·知微。
+    ExperimentalModels,
 }
 
 impl Feature {
     #[cfg(test)]
-    pub const ALL: [Self; 19] = [
+    pub const ALL: [Self; 20] = [
         Self::AuxCode,
         Self::Schemes,
         Self::SwitchKeys,
@@ -66,6 +68,7 @@ impl Feature {
         Self::VocabularyTranslation,
         Self::KeyHint,
         Self::ShowTones,
+        Self::ExperimentalModels,
     ];
 
     /// 当前平台显示这一项。
@@ -113,6 +116,8 @@ impl Feature {
             Self::KeyHint => [Yes, Yes, Todo],
             // Fcitx 面板与应用里的行内拼音共用一串，还没分开
             Self::ShowTones => [Yes, Yes, Todo],
+            // Windows、Linux 的服务进程还没接知意；没有 GPU 时 CPU 上打分要发烫，先只开 macOS（Metal）
+            Self::ExperimentalModels => [Yes, Yes, Todo],
         }
     }
 
@@ -139,6 +144,7 @@ impl Feature {
             Self::VocabularyTranslation => "生词本整句翻译",
             Self::KeyHint => "双拼键位提示",
             Self::ShowTones => "拼音行显示声调",
+            Self::ExperimentalModels => "实验功能（知意、含章·知微）",
         }
     }
 
@@ -173,7 +179,8 @@ impl Feature {
             | Self::EnglishPunctuation
             | Self::StatusBar
             | Self::HorizontalGrid
-            | Self::ApiUsage => &[],
+            | Self::ApiUsage
+            | Self::ExperimentalModels => &[],
         }
     }
 }

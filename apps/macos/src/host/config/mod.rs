@@ -51,6 +51,8 @@ impl Host {
             .set_shuangpin_raw_preedit(config.general.shuangpin_raw_preedit);
         self.engine
             .set_hold_selections(config.general.hold_selections);
+        self.engine
+            .set_context_memory(config.model.context_memory_seconds);
         self.engine.set_learning(config.general.learning);
         logging::set_level(config.general.log_level);
         self.translation_keys = config.shortcut.translation_keys();
@@ -122,14 +124,21 @@ impl Host {
         if force || config.dictionaries != self.applied_dictionaries {
             self.reload_dictionaries();
         }
-        if self.applied_model.as_ref() != Some(&config.model) {
+        // 只有开关与选的模型变了才换；档位、前文记多久当场改
+        let wanted = (config.model.enabled, config.model.name);
+        let applied = self
+            .applied_model
+            .as_ref()
+            .map(|model| (model.enabled, model.name));
+        if applied != Some(wanted) {
+            self.unload_local_model();
             if config.model.enabled {
-                self.load_local_model();
-            } else {
-                self.unload_local_model();
+                self.load_local_model(config.model.name);
             }
-            self.applied_model = Some(config.model.clone());
         }
+        self.engine
+            .set_choice_tier(config.model.zhiyi_tier.choice_tier());
+        self.applied_model = Some(config.model.clone());
         let cloud_active = self.engine.prediction_enabled();
         self.indicator.set_cloud(cloud_active);
         self.indicator.update();

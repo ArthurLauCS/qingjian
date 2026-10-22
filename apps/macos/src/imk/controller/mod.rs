@@ -112,6 +112,7 @@ define_class!(
                 }
                 host::with(|h| {
                     h.engine.set_application(bundle);
+                    h.engine.enter_input_box();
                     h.refresh_text_replacements();
                     h.reload_config_if_changed();
                     h.indicator.activate();
@@ -179,8 +180,8 @@ define_class!(
 /// 翻译选中文字最多接受多少个字符：再长既慢又贵，也不是输入法该干的事。
 const MAX_TRANSLATE_CHARS: usize = 500;
 
-/// 给本地整句模型看的光标前文最多读多少字符（Engine 自己再按它的前文长度截）。
-const RESCORE_LOOKBACK: usize = qingjian_core::RESCORE_CONTEXT_CHARS;
+/// 给本地模型看的光标前文最多读多少字符：知意英文要 192，含章由 Engine 再按它的前文长度截。
+const RESCORE_LOOKBACK: usize = 192;
 
 /// 登录 / 锁屏窗口的 bundle identifier。
 const LOGIN_WINDOW: &str = "com.apple.loginwindow";

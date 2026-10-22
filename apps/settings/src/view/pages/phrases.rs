@@ -48,9 +48,7 @@ pub fn phrases(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderE
             ui,
             page,
             "也用系统的文本替换",
-            Some(
-                "系统设置「键盘 → 文本替换」里输入码全是小写字母的条目也能打；它们不在上面列出，要改请到系统设置",
-            ),
+            Some("系统「文本替换」里的条目也能打"),
             ("general", "system_text_replacements"),
             config.general.system_text_replacements,
             false,

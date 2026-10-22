@@ -37,6 +37,8 @@ description: 青简的全部设置保存在一个文本配置文件里：位置�
 | `[general] learning_language` | 候选 → 译文 | `off` 为不显示译词 |
 | `[general] english_in_chinese` | 候选 → 打拼音时也给英文词 | `true` / `false` |
 | `[model] enabled` | 候选 → 本地整句模型 | `true` / `false` |
+| `[model] name`、`zhiyi_tier` | 实验功能 → 用哪个模型、知意的档位 | `name`：`tongbian`（缺省）、`zhiwei`、`zhiyi`，选了没下载的按 `tongbian`；`zhiyi_tier`：`saver`、`balanced`（缺省）、`accurate` |
+| `[model] context_memory_seconds` | 只在配置文件里 | 应用不给光标前文时，刚打的字算作前文的时长，缺省 60，0 为一直算 |
 | `[general] english_mode` | 中英文 → 英文模式 | `false` 为固定中文 |
 | `[shortcut] switch_mode` | 中英文 → 切换键 | 列表，如 `["shift", "control"]` |
 | `[general] default_english`、`remember_mode_per_app` | 中英文 → 默认英文模式、按应用记住中英模式 | `true` / `false` |
