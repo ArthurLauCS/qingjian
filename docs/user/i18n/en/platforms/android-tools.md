@@ -13,7 +13,7 @@ description: "Qingjian for Android: clipboard and saved phrases, quick translati
 
 ## Setting up AI services
 
-Quick translation, translating selected text, gloss fallback and cloud suggestions all use AI services: in the Qingjian app, under 我的 → 键盘设置 → 云端大模型 (Me → Keyboard settings → Cloud LLM), enter the API address, model and API key of an OpenAI-compatible service, and tap 测试连接 (Test connection) to check.
+Quick translation, translating selected text, filling in glosses and cloud suggestions all use AI services: in the Qingjian app, under 我的 → 键盘设置 → 云端大模型 (Me → Keyboard settings → Cloud LLM), enter the API address, model and API key of an OpenAI-compatible service, and tap 测试连接 (Test connection) to check.
 The key is stored encrypted on the phone and can't be recovered after Qingjian is uninstalled. Using it incurs data usage and the provider's charges.
 
 ## Quick translation
@@ -32,9 +32,9 @@ After selecting text in any app, tap 青简翻译 (Qingjian Translate) in the sy
 
 If AI services aren't set up, the card has a 去设置 (Go to settings) button.
 
-## Gloss fallback
+## Filling in glosses
 
-A few words have no gloss in the glossary, leaving the space beside the candidate empty. With 释义兜底 (Gloss fallback) on under 云端大模型 (Cloud LLM), committing such a word asks AI to write a gloss for it, which is stored on the phone; the next time you type the word, the gloss appears beside the candidate and is recorded in the vocabulary book too.
+A few words have no gloss in the glossary, leaving the space beside the candidate empty. With 补充译词 (Fill in glosses) on under 云端大模型 (Cloud LLM), committing such a word asks AI to write a gloss for it, which is stored on the phone; the next time you type the word, the gloss appears beside the candidate and is recorded in the vocabulary book too.
 Only the word itself is sent. Off by default, and can't be turned on until AI services are set up. Nothing is sent when the learning language is set to none or in private input fields.
 
 ## Cloud suggestions and sentence completion
@@ -42,5 +42,5 @@ Only the word itself is sent. Off by default, and can't be turned on until AI se
 With 云联想与整句补全 (Cloud suggestions and sentence completion) on under 云端大模型 (Cloud LLM), pause briefly while typing pinyin and Qingjian sends the pinyin and a short piece of text around the cursor to AI; the words and sentences it returns come after the first candidate, marked with a small cloud and shown in cyan, including when all candidates are expanded. Tap a sentence to commit it.
 
 - Works on the 9-key keypad too; what's sent is the pinyin shown on the pinyin line.
-- 只在 Wi-Fi 下使用 (Wi-Fi only) is on by default: nothing is sent on mobile data. Quick translation and gloss fallback aren't affected.
+- 只在 Wi-Fi 下使用 (Wi-Fi only) is on by default: nothing is sent on mobile data. Quick translation and filling in glosses aren't affected.
 - Off by default, and can't be turned on until AI services are set up. Nothing is sent from private input fields.
