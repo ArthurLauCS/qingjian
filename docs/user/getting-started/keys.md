@@ -1,7 +1,7 @@
 ---
 title: 按键速查
 order: 3
-description: 青简在 macOS、Windows 与 Linux 上的缺省按键：切换、选词、翻页、移动光标、译词、删除候选、符号面板、AI 功能与前缀键。
+description: 青简在 macOS、Windows 与 Linux 上的缺省按键：切换、选词、翻页、移动光标、译词、候选右键菜单、符号面板、AI 功能与前缀键。
 ---
 
 本页只列按键。表中 `⌥` 为 Option，`⌘` 为 Command，`⌃` 为 Control，`⇧` 为 Shift；「—」表示该平台没有此键。
@@ -67,15 +67,15 @@ Windows 与 Linux 的中 / 英切换键还可以选单击 `Ctrl` 或 `Ctrl + Alt
 | 移动高亮 / 翻页 | `↑` / `↓`、翻页键 |
 | 原样输出所敲字母 | `Enter`、标点 |
 
-## 译词与删除候选
+## 译词与右键菜单
 
 | 操作 | macOS | Windows | Linux |
 |---|---|---|---|
 | 上屏第 N 个候选的第一条译词 | `⌥ + 数字` | `Ctrl + 数字` | `Alt + 数字` |
 | 上屏第二条译词（词条有第二条时） | `⇧⌥ + 数字` | `Ctrl + Shift + 数字` | `Alt + Shift + 数字` |
-| 删除第 N 个候选 | `⇧ + 数字` | `Shift + 数字` | `Shift + 数字` |
+| 置顶 / 降权 / 删除候选 | 右键候选，或 `⌃` 点按 | 右键候选 | 暂不支持 |
 
-只在打拼音时有效。见 [候选旁的译词](../learning/translation.md#直接上屏译词) 与 [输入习惯](../personalize/habits.md#删除不需要的候选)。
+只在打拼音时有效。见 [候选旁的译词](../learning/translation.md#直接上屏译词) 与 [输入习惯](../personalize/habits.md#候选右键菜单)。
 
 ## AI 服务
 

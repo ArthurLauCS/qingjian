@@ -37,5 +37,5 @@ All data exists only on your device; once deleted it can't be recovered, and the
 
 - To clear only the input log: 设置 → 高级 → 清空输入日志 (Settings → Advanced → Clear input log).
 - To clear the vocabulary book for one language: 设置 → 生词本 → 清空 (Settings → Vocabulary book → Clear).
-- To delete a word Qingjian has learned: press `⇧ + number` while typing pinyin; see [Typing habits](../personalize/habits.md#Deleting-candidates-you-don't-want).
+- To delete a word Qingjian has learned: right-click that candidate while typing pinyin and choose 删除 (Delete); see [Typing habits](../personalize/habits.md#Candidate-right-click-menu).
 - To remove an imported dictionary: 移除 (Remove) in 设置 → 词库 (Settings → Dictionaries) only moves the file to `dicts/removed/` in the data folder; delete that folder yourself to remove it for good.

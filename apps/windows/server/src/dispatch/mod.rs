@@ -30,7 +30,9 @@ use qingjian_platform::protocol::{
 use qingjian_platform::{LocalModelConfig, SchemeSlot};
 use qingjian_render::Mode;
 
-pub use self::candidates::{CandidateSink, NoopSink, RenderSettings};
+pub use self::candidates::{
+    CandidateMenu, CandidateMouse, CandidateSink, NoopSink, RenderSettings,
+};
 use self::composed::Composed;
 pub use self::config::RouterConfig;
 use self::key_hint::KeyHintState;

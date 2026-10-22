@@ -123,6 +123,44 @@ pub fn merge_replacements<'a>(
     phrases
 }
 
+/// 候选菜单里的「置顶」：让 `text` 成为输入码 `code` 下排第一的短语。权重取这个码别的短语里最高的加一
+/// （封顶 999，没有别的就用缺省权重），并挪到同码短语的最前面，权重打平也是它先。已有同码同文本的就改那条。
+/// 已经是唯一最高的返回 `false`，列表不动。
+pub fn pin(phrases: &mut Vec<CustomPhrase>, code: &str, text: &str) -> bool {
+    let top = phrases
+        .iter()
+        .filter(|p| p.enabled && p.code == code && p.text != text)
+        .map(|p| p.weight)
+        .max();
+    let existing = phrases
+        .iter()
+        .position(|p| p.code == code && p.text == text);
+    let mut phrase = match existing {
+        Some(index) => {
+            let phrase = &phrases[index];
+            if phrase.enabled && top.is_none_or(|top| phrase.weight > top) {
+                return false;
+            }
+            phrases.remove(index)
+        }
+        None => CustomPhrase::new(code, text),
+    };
+    if let Some(top) = top {
+        phrase.weight = (top + 1).min(*WEIGHTS.end());
+    }
+    phrase.enabled = true;
+    let first = phrases.iter().position(|p| p.code == code);
+    phrases.insert(first.unwrap_or(phrases.len()), phrase);
+    true
+}
+
+/// 候选菜单里的「取消置顶」：删掉输入码 `code` 下文字是 `text` 的短语。返回有没有删。
+pub fn unpin(phrases: &mut Vec<CustomPhrase>, code: &str, text: &str) -> bool {
+    let before = phrases.len();
+    phrases.retain(|p| !(p.code == code && p.text == text));
+    phrases.len() < before
+}
+
 impl CustomPhrase {
     /// 缺省权重、启用的一条。
     pub fn new(code: &str, text: &str) -> Self {
@@ -163,7 +201,10 @@ impl CustomPhrase {
 
 #[cfg(test)]
 mod tests {
-    use super::{CustomPhrase, DEFAULT_WEIGHT, merge_replacements, parse_weight, validate_phrases};
+    use super::{
+        CustomPhrase, DEFAULT_WEIGHT, merge_replacements, parse_weight, pin, unpin,
+        validate_phrases,
+    };
 
     #[test]
     fn replacements_follow_the_users_phrases() {
@@ -218,5 +259,45 @@ mod tests {
         assert_eq!(read("").unwrap().weight, DEFAULT_WEIGHT);
         assert!(read("position = 10").is_err());
         assert!(!read("enabled = false").unwrap().enabled);
+    }
+
+    #[test]
+    fn pinning_beats_every_other_phrase_of_the_code() {
+        let mut phrases = vec![
+            CustomPhrase::new("qj", "青简"),
+            CustomPhrase {
+                weight: 30,
+                ..CustomPhrase::new("qj", "前进")
+            },
+            CustomPhrase::new("cp", "C盘"),
+        ];
+        assert!(pin(&mut phrases, "qj", "前几"));
+        assert_eq!(phrases[0].text, "前几");
+        assert_eq!(phrases[0].weight, 31);
+
+        // 已有的短语挪到最前、权重抬上去；已经最高就不动
+        assert!(pin(&mut phrases, "qj", "青简"));
+        assert_eq!((phrases[0].text.as_str(), phrases[0].weight), ("青简", 32));
+        assert!(!pin(&mut phrases, "qj", "青简"));
+
+        // 码下没有别的短语用缺省权重
+        assert!(pin(&mut phrases, "sj", "时间"));
+        assert_eq!(phrases.last().unwrap().weight, DEFAULT_WEIGHT);
+        assert!(validate_phrases(&phrases).is_ok());
+
+        assert!(unpin(&mut phrases, "qj", "前几"));
+        assert!(!unpin(&mut phrases, "qj", "前几"));
+        assert_eq!(phrases.len(), 4);
+    }
+
+    #[test]
+    fn pinning_at_the_top_weight_still_comes_first() {
+        let mut phrases = vec![CustomPhrase {
+            weight: 999,
+            ..CustomPhrase::new("qj", "前进")
+        }];
+        pin(&mut phrases, "qj", "前几");
+        assert_eq!(phrases[0].text, "前几");
+        assert_eq!(phrases[0].weight, 999);
     }
 }

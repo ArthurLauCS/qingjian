@@ -1,7 +1,7 @@
 ---
 title: Changing keys
 order: 2
-description: "The 快捷键 (Shortcuts) page in Settings: paging keys, extra paging keys, highlight keys, the full-width/half-width punctuation shortcut, prefix letters for calculations and asking about characters, modifiers for glosses and deleting candidates, shortcuts for translation and AI suggestions."
+description: "The 快捷键 (Shortcuts) page in Settings: paging keys, extra paging keys, highlight keys, the full-width/half-width punctuation shortcut, prefix letters for calculations and asking about characters, modifiers for glosses, shortcuts for translation and AI suggestions."
 ---
 
 All changeable keys are in 设置 → 快捷键 (Settings → Shortcuts), and changes take effect immediately. 恢复默认 (Restore defaults) at the bottom of the page resets the keys on this page, and below it are the keys that are fixed while typing pinyin and can't be changed. The full table of default keys is in the [Key reference](../getting-started/keys.md).
@@ -38,9 +38,9 @@ To use a different key combination, see [Editing the configuration file](../adva
 
 With ? 也进问字 (? also asks about a character) on, typing `?` when you're not typing pinyin, followed by pinyin, also asks about a character; see [Asking about a character](../cloud/question-and-translate.md#Asking-about-a-character).
 
-## Glosses and deleting candidates
+## Glosses
 
-上屏第一个译词 (Commit first gloss), 上屏第二个译词 (Commit second gloss) and 删除候选 (Delete candidate) are each a modifier key used together with the number keys. Click one, then hold the modifier and press any number to record it.
+上屏第一个译词 (Commit first gloss) and 上屏第二个译词 (Commit second gloss) are each a modifier key used together with the number keys. Click one, then hold the modifier and press any number to record it.
 
 Defaults:
 
@@ -48,9 +48,8 @@ Defaults:
 |---|---|---|---|
 | Commit first gloss | `⌥` | `Ctrl` | `Alt` |
 | Commit second gloss | `⇧⌥` | `Ctrl + Shift` | `Alt + Shift` |
-| Delete candidate | `⇧` | `Shift` | `Shift` |
 
-On macOS, avoid `⌃ + number` (the system uses it to switch desktops) and `⌘ + number` (apps use it to switch tabs); on Windows, apps take `Alt + number` as a menu shortcut, which is why `Ctrl` is the default. The three can't conflict with each other; if you record a key that can't be used, the reason is shown below that row.
+On macOS, avoid `⌃ + number` (the system uses it to switch desktops) and `⌘ + number` (apps use it to switch tabs); on Windows, apps take `Alt + number` as a menu shortcut, which is why `Ctrl` is the default. The two can't be the same; if you record a key that can't be used, the reason is shown below that row. Deleting candidates is now in the candidate right-click menu; see [Typing habits](habits.md#Candidate-right-click-menu).
 
 ## Translation and AI suggestions
 

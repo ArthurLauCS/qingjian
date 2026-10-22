@@ -1,7 +1,7 @@
 ---
 title: Typing habits
 order: 5
-description: "What Qingjian remembers from your typing, how old habits slowly fade, deleting candidates you don't want, turning learning off and starting over."
+description: "What Qingjian remembers from your typing, how old habits slowly fade, pinning, demoting and deleting candidates from the right-click menu, turning learning off and starting over."
 ---
 
 Qingjian remembers your typing habits so that words you use often rank higher. Everything is recorded on your device and never uploaded.
@@ -22,15 +22,18 @@ If you pick the wrong word, delete it and retype, that pick isn't remembered; se
 Pick counts cool off naturally over time: if you don't type a word for 90 days, its count is roughly halved, so old words make way for new ones and the candidates always follow your current habits.
 Cooling only affects ranking; the records themselves stay.
 
-## Deleting candidates you don't want
+## Candidate right-click menu
 
-While typing pinyin, press `⇧ + number` (Windows / Linux: `Shift + number`) to delete candidate N on the current page:
+While typing pinyin, right-click a candidate (on macOS you can also Control-click). Depending on the candidate, the menu offers these items, which apply only to the letters you're typing now:
 
-- Words you've created and AI candidates you've picked are deleted entirely.
-- Dictionary words aren't deleted, but all records about them are cleared and their original ranking is restored.
+- **置顶 (Pin to top)**: from now on, typing the same letters puts this word first. It adds a top-weight entry to 自定义短语 (Custom phrases), where you can see it, change its weight or delete it; see [Custom phrases](phrases.md). Only the exact same letters count: abbreviated and full pinyin are separate.
+- **取消置顶 (Unpin)**: deletes that custom phrase.
+- **降权 (Demote)**: moves the word back one place; click again to move it further. Dictionary words can be demoted too.
+- **取消降权 (Undo demote)**: puts it back where it was.
+- **删除 (Delete)**: words you've created and AI candidates you've picked are deleted entirely; dictionary words aren't deleted, but all records about them are cleared and their original ranking is restored.
 
-The result is shown briefly below the pinyin line (已删除用户词「…」 "user word deleted", or 没什么可删 "nothing to delete" when there's no record), and disappears with the next key.
-The modifier key can be changed under 设置 → 快捷键 (Settings → Shortcuts); see [Changing keys](keys-settings.md#Glosses-and-deleting-candidates).
+The result is shown briefly beside the pinyin line (such as 已删除用户词「…」 "user word deleted") and disappears with the next key. While the menu is open, `Esc` only closes the menu.
+Available on Windows and macOS; not yet on Linux.
 
 ## Turning learning off and starting over
 

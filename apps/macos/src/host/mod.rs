@@ -142,9 +142,6 @@ pub struct Host {
     /// 配数字键上屏第一 / 第二个译词的修饰键组合（配置 `[shortcut] translation` / `translation_second`）。
     pub translation_keys: (Modifiers, Modifiers),
 
-    /// 配数字键删候选的修饰键（配置 `[shortcut] delete_candidate`）。
-    pub delete_keys: Modifiers,
-
     /// 候选窗口顶行显示的一句临时状态（删了什么词），下一次查询就没了。
     pub status: Option<String>,
 

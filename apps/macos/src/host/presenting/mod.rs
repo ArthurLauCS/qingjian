@@ -1,4 +1,4 @@
-//! 呈现：删候选、按应用关英文候选、翻译选区的起止、提示气泡、会话重置与候选窗口绘制。
+//! 呈现：候选右键菜单、按应用关英文候选、翻译选区的起止、提示气泡、会话重置与候选窗口绘制。
 
 mod key_hint;
 mod notice;
@@ -13,21 +13,48 @@ use super::cloud::cloud_candidate;
 use super::*;
 use qingjian_core::TraditionalVariant;
 use qingjian_core::candidate::arrows::Focus;
+use qingjian_platform::candidate_menu::{self, CandidateAction};
 
 impl Host {
-    /// 删掉当前页第 `offset` 格的候选：用户词整个删、词库词清学习。返回给用户看的一句话；那格没有候选返回 `None`。
-    pub fn forget_candidate(&mut self, offset: usize) -> Option<String> {
-        let index = self.session.index_on_page(offset)?;
+    /// 右键菜单：视图里第 `offset` 格的候选能做哪几件事；那格没有候选给空。
+    pub fn candidate_actions(&self, offset: usize) -> Vec<CandidateAction> {
+        let Some(candidate) = self
+            .session
+            .index_in_view(offset)
+            .and_then(|index| self.session.candidate(index))
+        else {
+            return Vec::new();
+        };
+        candidate_menu::actions(
+            &self.engine,
+            &candidate,
+            &self.settings.config().custom_phrases,
+        )
+    }
+
+    /// 做右键菜单里的一项，返回给用户看的一句话；那格没有候选返回 `None`。
+    /// 置顶 / 取消置顶改了配置里的短语，重读配置推给 Engine。
+    pub fn perform_candidate_action(
+        &mut self,
+        offset: usize,
+        action: CandidateAction,
+    ) -> Option<String> {
+        let index = self.session.index_in_view(offset)?;
         let candidate = self.session.candidate(index)?;
-        let forgotten = self.engine.forget(&candidate);
-        let text = &candidate.text;
-        Some(if forgotten.user_word {
-            format!("已删除用户词「{text}」")
-        } else if forgotten.learning {
-            format!("已忘掉对「{text}」的学习记录")
-        } else {
-            format!("「{text}」是词库里的词，也没有学习记录，没什么可删")
-        })
+        let phrases = self.settings.config().custom_phrases.clone();
+        let path = self.settings.path().map(|path| path.to_path_buf());
+        let outcome = candidate_menu::perform(
+            action,
+            &mut self.engine,
+            &candidate,
+            path.as_deref(),
+            &phrases,
+        );
+        if outcome.phrases_changed {
+            self.settings.reload();
+            self.apply_config(false);
+        }
+        Some(outcome.notice)
     }
 
     /// 这个应用里英文模式给不给候选：全局开关开着，且应用在 `[apps] english_candidates_on` 白名单里。

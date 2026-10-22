@@ -1,4 +1,4 @@
-//! 「快捷键」页：翻页键、高亮移动键、模式键，译词 / 删候选 / 翻译选中文字的修饰键。
+//! 「快捷键」页：翻页键、高亮移动键、模式键，译词 / 翻译选中文字的修饰键。
 //! 翻译选中文字只改修饰键，字母键固定用配置里当前的；要换字母直接改 `config.toml`。
 
 use qingjian_platform::{HighlightKeys, Modifiers};
@@ -124,14 +124,6 @@ pub(crate) fn view(settings: &Settings, context: &mut ViewContext<Settings>) -> 
             modifier_combo(
                 s.translation_second,
                 context.callback(Message::TranslationSecond),
-            ),
-        ),
-        field(
-            "删除候选",
-            "按住修饰键再按候选序号：自己造的词、云端选过的词整删；词库里的词清掉学习记录，回到原排序。",
-            modifier_combo(
-                s.delete_candidate,
-                context.callback(Message::DeleteCandidate),
             ),
         ),
         field(

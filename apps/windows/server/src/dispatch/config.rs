@@ -103,9 +103,6 @@ pub struct RouterConfig {
     /// 上屏第一 / 第二个译词的修饰键（`[shortcut] translation` / `translation_second`）。
     pub translation_keys: (KeyModifiers, KeyModifiers),
 
-    /// 删候选的修饰键（`[shortcut] delete_candidate`）。
-    pub delete_keys: KeyModifiers,
-
     /// 「翻译选中文字」快捷键（`[shortcut] translate_selection`）。
     pub translate_selection: KeyCombo,
 
@@ -211,7 +208,6 @@ impl From<&Config> for RouterConfig {
                 let (first, second) = config.shortcut.translation_keys();
                 (first.into(), second.into())
             },
-            delete_keys: config.shortcut.delete_keys().into(),
             translate_selection: config.shortcut.translate_selection,
             predict: config.shortcut.predict,
             status_enabled: config.status_bar.enabled,

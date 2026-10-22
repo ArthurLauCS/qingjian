@@ -1,7 +1,7 @@
 ---
 title: Key reference
 order: 3
-description: "Qingjian's default keys on macOS, Windows and Linux: switching, picking, paging, moving the cursor, glosses, deleting candidates, the symbol panel, AI features and prefix keys."
+description: "Qingjian's default keys on macOS, Windows and Linux: switching, picking, paging, moving the cursor, glosses, the candidate right-click menu, the symbol panel, AI features and prefix keys."
 ---
 
 This page only lists keys. In the tables, `⌥` is Option, `⌘` is Command, `⌃` is Control and `⇧` is Shift; "—" means the platform has no such key.
@@ -67,15 +67,15 @@ Typing a letter closes the panel and continues typing. Details in [Punctuation, 
 | Move the highlight / page | `↑` / `↓`, paging keys |
 | Output the letters as typed | `Enter`, punctuation |
 
-## Glosses and deleting candidates
+## Glosses and the right-click menu
 
 | Action | macOS | Windows | Linux |
 |---|---|---|---|
 | Commit the first gloss of candidate N | `⌥ + number` | `Ctrl + number` | `Alt + number` |
 | Commit the second gloss (when the entry has one) | `⇧⌥ + number` | `Ctrl + Shift + number` | `Alt + Shift + number` |
-| Delete candidate N | `⇧ + number` | `Shift + number` | `Shift + number` |
+| Pin / demote / delete a candidate | Right-click it, or Control-click | Right-click it | Not yet |
 
-These only work while typing pinyin. See [Glosses beside candidates](../learning/translation.md#Committing-the-gloss-directly) and [Typing habits](../personalize/habits.md#Deleting-candidates-you-don't-want).
+These only work while typing pinyin. See [Glosses beside candidates](../learning/translation.md#Committing-the-gloss-directly) and [Typing habits](../personalize/habits.md#Candidate-right-click-menu).
 
 ## AI services
 

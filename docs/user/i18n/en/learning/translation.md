@@ -38,7 +38,7 @@ For example, type `nihao`, and when the candidate 你好 shows `hello` beside it
 - On macOS and Windows you can also click the gloss to the right of a candidate; whichever gloss you click is committed.
 - Only the gloss itself is committed, without the part of speech, the Japanese kana reading or the new-word mark: `v. 開発(かいはつ)する` outputs just `開発する`.
 - The keys do nothing when a candidate has no gloss. AI services don't need to be on.
-- The modifier keys can be changed under 设置 → 快捷键 (Settings → Shortcuts); see [Changing keys](../personalize/keys-settings.md#Glosses-and-deleting-candidates).
+- The modifier keys can be changed under 设置 → 快捷键 (Settings → Shortcuts); see [Changing keys](../personalize/keys-settings.md#Glosses).
 
 ## Related
 

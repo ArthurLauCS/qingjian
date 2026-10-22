@@ -4,6 +4,7 @@
 //! Server 进程，同一套类型两边都用。
 
 pub mod aux_schemes;
+pub mod candidate_menu;
 pub mod code_schemes;
 pub mod code_tables;
 mod config;

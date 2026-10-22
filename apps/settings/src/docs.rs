@@ -191,12 +191,6 @@ const LINKS: &[(PageId, &str, &str, &str)] = &[
     ),
     (
         PageId::Shortcuts,
-        "删除候选",
-        "personalize/habits",
-        "删除不需要的候选",
-    ),
-    (
-        PageId::Shortcuts,
         "翻译选中文字",
         "cloud/question-and-translate",
         "翻译选中的文字",

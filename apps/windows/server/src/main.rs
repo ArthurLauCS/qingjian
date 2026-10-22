@@ -318,8 +318,8 @@ fn serve(mut router: Router) {
         let _ = status_events.send(Work::Status(event));
     });
     let clicks = work_tx.clone();
-    let on_click = Box::new(move |target| {
-        let _ = clicks.send(Work::Click(target));
+    let on_click = Box::new(move |mouse| {
+        let _ = clicks.send(Work::Click(mouse));
     });
     let panel_events = work_tx.clone();
     let on_panel = Box::new(move |hit| {

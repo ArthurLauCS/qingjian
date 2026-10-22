@@ -27,7 +27,7 @@ Settings that exist only on some platforms are hidden on the others; settings th
 | 候选 (Candidates) | Candidates per page, learning language, part of speech, Traditional Chinese, pinyin with tones, emoji and symbols, learning your habits, local sentence model, English words | [Glosses beside candidates](../learning/translation.md), [Traditional Chinese output](../input/traditional.md), [Sentences, abbreviations and correction](../input/sentence.md) |
 | 中英文 (Chinese/English) | English mode, switch key, default mode, remembering per app, English candidates, punctuation, automatic spaces, floating status bar | [Chinese and English](../input/english-mode.md), [Punctuation, symbols and emoji](../input/punctuation.md) |
 | 外观 (Appearance) | Theme, light/dark, horizontal/vertical layout, pinyin position, fonts and sizes, animation | [Appearance and themes](../personalize/appearance.md) |
-| 快捷键 (Shortcuts) | Paging keys, highlight keys, prefix letters, modifiers for glosses and deleting candidates, shortcuts for translation and AI suggestions | [Changing keys](../personalize/keys-settings.md) |
+| 快捷键 (Shortcuts) | Paging keys, highlight keys, prefix letters, modifiers for glosses, shortcuts for translation and AI suggestions | [Changing keys](../personalize/keys-settings.md) |
 | 自定义短语 (Custom phrases) | Fixed phrases for input codes | [Custom phrases](../personalize/phrases.md) |
 | 词库 (Dictionaries) | Turning bundled dictionaries on and off, importing your own | [Dictionaries](../personalize/dictionaries.md) |
 | 云服务 (Cloud services) | Turning AI services on, the provider, each AI feature | [AI services](../cloud/index.md) |

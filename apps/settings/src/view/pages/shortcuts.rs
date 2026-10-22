@@ -92,13 +92,6 @@ pub fn shortcuts(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rende
         recorder(
             ui,
             page,
-            Shortcut::DeleteCandidate,
-            "按住它再按候选序号：自己造的词整个删掉，词库里的词清掉学习记录",
-            false,
-        )?,
-        recorder(
-            ui,
-            page,
             Shortcut::TranslateSelection,
             "在应用里选中文字再按它，译文出现在候选窗口：回车替换，Esc 保留原文。要开云服务",
             false,

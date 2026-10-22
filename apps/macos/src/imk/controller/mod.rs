@@ -26,7 +26,7 @@ mod panel;
 mod text;
 mod translate;
 
-pub use click::{click, panel_mouse};
+pub use click::{click, menu_items, menu_pick, panel_mouse};
 
 define_class!(
     // SAFETY:
@@ -232,6 +232,13 @@ impl QingjianInputController {
         };
         // 提示在显示：敲任何键先收掉，键照常处理
         host::with(|h| h.clear_notice());
+        // 候选右键菜单开着：Esc 只关菜单、不清输入；别的键关菜单后照常处理
+        if host::with(|h| h.window.menu_open()).unwrap_or(false) {
+            host::with(|h| h.window.close_menu());
+            if key == 53 {
+                return true;
+            }
+        }
         // 翻译选中文字进行中：回车 / 空格 / 1 接受，Esc 放弃，其他键放弃后照常交给应用
         if host::with(|h| h.translation.is_some()).unwrap_or(false) {
             return self.handle_translation_review(key, client);
@@ -288,7 +295,7 @@ impl QingjianInputController {
             host::with(|h| h.toggle_punctuation());
             return true;
         }
-        // 修饰键 + 数字：按配置的两组组合上屏第一 / 第二个译词（缺省 ⌥ 与 ⇧⌥）、删候选（缺省 ⇧）。
+        // 修饰键 + 数字：按配置的两组组合上屏第一 / 第二个译词（缺省 ⌥ 与 ⇧⌥）。
         // 只在组句中认：不在组句时 ⇧4 就是 `$`，得走下面的标点转换（中文模式出 ￥、⇧6 出 ……、⇧1 出 ！），
         // 以前在这里被截走后原样还给应用，全角转换就没机会做了。
         // 表达式模式（`v2^3`）里 ⇧+数字打的是 `^ * ( )`，不当快捷键
@@ -305,9 +312,6 @@ impl QingjianInputController {
             }
             if pressed == second {
                 return self.handle_translation_key(digit, 1, client);
-            }
-            if pressed == host::with(|h| h.delete_keys).unwrap_or_default() {
-                return self.handle_delete_key(digit, client);
             }
         }
         let selector = match key {

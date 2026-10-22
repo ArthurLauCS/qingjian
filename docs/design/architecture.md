@@ -40,7 +40,7 @@ qingjian/
 │   ├── qingjian-core/          # composition / parser / correction / candidate / ranking / sentence / engine …（下面单列）
 │   ├── qingjian-dictionary/    # 词库加载与查询
 │   ├── qingjian-translate/     # 候选翻译 annotation
-│   ├── qingjian-learning/      # 用户词频、用户词、个人英文词、个人 n-gram、个人敲错表（user.tsv / user-words.tsv / user-english.tsv / user-ngram.tsv / user-typos.tsv）、输入日志（input-log.jsonl）、输入统计（usage-hourly.tsv）、词汇记录（user-vocab.tsv）
+│   ├── qingjian-learning/      # 用户词频、用户词、个人英文词、个人 n-gram、个人敲错表、候选降权（user.tsv / user-words.tsv / user-english.tsv / user-ngram.tsv / user-typos.tsv / user-demoted.tsv）、输入日志（input-log.jsonl）、输入统计（usage-hourly.tsv）、词汇记录（user-vocab.tsv）
 │   ├── qingjian-predict/       # 云联想：Predictor 的网络实现（OpenAI 兼容接口）
 │   ├── qingjian-lm/            # 整句转换的 bigram 语言模型：LanguageModel 的实现
 │   ├── qingjian-neural/        # 字级 Transformer 的本地推理（candle）：SentenceScorer 的实现，给整句前几条路径重打分
@@ -477,10 +477,12 @@ CC-CEDICT 表（`dict-convert cedict`）保留为备用来源，覆盖面广但�
   经典控制台的窗口属于 `conhost.exe`、Windows Terminal 是 `WindowsTerminal.exe`；
   Server 把按会话应用算好的「给不给英文候选」随 `InputSettings` 下发，不给时英文模式与 Caps 下没在组句的字母 DLL 在 `OnTestKeyDown` 就不吃、原样交给应用
   （吃了再由输入法插入的话，Photoshop 画布这类没有文本框的地方收不到 W / H / V 单键快捷键）；
-  `[shortcut]` 的修饰键 + 数字（译词上屏 / 删候选，`dispatch/key/shortcut.rs`）：配置里的 `Modifiers` 按 option→Alt、control→Ctrl、command→Win
+  `[shortcut]` 的修饰键 + 数字（译词上屏，`dispatch/key/shortcut.rs`）：配置里的 `Modifiers` 按 option→Alt、control→Ctrl、command→Win
   落到 `KeyModifiers`，Router 按键码认数字、去掉 Caps 位后与配置比；DLL 见 Ctrl / Alt / Win 仍一律放行，只有组句中的修饰键 + 数字送 Server 判，
-  没配到的 Router 回 Passthrough。删候选的那句反馈（「已删除…」/「没什么可删」）随下一帧的 `Frame::notice` 下发，自绘候选窗画在拼音行下方、
-  显示到下一次按键（`dispatch/key/shortcut.rs` 填、`handle_key` 开头清；对齐 macOS 画在拼音行右侧的短提示）。
+  没配到的 Router 回 Passthrough。候选右键菜单：UI 线程在候选窗收 `WM_RBUTTONUP`、认出是哪一格，经工人通道交 Router（`CandidateMouse::Menu`），
+  Router 按平台层 `candidate_menu::actions` 定菜单项再叫 UI 线程弹自绘菜单窗（`ui/candidates/menu.rs`，渲染器 `render_menu` 画、不抢焦点）；
+  点中的项（`CandidateMouse::MenuPick`）由 `dispatch/key/menu.rs` 做，那句反馈（「已降权…」「已删除…」）随下一帧的 `Frame::notice` 下发，
+  自绘候选窗画在拼音行下方、显示到下一次按键（`handle_key` 开头清，同时收起还开着的菜单；对齐 macOS 画在拼音行右侧的短提示）。
   **翻译选中文字**（`[shortcut] translate_selection`，缺省 Ctrl+Alt+T）：不在组句、云服务开着时按下它，Server 回 `RequestSelection`
   （替代那次按键的常规结果），DLL 起一个**异步只读编辑会话**（`com/edit/selection.rs`，`GetSelection` + `GetText` 读选中文本、上限 500 字、`GetTextExt` 量屏幕矩形）
   回 `Selection { text, rect }`；Server 走 Core 的 `request_translation`（`PredictionKind::Translate`，双向，译文走 `sentence`），

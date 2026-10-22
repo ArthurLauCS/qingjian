@@ -26,6 +26,7 @@ For example, add two phrases for `ee`: `：` with weight 20 and `；` with weigh
 - If there are more phrases than fit on a page, they continue on the next page; you pick by the number on the current page.
 - The same input code can't have two phrases with the same content; on a conflict, the card explains why and keeps your draft.
 - Positions set before 0.3 become weights automatically: position 1 becomes 10, position 2 becomes 9, and so on, so the order stays the same.
+- Choosing 置顶 (Pin to top) from a candidate's right-click menu while typing also adds an entry here, weighted above every existing phrase for that input code (999 at most); see [Candidate right-click menu](habits.md#Candidate-right-click-menu).
 
 Custom phrases don't appear in English mode, and with Traditional Chinese output on they're still committed as written.
 If a phrase is changed in another settings window while you're editing it, saving warns you and keeps your draft instead of overwriting.
