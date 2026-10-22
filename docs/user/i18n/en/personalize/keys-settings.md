@@ -19,8 +19,12 @@ macOS and Windows also have 额外翻页键 (Extra paging keys): three sets you 
 
 ## Highlight keys (macOS, Windows)
 
-By default `↑` / `↓` move the highlight and `←` / `→` move the pinyin cursor. If you choose `←` / `→` instead, the highlight and the pinyin cursor form one line:
-only when the pinyin cursor is at the end does `→` move to the next candidate, and only when the first candidate is highlighted does `←` go back into the pinyin. `↑` / `↓` then do nothing while typing pinyin (when you're not typing they go to the app as usual). This applies in both Chinese and English mode.
+By default `↑` / `↓` move the highlight and `←` / `→` move the pinyin cursor. If you choose `←` / `→` instead, `←` / `→` move between candidates:
+
+- **Horizontal layout**: `↑` moves into the pinyin (the candidates show no highlight then), where `←` / `→` move the pinyin cursor; `↓` goes back to the candidates. With 横排时 ↑ / ↓ 展开成多行 (Expand to rows with ↑ / ↓ in horizontal layout) ticked, `↓` on the candidates expands them; once expanded `↑` / `↓` move between rows, and `↑` on the first row goes back into the pinyin. `↑` again in the pinyin opens the symbol panel.
+- **Vertical layout**: the highlight and the pinyin cursor form one line: only when the pinyin cursor is at the end does `→` move to the next candidate, and only when the first candidate is highlighted does `←` go back into the pinyin; `↑` / `↓` do nothing while typing pinyin.
+
+When you're not typing, the arrow keys go to the app as usual. This applies in both Chinese and English mode.
 
 ## Full-width/half-width punctuation shortcut (macOS, Windows)
 

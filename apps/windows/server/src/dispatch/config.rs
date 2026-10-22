@@ -154,6 +154,11 @@ impl RouterConfig {
         self.horizontal_grid && self.layout == LayoutMode::Horizontal
     }
 
+    /// 方向键分拼音行与候选两区（Core 的 `arrows::route`）：横排，而且高亮移动键选了 `←` / `→`。
+    pub fn two_area_arrows(&self) -> bool {
+        self.layout == LayoutMode::Horizontal && self.highlight_keys == HighlightKeys::LeftRight
+    }
+
     /// 交给 UI 线程的画法。
     pub fn render_settings(&self) -> RenderSettings {
         RenderSettings {

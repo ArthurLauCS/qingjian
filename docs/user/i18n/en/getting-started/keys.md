@@ -38,7 +38,7 @@ On Windows and Linux, the Chinese / English switch can also be a tap of `Ctrl` o
 | Move the pinyin cursor | `←` / `→` | `←` / `→` | `←` / `→` |
 | Move the cursor by syllable | `⌥ + ←` / `⌥ + →` | — | — |
 | Move the cursor to the start / end | `⌘ + ←` / `⌘ + →`, or `Home` / `End` | `Home` / `End` | `Home` / `End` |
-| Open the symbol panel | `↑` while the first candidate is highlighted | Same | — |
+| Open the symbol panel | `↑` while the first candidate is highlighted (in horizontal layout with highlight keys set to `←` / `→`, press `↑` once to move into the pinyin, then again) | Same | — |
 | Enter auxiliary code | `;` | `;` | — |
 | Expand to several rows in horizontal layout (enable in Settings) | `↑` / `↓` | `↑` / `↓` | — |
 

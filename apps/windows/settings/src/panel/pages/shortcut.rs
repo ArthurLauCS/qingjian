@@ -88,7 +88,7 @@ pub(crate) fn view(settings: &Settings, context: &mut ViewContext<Settings>) -> 
         ),
         field(
             "高亮移动键",
-            "选「← / →」时两键连着拼音行一起走：拼音光标到末尾按 → 才移到下一个候选，候选在首位按 ← 才退回拼音行；此时 ↑ / ↓ 不做事。",
+            "选「← / →」时 ← / → 在候选之间移动；横排下 ↑ 移到拼音里改光标位置、↓ 回到候选，竖排下拼音光标到末尾按 → 才到下一个候选。",
             mode_combo(
                 &HighlightKeys::ALL,
                 s.highlight_keys,

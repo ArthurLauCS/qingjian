@@ -298,7 +298,7 @@ id 不能撞拼音侧的写法与日志里的 `wubi`（`is_valid_id`），因为
 在 `crates/bamboo-slip/src/`，原 `renderer/{animate,retained,partial}.rs` 成了引擎的 `stage/`（`Stage::present` / `tick_at`），`theme/svg_image.rs` 成了 `SvgImage`。
 这里留下帧数据、主题格式、`renderer/build/` 建树、点击区域、状态条与云朵 / 齿轮图标（`icon/`，实现引擎的 `Icon` trait）。改了引擎回来跑本 crate 的快照测试。
 
-横排矩阵：视口与高亮移动在 Core `candidate::layout::Grid`（`GRID_ROWS` = 6，列宽 `Grid::column_ems` 按整份候选估、单格封顶 `MAX_CELL_EMS` = 4 字宽）。
+横排矩阵：视口与高亮移动在 Core `candidate::layout::Grid`（`GRID_ROWS` = 6，列宽 `Grid::column_ems` 按整份候选估、单格封顶 `MAX_CELL_EMS` = 4 字宽）。横排且高亮移动键选了 ← / → 时（`two_area_arrows`），方向键怎么走在 Core `candidate::arrows::route`：拼音行与候选两区，↑ / ↓ 换区与换行，← / → 只在当前区里移动；两个壳只记焦点（mac `Session::focus`、Windows `Router::focus`，缓冲清空才回到候选）并执行它给的动作，焦点在拼音时帧里不给高亮（`usize::MAX`），拼音区里再按 ↑ 才开符号面板。其余组合（竖排、或横排用 ↑ / ↓ 移高亮）仍是原来那套：拼音行 + 候选连成一条序列。
 青简渲染器在 `renderer/build/matrix.rs` 画矩阵：`Frame.columns` 不为 0 时，横排模板里候选的 `repeat` 改包进一个网格（主题不另写模板），
 列宽至少 `column_ems`、超宽截尾加「…」（字宽估法与 Core 相同），格子里不画逐项译文；主题写了 `highlighted.annotation` 的照常画在网格下面，没有单独的信息行。
 Windows Server 自绘候选窗（GDI）按 `Frame.columns` / `column_ems` 画矩阵：列宽滚动时不变、超宽候选截尾加「…」、网格下一行信息给出完整文本与译文；

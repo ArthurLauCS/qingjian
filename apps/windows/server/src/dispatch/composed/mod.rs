@@ -3,6 +3,7 @@
 mod sentence_translation;
 mod state;
 
+use qingjian_core::candidate::arrows::{Focus, Matrix};
 use qingjian_core::{
     Candidate, CandidateKind, CandidateLayout, CandidateList, Cell, CloudWord, Engine, GRID_ROWS,
     Grid, Language, Query, Sense, SurroundingText, Translation,
@@ -29,6 +30,7 @@ impl Router {
         self.grid = None;
         self.sentence = None;
         if self.engine.composition().is_empty() {
+            self.focus = Focus::default();
             // 清空时也要撤掉 worker 中的待发请求，避免无用请求占掉最短间隔。
             self.engine.cancel_prediction();
             self.composed = None;
@@ -321,6 +323,17 @@ impl Router {
         true
     }
 
+    /// 给 `arrows::route` 的矩阵状态：没开「横排时展开成多行」、单行、展开后高亮在不在第一行。
+    pub(super) fn matrix(&self) -> Matrix {
+        match self.grid {
+            Some(_) => Matrix::Open {
+                first_row: self.highlight < self.config.page_size,
+            },
+            None if self.config.grid_keys() => Matrix::Closed,
+            None => Matrix::Off,
+        }
+    }
+
     /// 矩阵里按阅读顺序移一格（越过行尾到下一行开头），跳过空位；没展开时不动。返回是否动了。
     pub(super) fn move_cells(&mut self, delta: isize) -> bool {
         let Some(Composed::Candidates { layout, .. }) = &self.composed else {
@@ -546,7 +559,12 @@ impl Router {
                     cursor,
                     window_preedit,
                     candidates,
-                    highlight: highlight - first,
+                    // 方向键在拼音行里时候选不画高亮，空格照样上屏原来高亮的那个
+                    highlight: if self.config.two_area_arrows() && self.focus == Focus::Pinyin {
+                        usize::MAX
+                    } else {
+                        highlight - first
+                    },
                     page,
                     page_count: layout.pages().max(1),
                     layout: self.config.layout,

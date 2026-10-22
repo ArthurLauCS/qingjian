@@ -12,6 +12,7 @@ pub use translation_job::TranslationJob;
 use super::cloud::cloud_candidate;
 use super::*;
 use qingjian_core::TraditionalVariant;
+use qingjian_core::candidate::arrows::Focus;
 
 impl Host {
     /// 删掉当前页第 `offset` 格的候选：用户词整个删、词库词清学习。返回给用户看的一句话；那格没有候选返回 `None`。
@@ -79,6 +80,11 @@ impl Host {
     /// `←` / `→` 归候选：横排矩阵开着，或高亮移动键选了 `←` / `→`。
     pub fn arrows_move_cells(&self) -> bool {
         self.grid_keys() || self.highlight_keys == HighlightKeys::LeftRight
+    }
+
+    /// 方向键分拼音行与候选两区（Core 的 `arrows::route`）：横排，而且高亮移动键选了 `←` / `→`。
+    pub fn two_area_arrows(&self) -> bool {
+        self.layout == LayoutMode::Horizontal && self.highlight_keys == HighlightKeys::LeftRight
     }
 
     /// 新一轮候选：每页格数取配置与窗口能画的行数中较小者，云端槽位数取配置。
@@ -175,10 +181,16 @@ impl Host {
         }
         let pages = self.session.pages();
         let footer = (pages > 1).then(|| format!("{}/{pages}", page + 1));
+        // 方向键在拼音行里时候选不画高亮，空格照样上屏原来高亮的那个
+        let in_pinyin = self.two_area_arrows() && self.session.focus == Focus::Pinyin;
         let frame = Frame {
             preedit,
             rows,
-            highlighted: self.session.highlighted.saturating_sub(first),
+            highlighted: if in_pinyin {
+                usize::MAX
+            } else {
+                self.session.highlighted.saturating_sub(first)
+            },
             columns,
             column_ems: if columns > 0 {
                 qingjian_core::Grid::column_ems(&self.session.layout)

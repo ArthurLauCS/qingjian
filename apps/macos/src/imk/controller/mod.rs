@@ -9,6 +9,7 @@ use objc2::{define_class, msg_send, sel};
 use objc2_app_kit::{NSEvent, NSEventModifierFlags, NSEventType, NSMenu};
 use objc2_foundation::{NSObjectProtocol, NSString};
 use objc2_input_method_kit::{IMKInputController, IMKServer};
+use qingjian_core::candidate::arrows::Focus;
 use qingjian_core::{Candidate, QUESTION_PREFIX};
 use qingjian_platform::Modifiers;
 
@@ -241,11 +242,16 @@ impl QingjianInputController {
         {
             return consumed;
         }
-        // 高亮还在第一个时按 ↑ 打开符号面板；长按连发的不算，免得往回翻过头弹出来
+        // 高亮还在第一个时按 ↑ 打开符号面板；长按连发的不算，免得往回翻过头弹出来。
+        // 方向键分两区时（arrows::route）候选里的 ↑ 是回拼音行，要在拼音行里再按一次 ↑
         if key == 126
             && pressed.is_empty()
             && !event.isARepeat()
-            && host::with(|h| !h.engine.composition().is_empty()).unwrap_or(false)
+            && host::with(|h| {
+                !h.engine.composition().is_empty()
+                    && (!h.two_area_arrows() || h.session.focus == Focus::Pinyin)
+            })
+            .unwrap_or(false)
             && self.open_panel(client)
         {
             return true;
