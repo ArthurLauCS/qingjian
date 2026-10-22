@@ -110,12 +110,7 @@ fn translation_is_spaced_and_becomes_the_context() {
 fn custom_phrase_is_committed_verbatim() {
     let mut engine = spaced_engine();
     engine
-        .set_custom_phrases(vec![crate::CustomPhrase {
-            code: "dk".into(),
-            text: "用docker部署".into(),
-            position: 1,
-            enabled: true,
-        }])
+        .set_custom_phrases(vec![crate::CustomPhrase::new("dk", "用docker部署")])
         .unwrap();
     engine.set_input("dk");
     let phrase = engine.query().unwrap().candidates.items[0].clone();

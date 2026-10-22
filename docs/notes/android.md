@@ -71,7 +71,7 @@ PC 上只对实体键盘有意义的项（Shift + 字母、切换键、翻页键
 - 像代码的文字（Core `code::looks_like_code`）用等宽字体原样显示，「代码高亮」按 Core `code::highlight` 上色。
 - 图片走 `commitContent` 发出去（`ClipboardImageProvider` 只读临时授权，`query` 要给 `OpenableColumns`，否则有的应用把 content:// 地址当文字插进去）；输入框不收图片就放回系统剪贴板。
 - 拆词（Core `text_pieces` 切块）可点选或横滑连选，选着的实时放进输入框、处在编辑中，返回或完成确认上屏。
-- 常用语（`PhraseBook`，`phrases.json`）按分组列，卡片带输入码；带输入码的挂成 Core 自定义短语，打码直接出。输入码最多 64 个字母。
+- 常用语（`PhraseBook`，`phrases.json`）按分组列，卡片带输入码；带输入码的挂成 Core 自定义短语，打码直接出。输入码最多 32 个字母，跟 Core 自定义短语的上限一致。
 
 ## 翻译选中的文字
 

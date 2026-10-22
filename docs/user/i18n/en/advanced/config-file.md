@@ -20,7 +20,7 @@ All settings are kept in one TOML text file, `config.toml`, with a note for ever
 
 - Changes take effect within a second of saving, with no need to switch input methods again. On Linux, `preedit` and `input_log` under `[general]` are the exception: restart Qingjian after changing them.
 - If the file contains a mistake, the last valid settings stay in use and the input method keeps running; on macOS the input method menu shows an extra grey line describing the error. Fix it as described and save.
-- A mistake in one custom phrase (a position outside 1–9, content that isn't text, the same position as an earlier entry and so on) skips only that phrase; the rest still apply, and the runtime log notes which entry was skipped and why. When you save phrases in the settings window, skipped entries are left in the file as they are.
+- A mistake in one custom phrase (a weight outside 1–999, content that isn't text, the same code and content as an earlier entry and so on) skips only that phrase; the rest still apply, and the runtime log notes which entry was skipped and why. When you save phrases in the settings window, skipped entries are left in the file as they are.
 - Each section (such as `[general]`) is written only once; put the entries you want to change under the existing section.
 
 ## Entries and the settings window

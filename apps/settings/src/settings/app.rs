@@ -74,14 +74,6 @@ impl App for Settings {
             },
             Message::ResetShortcuts => self.reset_shortcuts(),
             Message::OpenPhrase(index) => self.open_phrase(index),
-            Message::PhrasePosition(delta) => {
-                if let Some(editor) = self.phrase.as_mut() {
-                    editor.position = editor
-                        .position
-                        .saturating_add_signed(delta as isize)
-                        .clamp(1, 9);
-                }
-            }
             Message::SavePhrase => self.save_phrase(false),
             Message::DeletePhrase => {
                 let confirmed = self

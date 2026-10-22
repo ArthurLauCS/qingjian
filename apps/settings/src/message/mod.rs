@@ -49,8 +49,6 @@ pub enum Message {
     ResetShortcuts,
     /// 打开短语编辑卡片：`None` 新增，`Some(i)` 改第 i 条。
     OpenPhrase(Option<usize>),
-    /// 卡片里的位置加减。
-    PhrasePosition(i32),
     SavePhrase,
     /// 卡片里的「删除」（第一下只是确认）。
     DeletePhrase,

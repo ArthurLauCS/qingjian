@@ -207,7 +207,7 @@ const LINKS: &[(PageId, &str, &str, &str)] = &[
         "personalize/phrases",
         "新增与编辑",
     ),
-    (PageId::Phrases, "位置", "personalize/phrases", "位置规则"),
+    (PageId::Phrases, "权重", "personalize/phrases", "排列规则"),
     (
         PageId::Phrases,
         "也用系统的文本替换",
@@ -334,7 +334,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         // 只在别的平台显示的行这个平台上建不出来；短语卡片里的行只在卡片打开时建
         for (page, row, ..) in LINKS {
-            if crate::support::elsewhere(*page, row) || (*page == PageId::Phrases && *row == "位置")
+            if crate::support::elsewhere(*page, row) || (*page == PageId::Phrases && *row == "权重")
             {
                 continue;
             }
