@@ -42,6 +42,7 @@ pub fn dictionaries(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Re
             entry,
             Some((config.is_enabled(&entry.stem), toggle)),
             true,
+            None,
         )?);
     }
     rows.push(import_row(

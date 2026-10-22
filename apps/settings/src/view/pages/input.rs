@@ -4,7 +4,7 @@ use bamboo_slip::taffy::LengthPercentage;
 use bamboo_slip::taffy::{Dimension, FlexDirection, FlexWrap, NodeId, Rect, Size, Style};
 use bamboo_slip::{Checkbox, RenderError, SettingRow, Switch, Ui, Visual, group, section_title};
 use qingjian_core::FuzzyRules;
-use qingjian_platform::{KeyHintMode, Scheme, code_schemes};
+use qingjian_platform::{KeyHintMode, Scheme, code_schemes, code_tables};
 
 use super::shortcuts;
 use crate::library::Kind;
@@ -214,6 +214,9 @@ fn aux_code(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErro
         .chain(library.codes.iter().map(|entry| (entry, true)))
         .chain(library.aux_schemes.iter().map(|entry| (entry, false)))
     {
+        let info = (!removable && entry.stem == code_tables::STROKE).then_some(
+            "横 h、竖 s、撇 p、点与捺 n、折 z；单字取前四笔加最后一笔，词取每个字的第一笔",
+        );
         rows.push(entry_row(
             ui,
             page,
@@ -221,6 +224,7 @@ fn aux_code(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, RenderErro
             entry,
             None,
             removable,
+            info,
         )?);
     }
     rows.push(import_row(

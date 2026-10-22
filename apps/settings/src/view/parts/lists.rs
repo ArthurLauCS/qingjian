@@ -4,7 +4,7 @@ use bamboo_slip::taffy::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, LengthPercentage,
     LengthPercentageAuto, NodeId, Rect, Size, Style,
 };
-use bamboo_slip::{Button, Checkbox, RenderError, SettingRow, Ui, Visual};
+use bamboo_slip::{Button, Checkbox, RenderError, SettingRow, Ui, Visual, info_with_link};
 use qingjian_dictionary::GENERAL_DICTIONARY;
 
 use crate::library::{Entry, Kind};
@@ -16,7 +16,7 @@ use crate::view::parts::actions::with_notice;
 const DOMAIN_PREFIX: &str = "青简领域词库：";
 
 /// 一本用户导入的词库或一套码表：`toggle` 给了就是勾选开关（是否开着、点了发什么），没给只写名字（码表在下拉框里选）；
-/// 后面是条数与许可证，`removable` 的带「移除」。
+/// 后面是条数与许可证，`removable` 的带「移除」。给了 `info` 的名字后面跟 ⓘ（链到文档），这一行也能搜到。
 pub fn entry_row(
     ui: &mut Ui<Message>,
     page: &Page,
@@ -24,6 +24,7 @@ pub fn entry_row(
     entry: &Entry,
     toggle: Option<(bool, Message)>,
     removable: bool,
+    info: Option<&str>,
 ) -> Result<NodeId, RenderError> {
     let theme = &page.theme;
     let checkbox = match toggle {
@@ -38,6 +39,25 @@ pub fn entry_row(
             },
             &[],
         )?,
+    };
+    let checkbox = match info {
+        Some(text) => {
+            let key = ui.key(("row", entry.name.as_str()));
+            ui.searchable(key, (&entry.name, Some(text)), &[], &[]);
+            let link = ui.info_link(&entry.name);
+            let mark = info_with_link(ui, theme, ("info", entry.name.as_str()), text, link)?;
+            ui.scene().node(
+                Style {
+                    flex_direction: FlexDirection::Row,
+                    align_items: Some(AlignItems::CENTER),
+                    gap: page.gap(6.0),
+                    ..Style::default()
+                },
+                Visual::Group,
+                &[checkbox, mark],
+            )?
+        }
+        None => checkbox,
     };
     let detail = if entry.broken {
         "文件坏了，打不开".to_owned()
