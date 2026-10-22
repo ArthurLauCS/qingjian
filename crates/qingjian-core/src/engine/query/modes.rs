@@ -39,9 +39,10 @@ impl Engine {
         }
     }
 
-    /// 英文直输段：唯一候选就是原文（`no-way`），空格 / 回车都上屏它；preedit 原样显示。
+    /// 英文直输段：首选就是原文（`no-way`），空格 / 回车都上屏它；preedit 原样显示。
+    /// 原文是「用户名@」（`qingjian@`、`zhang.san@q`）时后面跟常见邮箱的整个地址，不记学习。
     pub(in crate::engine) fn query_raw(&self, scope: &str, rest: String, start: Instant) -> Query {
-        let items = vec![Candidate {
+        let mut items = vec![Candidate {
             text: scope.to_owned(),
             kind: CandidateKind::English,
             syllables: Vec::new(),
@@ -49,6 +50,18 @@ impl Engine {
             translation: None,
             aux_code: None,
         }];
+        items.extend(
+            crate::email_completions(scope)
+                .into_iter()
+                .map(|completion| Candidate {
+                    text: format!("{scope}{}", completion.insert),
+                    kind: CandidateKind::Shortcut,
+                    syllables: Vec::new(),
+                    reading: None,
+                    translation: None,
+                    aux_code: None,
+                }),
+        );
         Query {
             segmentations: Vec::new(),
             spelled: 0,

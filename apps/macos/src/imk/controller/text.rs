@@ -190,9 +190,16 @@ impl QingjianInputController {
             self.refresh(client);
             return true;
         }
-        // 直输段里的空格：整段原样上屏，空格本身也交给应用（`hello, world` 里的空格要在）
+        // 直输段里的空格：整段原样上屏，空格本身也交给应用（`hello, world` 里的空格要在）；
+        // 高亮挪到邮箱地址上时只上屏地址
         if raw && c == ' ' {
+            let address = host::with(|h| h.session.candidate(h.session.highlighted))
+                .flatten()
+                .is_some_and(|candidate| candidate.kind == qingjian_core::CandidateKind::Shortcut);
             self.commit_highlighted(client);
+            if address {
+                return true;
+            }
             host::with(|h| h.engine.note_passthrough(c));
             return false;
         }

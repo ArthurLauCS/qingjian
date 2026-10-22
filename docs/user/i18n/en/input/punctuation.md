@@ -26,6 +26,7 @@ Either way:
 
 - `'` is the syllable separator (`xi'an`).
 - Symbols that don't turn full-width (`-` `/` `@`) always enter direct English input.
+- Typing an email: after `qingjian@` the candidates list full addresses at common providers (qq.com, 163.com, gmail.com…); type `g` and only gmail.com is left. Move the highlight onto an address with the arrow keys and press `Space`, or click it, to enter that address without a trailing space; `Enter` still enters what you typed.
 - To follow a candidate with half-width punctuation, switch to English mode first, or set Chinese punctuation to half-width.
 - If you've chosen a pair of punctuation keys as paging keys (such as `,` `.`), those two keys page while you type pinyin; see [Changing keys](../personalize/keys-settings.md#Paging-keys).
 
