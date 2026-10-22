@@ -340,7 +340,17 @@ jobs:
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
-      # runner 自带 Android SDK 与 JDK 17；NDK 版本要与 app/build.gradle.kts 的 ndkVersion 一致
+      # Gradle 8.14 只认到 JDK 24，runner 缺省的是 25
+      - name: Use JDK 21
+        run: |
+          if [[ ! -d "${JAVA_HOME_21_X64:-}" ]]; then
+            echo "runner 上没有 JDK 21（JAVA_HOME_21_X64）：" >&2
+            ls /usr/lib/jvm >&2
+            exit 1
+          fi
+          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+
+      # NDK 版本要与 app/build.gradle.kts 的 ndkVersion 一致
       - name: Install NDK and cargo-ndk
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK_VERSION" "platforms;android-36" > /dev/null
