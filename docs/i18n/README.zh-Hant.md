@@ -17,7 +17,7 @@
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
   <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux Fcitx4 與 Fcitx5，手動啟動"></a>
-  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+，需從原始碼建置"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20preview-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+，預覽版"></a>
 </p>
 
 青簡是一款輸入法。你可以像平常一樣打字：輸入拼音或注音、選擇候選字詞、寫完整句；候選字旁的一條譯詞，讓語言學習自然發生在日常打字之中。譯詞始終只是輔助資訊，不會蓋過你要輸入的文字。
@@ -30,6 +30,7 @@ https://github.com/user-attachments/assets/d145fde9-a641-4543-8b15-dd7a2685de3d
 
 - **macOS、Windows**：[下載青簡](https://qingjian.app/download)；安裝步驟請見[使用說明](https://qingjian.app/docs/getting-started/install)。
 - **Linux**：提供 Fcitx5 與 Fcitx4 原始碼安裝，使用系統預設的候選面板；目前需要手動啟動背景服務，詳見 [Linux 安裝說明](https://qingjian.app/docs/platforms/linux)。
+- **Android**：預覽版，功能比桌面版少；arm64 的 APK 在 [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) 下載，啟用步驟見 [Android 說明](https://qingjian.app/docs/platforms/android)，從原始碼建置見 [apps/android](../../apps/android/README.md)。
 
 macOS 與 Windows 版本仍在測試階段。安裝後先選取青簡，在「偏好設置 / 設置 → 通用」選擇想學習的語言，就可以開始打字。第一次使用可以從[第一次輸入](https://qingjian.app/docs/getting-started/first-input)讀起。
 

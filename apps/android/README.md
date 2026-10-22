@@ -52,6 +52,8 @@ adb logcat -s qingjian        # Rust 侧日志
 
 装好后打开「青简」，按页面上两步启用并切换输入法。
 
+`./gradlew assembleRelease` 出 release 包；版本号取自 `core/Cargo.toml`，签名用的环境变量与发版流程见 [docs/notes/release.md](../../docs/notes/release.md)。
+
 Rust 侧在本机就能测：`cargo test -p qingjian-android`。
 
 ## 约定

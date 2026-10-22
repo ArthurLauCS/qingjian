@@ -5,7 +5,7 @@ description: macOS 与 Windows 的安装步骤：系统要求、安装包、首�
 ---
 
 macOS 与 Windows 版是测试版，从[下载页](https://qingjian.app/download)取得安装包。
-Linux 版需在终端中安装，见 [Linux](../platforms/linux.md)；Android 版尚未提供安装包，见 [Android](../platforms/android.md)。
+Linux 版需在终端中安装，见 [Linux](../platforms/linux.md)；Android 版下载 APK 安装，见 [Android](../platforms/android.md)。
 
 ## macOS
 

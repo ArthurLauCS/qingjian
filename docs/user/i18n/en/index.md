@@ -11,7 +11,7 @@ It is a complete input method first: sentence input, abbreviated pinyin, spellin
 |---|---|
 | macOS, Windows | Beta. The two platforms have nearly the same features; keys follow each system's conventions |
 | Linux | Uses the Fcitx5 / Fcitx4 candidate panel; installed from a terminal and started by hand |
-| Android | In development; build from source |
+| Android | Preview; install the APK |
 
 For which features each platform has, see [Platform differences](platforms/differences.md).
 

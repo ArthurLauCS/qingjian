@@ -17,7 +17,7 @@
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
   <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, manueller Start"></a>
-  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: aus dem Quellcode bauen"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20preview-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: Vorschau"></a>
 </p>
 
 Qingjian ist eine Eingabemethode. Du tippst wie gewohnt: Pinyin eingeben, einen Kandidaten wählen, ganze Sätze schreiben. Eine Übersetzung neben jedem Kandidaten lässt dich ganz nebenbei beim täglichen Tippen eine Sprache lernen. Die Übersetzung ist immer nur eine Zusatzinformation und tritt nie an die Stelle des Textes, den du eingibst.
@@ -30,6 +30,7 @@ Das Video zeigt unter macOS die Satzeingabe, das Umsortieren der Kandidaten und 
 
 - **macOS, Windows**: [Qingjian herunterladen](https://qingjian.app/download); die Installationsschritte stehen in der [Benutzerdokumentation](https://qingjian.app/docs/getting-started/install).
 - **Linux**: Fcitx5 und Fcitx4 werden aus dem Quellcode installiert und nutzen das Standard-Kandidatenfenster des Systems; der Hintergrunddienst muss derzeit von Hand gestartet werden, siehe [Installation unter Linux](https://qingjian.app/docs/platforms/linux).
+- **Android**: eine Vorschau mit weniger Funktionen als die Desktop-Versionen; die arm64-APK gibt es unter [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest), zum Aktivieren siehe [Android](https://qingjian.app/docs/platforms/android), zum Bauen aus dem Quellcode [apps/android](../../apps/android/README.md).
 
 Die Versionen für macOS und Windows befinden sich noch in der Beta-Phase. Wähle nach der Installation Qingjian aus, lege unter „Einstellungen → Allgemein“ die Sprache fest, die du lernen möchtest, und fang an zu tippen. Für den Einstieg lies [Die erste Eingabe](https://qingjian.app/docs/getting-started/first-input).
 

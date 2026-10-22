@@ -11,7 +11,7 @@ description: 青简输入法使用文档：安装、打字、学语言、个性�
 |---|---|
 | macOS、Windows | 测试版，两个平台功能基本相同，按键按各自系统的习惯设计 |
 | Linux | 使用 Fcitx5 / Fcitx4 的候选面板，需在终端中安装、手动启动 |
-| Android | 开发中，需从源码构建 |
+| Android | 预览版，下载 APK 安装 |
 
 各平台有哪些功能见 [平台差异](platforms/differences.md)。
 

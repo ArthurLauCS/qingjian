@@ -4,7 +4,7 @@ order: 1
 description: "Which Qingjian features are available on macOS, Windows, Linux and Android: current status, key conventions and what isn't supported yet."
 ---
 
-The macOS and Windows versions are in beta with nearly the same features; keys follow each system's conventions. The Linux version uses Fcitx's candidate panel and is started by hand. The Android version is in development and has to be built from source.
+The macOS and Windows versions are in beta with nearly the same features; keys follow each system's conventions. The Linux version uses Fcitx's candidate panel and is started by hand. The Android version is a preview with fewer features, installed from an APK.
 
 "✓" means supported; "—" means not supported yet, or not applicable.
 
@@ -70,7 +70,7 @@ The macOS and Windows versions are in beta with nearly the same features; keys f
 | Asking about a character | ✓ | ✓ | ✓ | — |
 | Translating selected text | ✓ | ✓ | ✓ | ✓ |
 | Quick translation bar | — | — | — | ✓ |
-| Filling in glosses automatically | ✓ | ✓ | — | ✓ (gloss fallback) |
+| Filling in glosses automatically | ✓ | ✓ | — | ✓ |
 | Sentence translation for the vocabulary book | ✓ | ✓ | — | — |
 | Translating sentence candidates | — | ✓ | — | — |
 | AI usage statistics | ✓ | ✓ | — | — |

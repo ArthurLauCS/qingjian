@@ -5,7 +5,7 @@ description: "Installing on macOS and Windows: system requirements, installers, 
 ---
 
 The macOS and Windows versions are in beta. Get the installer from the [download page](https://qingjian.app/en/download).
-The Linux version is installed from a terminal, see [Linux](../platforms/linux.md); the Android version has no installer yet, see [Android](../platforms/android.md).
+The Linux version is installed from a terminal, see [Linux](../platforms/linux.md); the Android version is installed from an APK, see [Android](../platforms/android.md).
 
 ## macOS
 

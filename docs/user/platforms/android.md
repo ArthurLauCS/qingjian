@@ -1,10 +1,10 @@
 ---
 title: Android：键盘与打字
 order: 3
-description: 青简 Android 版（开发中）：启用、键盘种类、候选与译词、日期与算式、语音输入、滑行输入。
+description: 青简 Android 版（预览版）：启用、键盘种类、候选与译词、日期与算式、语音输入、滑行输入。
 ---
 
-青简 Android 版处于开发阶段，尚未提供安装包，需要从源码构建，步骤见源码仓库 `apps/android` 目录的说明。
+青简 Android 版是预览版，功能比桌面版少。安装包是 arm64 的 APK，支持 Android 8.0 及以上，在 [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) 下载 `qingjian-<版本>-android-arm64.apk`，在手机上打开安装；系统提示时允许浏览器或文件管理器「安装未知应用」。新版本同样下载 APK 覆盖安装，输入习惯与设置都会保留。想自己构建的，步骤见源码仓库 `apps/android` 目录的说明。
 拼音转换、词库、学习与统计全部在手机上完成；只有翻译、补充译词、云联想与语音输入需要联网，且需自行填写服务商。
 
 本组另外两页：[Android：工具与 AI](android-tools.md)、[Android：生词本与设置](android-settings.md)。

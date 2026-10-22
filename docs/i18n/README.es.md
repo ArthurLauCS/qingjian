@@ -17,7 +17,7 @@
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
   <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, inicio manual"></a>
-  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: compilar desde el código fuente"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20preview-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: versión preliminar"></a>
 </p>
 
 Qingjian es un método de entrada. Escribes como lo harías normalmente: introduces pinyin, eliges un candidato, escribes una frase completa. Una traducción junto a cada candidato hace que el aprendizaje de idiomas ocurra de forma natural mientras escribes. La traducción es siempre información auxiliar; nunca ocupa el lugar del texto que estás escribiendo.
@@ -30,6 +30,7 @@ El vídeo muestra en macOS la entrada de frases completas, la reordenación de c
 
 - **macOS, Windows**: [descarga Qingjian](https://qingjian.app/download); los pasos de instalación están en la [documentación de usuario](https://qingjian.app/docs/getting-started/install).
 - **Linux**: Fcitx5 y Fcitx4 se instalan desde el código fuente y usan el panel de candidatos predeterminado del sistema; por ahora el servicio en segundo plano se inicia a mano. Consulta la [instalación en Linux](https://qingjian.app/docs/platforms/linux).
+- **Android**: versión preliminar, con menos funciones que las de escritorio; descarga el APK arm64 en [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest). Para activarlo consulta [Android](https://qingjian.app/docs/platforms/android) y para compilarlo desde el código fuente, [apps/android](../../apps/android/README.md).
 
 Las versiones de macOS y Windows siguen en fase beta. Tras instalarlo, selecciona Qingjian, elige el idioma que quieres aprender en «Preferencias / Ajustes → General» y empieza a escribir. Si es la primera vez, empieza por [Primera entrada](https://qingjian.app/docs/getting-started/first-input).
 

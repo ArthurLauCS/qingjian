@@ -17,7 +17,7 @@
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
   <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux: Fcitx4 / 5, khởi động thủ công"></a>
-  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: tự biên dịch từ mã nguồn"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20preview-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+: bản xem trước"></a>
 </p>
 
 Qingjian (Thanh Giản) là một bộ gõ. Bạn gõ như bình thường: nhập pinyin, chọn từ gợi ý, viết cả câu. Một bản dịch nằm bên cạnh mỗi từ gợi ý giúp việc học ngoại ngữ diễn ra tự nhiên trong lúc gõ hằng ngày. Bản dịch luôn chỉ là thông tin phụ, không bao giờ lấn át văn bản bạn đang nhập.
@@ -30,6 +30,7 @@ Video minh họa trên macOS cách nhập cả câu, sắp xếp lại từ gợ
 
 - **macOS, Windows**: [tải Qingjian](https://qingjian.app/download); các bước cài đặt xem trong [tài liệu người dùng](https://qingjian.app/docs/getting-started/install).
 - **Linux**: Fcitx5 và Fcitx4 được cài từ mã nguồn và dùng bảng gợi ý mặc định của hệ thống; hiện tại cần khởi động dịch vụ nền thủ công, xem [Cài đặt trên Linux](https://qingjian.app/docs/platforms/linux).
+- **Android**: bản xem trước, ít tính năng hơn bản máy tính; tải APK arm64 tại [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest), cách bật xem [Android](https://qingjian.app/docs/platforms/android), tự biên dịch từ mã nguồn xem [apps/android](../../apps/android/README.md).
 
 Bản macOS và Windows vẫn đang ở giai đoạn thử nghiệm (beta). Sau khi cài, hãy chọn Qingjian, vào «Tùy chọn / Cài đặt → Chung» để chọn ngôn ngữ muốn học, rồi bắt đầu gõ. Lần đầu sử dụng, bạn có thể đọc [Lần nhập đầu tiên](https://qingjian.app/docs/getting-started/first-input).
 

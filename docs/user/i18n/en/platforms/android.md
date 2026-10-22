@@ -1,10 +1,10 @@
 ---
 title: "Android: keyboard and typing"
 order: 3
-description: "Qingjian for Android (in development): enabling it, keyboard types, candidates and glosses, dates and calculations, voice input and swipe typing."
+description: "Qingjian for Android (preview): enabling it, keyboard types, candidates and glosses, dates and calculations, voice input and swipe typing."
 ---
 
-Qingjian for Android is in development and has no installer yet; it has to be built from source, following the instructions in the `apps/android` folder of the source repository.
+Qingjian for Android is a preview with fewer features than the desktop versions. It ships as an arm64 APK for Android 8.0 and later: download `qingjian-<version>-android-arm64.apk` from [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) and open it on the phone to install; when the system asks, allow your browser or file manager to install unknown apps. For a new version, download the new APK and install it over the old one; your typing habits and settings are kept. To build it yourself, follow the instructions in the `apps/android` folder of the source repository.
 Pinyin conversion, dictionaries, learning and statistics all happen on the phone; only translation, gloss filling, cloud suggestions and voice input go online, and they require a provider you enter yourself.
 
 The other two pages in this group: [Android: tools and AI](android-tools.md), [Android: vocabulary book and settings](android-settings.md).

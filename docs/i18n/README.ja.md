@@ -17,7 +17,7 @@
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/macOS-13%2B-blue?logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
   <a href="https://qingjian.app/docs/getting-started/install"><img src="https://img.shields.io/badge/Windows-10%2F11-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTEuNHYxMS40SDB6TTEyLjYgMEgyNHYxMS40SDEyLjZ6TTAgMTIuNmgxMS40VjI0SDB6TTEyLjYgMTIuNkgyNFYyNEgxMi42eiIvPjwvc3ZnPg==" alt="Windows 10/11"></a>
   <a href="https://qingjian.app/docs/platforms/linux"><img src="https://img.shields.io/badge/Linux-Fcitx4%20%2F%205%20manual-lightgrey?logo=linux&amp;logoColor=white" alt="Linux：Fcitx4 / 5、手動起動"></a>
-  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20source%20build-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+：ソースからビルド"></a>
+  <a href="https://qingjian.app/docs/platforms/android"><img src="https://img.shields.io/badge/Android-8.0%2B%20preview-lightgrey?logo=android&amp;logoColor=white" alt="Android 8.0+：プレビュー版"></a>
 </p>
 
 青簡（Qingjian）は中国語の入力メソッドです。ピンインを入力し、候補を選び、文をまるごと書く――いつも通りに入力するだけです。候補の横に表示される訳語によって、日々の入力の中で自然に語学学習ができます。訳語はあくまで補助情報で、入力したい文字を邪魔することはありません。
@@ -30,6 +30,7 @@ https://github.com/user-attachments/assets/d145fde9-a641-4543-8b15-dd7a2685de3d
 
 - **macOS、Windows**：[青簡をダウンロード](https://qingjian.app/download)。インストール手順は[ユーザードキュメント](https://qingjian.app/docs/getting-started/install)を参照してください。
 - **Linux**：Fcitx5 と Fcitx4 はソースからインストールし、システム標準の候補パネルを使います。現時点ではバックグラウンドサービスを手動で起動する必要があります。詳しくは [Linux のインストール](https://qingjian.app/docs/platforms/linux)を参照してください。
+- **Android**：プレビュー版で、デスクトップ版より機能が少なめです。arm64 の APK は [GitHub Releases](https://github.com/qingjian-team/qingjian/releases/latest) からダウンロードできます。有効にする手順は [Android](https://qingjian.app/docs/platforms/android)、ソースからのビルドは [apps/android](../../apps/android/README.md) を参照してください。
 
 macOS 版と Windows 版はまだベータ版です。インストール後に青簡を選択し、「環境設定 / 設定 → 一般」で学びたい言語を選べば、すぐに入力を始められます。初めての方は[はじめての入力](https://qingjian.app/docs/getting-started/first-input)からどうぞ。
 
