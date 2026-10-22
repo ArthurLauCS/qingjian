@@ -326,9 +326,17 @@ mod tests {
         let settings = crate::settings::Settings::load(path).unwrap();
         let index = crate::view::index(&settings);
         let _ = std::fs::remove_dir_all(&dir);
-        // 只在别的平台显示的行这个平台上建不出来；短语卡片里的行只在卡片打开时建
+        // 只在别的平台显示的行这个平台上建不出来；短语卡片里的行只在卡片打开时建；
+        // 「笔画」是随包码表的行，CI 只有样例数据、没有这张表
+        let stroke = settings
+            .library
+            .bundled_codes
+            .iter()
+            .any(|entry| entry.stem == qingjian_platform::code_tables::STROKE);
         for (page, row, ..) in LINKS {
-            if crate::support::elsewhere(*page, row) || (*page == PageId::Phrases && *row == "权重")
+            if crate::support::elsewhere(*page, row)
+                || (*page == PageId::Phrases && *row == "权重")
+                || (*row == "笔画" && !stroke)
             {
                 continue;
             }
