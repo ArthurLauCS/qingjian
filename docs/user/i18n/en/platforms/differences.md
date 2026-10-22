@@ -20,7 +20,7 @@ The macOS and Windows versions are in beta with nearly the same features; keys f
 | Custom double pinyin / shape-based schemes | ✓ | ✓ | — | — |
 | Auxiliary code | ✓ | ✓ | — | — |
 | Key hints and radical chart | ✓ | ✓ | — | — |
-| Local sentence model | ✓ | ✓ | ✓ | ✓ |
+| Local sentence model | ✓ | ✓ | ✓ | — |
 | English mode and English completion | ✓ | ✓ | ✓ | ✓ (English keyboard) |
 | Choice of Chinese/English switch key | — (`Caps Lock`) | ✓ | ✓ | — |
 | Start in English mode | — | ✓ | ✓ | — |
