@@ -4,9 +4,7 @@ use qingjian_core::Engine;
 use qingjian_core::correction::TypoCosts;
 use qingjian_core::sentence::{Interpolation, SearchLimits};
 
-/// 可调的参数名。前四个是个人 n-gram 插值，接着六个是敲错代价，最后三个是整句搜索规模
-/// （每格候选数 / 简拼格候选数 / 束宽）——那三个原本是编译期常量，只能改代码重建才能试，
-/// 而它们对准确率和延迟的影响不比插值参数小。
+/// 可调的参数名。
 pub const KEYS: [&str; 15] = [
     "lambda",
     "k",
@@ -42,8 +40,7 @@ pub fn apply(engine: &mut Engine, settings: &[String]) -> Result<(), TuneError> 
             .trim()
             .parse()
             .map_err(|_| TuneError::Value(setting.clone()))?;
-        // 拒绝 NaN / inf：它们会让排序比较器全部返回 Equal，结果是「静默不排序」而不是报错。
-        // 规模参数那边还有更严的一道（见 count：0、小数、负数各自有各自的拒绝理由）。
+        // NaN / inf 会让排序比较全部返回 Equal，静默不排序
         if !value.is_finite() {
             return Err(TuneError::Value(setting.clone()));
         }
@@ -80,14 +77,7 @@ pub fn apply(engine: &mut Engine, settings: &[String]) -> Result<(), TuneError> 
     Ok(())
 }
 
-/// 规模参数：至少为 1 的整数。三条拒绝各有各的理由——
-/// - **0**：不会「少算一点」，而是让整句转换直接返回空，在评测里表现为全线未命中，
-///   很容易被误读成模型变差；
-/// - **小数**（`beam=2.5`）：悄悄截成 2 会让用户以为生效的值和实际跑的不是一个；
-/// - **负数**：同上，且 `as usize` 会把 -1 变成一个巨大的数。
-///
-/// `value` 是上面已经解析好的 f64（浮点参数共用的那条路），所以这里做范围与整数校验，
-/// 而不是重新 parse 字符串。
+/// 规模参数：至少为 1 的整数。0 会让整句转换返回空（评测里像全线未命中），小数与负数也拒绝，免得实际跑的值与写的不一样。
 fn count(value: f64, name: &str) -> Result<usize, TuneError> {
     if value < 1.0 {
         return Err(TuneError::ZeroLimit(format!("{name}={value}")));

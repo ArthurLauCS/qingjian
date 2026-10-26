@@ -192,8 +192,7 @@ pub struct Engine {
     /// 个人 n-gram 与静态模型插值的参数；只有回放调参会改（`set_interpolation`），壳用缺省值。
     interpolation: Interpolation,
 
-    /// 整句转换的搜索规模（每格候选数、简拼格候选数、束宽）；只有回放调参会改
-    /// （`set_search_limits`），壳用缺省值。见 [`sentence::SearchLimits`]。
+    /// 整句转换的搜索规模；同上，只有回放调参会改（`set_search_limits`）。见 [`sentence::SearchLimits`]。
     search_limits: sentence::SearchLimits,
 
     /// 敲错纠正的代价；同上，只有回放调参会改（`set_typo_costs`）。
