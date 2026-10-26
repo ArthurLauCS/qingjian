@@ -204,11 +204,11 @@ mod tests {
         let chord = SwitchKeys::NONE.with(SwitchKey::CtrlAltSpace, true);
         assert_eq!(parse(r#""ctrl+space""#).unwrap(), chord);
         assert_eq!(parse(r#"["ctrl+alt+space"]"#).unwrap(), chord);
-        // 缺省分平台：Windows 单击 Shift，其余（macOS 用 Caps Lock）不勾
-        let default = if cfg!(windows) {
-            shift
-        } else {
+        // 缺省分平台：macOS 用 Caps Lock 不勾，其余单击 Shift
+        let default = if cfg!(target_os = "macos") {
             SwitchKeys::NONE
+        } else {
+            shift
         };
         assert_eq!(SwitchKeys::default(), default);
     }
