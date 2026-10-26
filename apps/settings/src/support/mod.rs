@@ -33,6 +33,8 @@ pub enum Feature {
     ExtraPageKeys,
     HighlightKeys,
     TogglePunctuation,
+    /// 简体与上次用的繁体之间切换输出字形。
+    ToggleTraditional,
     SystemTextReplacements,
     /// 统计页的云服务用量，测试连接也记进去。
     ApiUsage,
@@ -52,7 +54,7 @@ pub enum Feature {
 
 impl Feature {
     #[cfg(test)]
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 23] = [
         Self::AuxCode,
         Self::Schemes,
         Self::SwitchKeys,
@@ -67,6 +69,7 @@ impl Feature {
         Self::ExtraPageKeys,
         Self::HighlightKeys,
         Self::TogglePunctuation,
+        Self::ToggleTraditional,
         Self::SystemTextReplacements,
         Self::ApiUsage,
         Self::CloudRequestControls,
@@ -113,6 +116,7 @@ impl Feature {
             Self::ExtraPageKeys => [Yes, Yes, Todo],
             Self::HighlightKeys => [Yes, Yes, Todo],
             Self::TogglePunctuation => [Yes, Yes, Todo],
+            Self::ToggleTraditional => [Todo, Yes, Todo],
             // 系统的文本替换只有 macOS 有
             Self::SystemTextReplacements => [Yes, No, No],
             Self::ApiUsage => [Yes, Yes, Yes],
@@ -145,6 +149,7 @@ impl Feature {
             Self::ExtraPageKeys => "额外翻页键",
             Self::HighlightKeys => "高亮移动键",
             Self::TogglePunctuation => "Ctrl + . 切换全半角标点",
+            Self::ToggleTraditional => "Ctrl + Shift + F 切换简繁输出",
             Self::SystemTextReplacements => "也用系统的文本替换",
             Self::ApiUsage => "云服务用量统计",
             Self::CloudRequestControls => "按需云联想与请求节奏",
@@ -173,6 +178,7 @@ impl Feature {
             Self::ExtraPageKeys => &[(PageId::Shortcuts, "额外翻页键")],
             Self::HighlightKeys => &[(PageId::Shortcuts, "高亮移动键")],
             Self::TogglePunctuation => &[(PageId::Shortcuts, "Ctrl + . 切换全半角标点")],
+            Self::ToggleTraditional => &[(PageId::Shortcuts, "Ctrl + Shift + F 切换简繁输出")],
             Self::SystemTextReplacements => &[(PageId::Phrases, "也用系统的文本替换")],
             Self::CloudRequestControls => &[
                 (PageId::Cloud, "自动联想"),

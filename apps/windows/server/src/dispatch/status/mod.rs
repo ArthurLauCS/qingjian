@@ -100,17 +100,21 @@ impl Router {
         }
     }
 
-    /// 快捷键切换输出字形，沿用 Core 转换并保留当前组句。
+    /// 快捷键在简体与上次用的繁体之间切换输出字形，沿用 Core 转换并保留当前组句。
+    /// 切到简体时把切走前那一档记进 `last_traditional`，下次切回去还是它。
     pub(super) fn toggle_traditional(&mut self) {
-        self.config.traditional = !self.config.traditional;
-        let variant = if self.config.traditional {
-            TraditionalVariant::Taiwan
+        let current = self.engine.traditional();
+        let next = if current == TraditionalVariant::Off {
+            self.config.last_traditional
         } else {
+            self.config.last_traditional = current;
+            self.persist("general", "last_traditional", current.key());
             TraditionalVariant::Off
         };
-        self.engine.set_traditional(variant);
-        self.persist("general", "traditional_variant", variant.key());
-        tracing::debug!(traditional = self.config.traditional, "切换简繁输出");
+        self.config.traditional = next != TraditionalVariant::Off;
+        self.engine.set_traditional(next);
+        self.persist("general", "traditional_variant", next.key());
+        tracing::debug!(traditional = next.key(), "切换简繁输出");
     }
 
     /// 写回配置文件一个键；没有配置路径（测试）就只改内存。

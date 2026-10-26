@@ -1,7 +1,7 @@
 //! 简繁切换的组句保留、上屏与快捷键边界。
 use super::tests::{compose, key, router};
 use crate::dispatch::{Router, RouterConfig};
-use qingjian_core::Engine;
+use qingjian_core::{Engine, TraditionalVariant};
 use qingjian_dictionary::Dictionary;
 use qingjian_platform::protocol::{
     ClientMessage, KeyModifiers, KeyOutcome, PROTOCOL_VERSION, SessionId,
@@ -80,4 +80,22 @@ fn disabled_or_rebound_traditional_key_leaves_other_shortcuts_to_app() {
     let mut config = qingjian_platform::Config::default();
     config.shortcut.toggle_traditional = Some(config.shortcut.translate_selection);
     assert!(RouterConfig::from(&config).toggle_traditional.is_none());
+}
+
+#[test]
+fn traditional_shortcut_returns_to_the_variant_used_before_simplified() {
+    let mut router = router(9);
+    router.config.toggle_traditional = Some(qingjian_platform::KeyCombo::TRADITIONAL_DEFAULT);
+    router.engine.set_traditional(TraditionalVariant::Hongkong);
+    let chord = KeyModifiers {
+        ctrl: true,
+        shift: true,
+        ..Default::default()
+    };
+    key(&mut router, 0x46, None, chord);
+    assert_eq!(router.engine.traditional(), TraditionalVariant::Off);
+    assert!(!router.config.traditional);
+    key(&mut router, 0x46, None, chord);
+    assert_eq!(router.engine.traditional(), TraditionalVariant::Hongkong);
+    assert!(router.config.traditional);
 }

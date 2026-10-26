@@ -40,7 +40,8 @@ pub struct ShortcutConfig {
     /// 组句中按需调用 AI（缺省 Ctrl+Alt+J，macOS 是 ⌃⌥J）。
     pub predict: KeyCombo,
 
-    /// Windows 简繁切换；空字符串关闭，缺省 Ctrl + Shift + F。
+    /// 在简体与上次用的繁体字形之间切换（Windows 用），空串禁用（缺省），例如 `ctrl+shift+f`。
+    /// 缺省不开：只要青简是当前输入法，这个组合在所有应用里都会被拿走，编辑器的「在文件中查找」也用它。
     #[serde(with = "super::optional_key_combo")]
     pub toggle_traditional: Option<KeyCombo>,
 }
@@ -73,7 +74,7 @@ impl Default for ShortcutConfig {
             translation_second,
             translate_selection,
             predict: KeyCombo::PREDICT_DEFAULT,
-            toggle_traditional: cfg!(windows).then_some(KeyCombo::TRADITIONAL_DEFAULT),
+            toggle_traditional: None,
         }
     }
 }
@@ -128,10 +129,7 @@ mod tests {
     #[test]
     fn traditional_shortcut_roundtrips_and_can_be_disabled() {
         let default: ShortcutConfig = toml::from_str("").unwrap();
-        assert_eq!(
-            default.toggle_traditional,
-            cfg!(windows).then_some(KeyCombo::TRADITIONAL_DEFAULT)
-        );
+        assert_eq!(default.toggle_traditional, None);
         for text in ["", "ctrl+shift+f", "ctrl+alt+g"] {
             let source = format!("toggle_traditional = {text:?}");
             let config: ShortcutConfig = toml::from_str(&source).unwrap();

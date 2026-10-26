@@ -130,6 +130,9 @@ pub struct RouterConfig {
     /// 繁体输出（`[general] traditional_variant`），给候选窗口主题显示简 / 繁。
     pub traditional: bool,
 
+    /// 简繁快捷键从简体切回去的那一档（`[general] last_traditional`）。
+    pub last_traditional: TraditionalVariant,
+
     /// 辅码触发键（`[general] aux_code_key`，缺省 `;`）；非法值退回缺省。
     pub aux_code_key: char,
 
@@ -226,6 +229,7 @@ impl From<&Config> for RouterConfig {
             status_size: config.status_bar.size.clamp(60, 150),
             scheme: config.general.scheme(),
             traditional: config.general.traditional() != TraditionalVariant::Off,
+            last_traditional: config.general.last_traditional(),
             aux_code_key: config.general.aux_code_key(),
             aux_code_show: config.general.aux_code_show,
             translation_pos: config.general.translation_pos,

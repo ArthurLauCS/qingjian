@@ -515,7 +515,7 @@ Windows 可选的 `[shortcut] toggle_punctuation` 经 `InputSettings` 下发，�
 
 ### Windows 简繁快捷键
 
-`[shortcut] toggle_traditional` 是可关闭的组合键（空字符串关闭，Windows 缺省 Ctrl+Shift+F）。Server 经 `InputSettings` 下发有效组合，与选区翻译冲突时禁用简繁键。TSF 在激活 / 热加载时替换保留键登记、停用时撤销，命中后转发按键；Server 复用 Core 的繁体模式并重查候选，不上屏或清空当前组句，保存 `[general] traditional`。老 Server 不下发此字段时 DLL 不登记。激活早期焦点回调可能在 `thread_mgr` 就绪前连接 Server，因此保留键同步先于配置去重，下一次相同设置也能补登记或重试。
+`[shortcut] toggle_traditional` 是可关闭的组合键（空字符串关闭，缺省关；设置程序里开关打开写 `ctrl+shift+f`）。Server 经 `InputSettings` 下发有效组合，与选区翻译冲突时禁用简繁键。TSF 在激活 / 热加载时替换保留键登记、停用时撤销，命中后转发按键；Server 在简体与上次用的繁体之间切（`[general] last_traditional`，切到简体时记下切走前那一档，没记过是台湾），复用 Core 的繁体转换并重查候选，不上屏或清空当前组句，结果写回 `[general] traditional_variant`。老 Server 不下发此字段时 DLL 不登记。激活早期焦点回调可能在 `thread_mgr` 就绪前连接 Server，因此保留键同步先于配置去重，下一次相同设置也能补登记或重试。
 
 ## assets
 

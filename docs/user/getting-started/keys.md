@@ -15,6 +15,7 @@ description: 青简在 macOS、Windows 与 Linux 上的缺省按键：切换、�
 | 直接输入大写英文 | 英文模式下按住 `⇧`；勾了单击 Shift 后 `Caps Lock` 亮着也是大写 | `Caps Lock` 亮起（中英模式均可） | `Caps Lock` 亮起 |
 | 输入拼音时临时打一个大写字母 | `⇧ + 字母` | `Shift + 字母` | `Shift + 字母` |
 | 切换全角 / 半角标点 | 可启用 `⌃ + .`（缺省关） | 点悬浮状态条上的「，。」格；可启用 `Ctrl + .`（缺省关） | — |
+| 切换简体 / 繁体输出 | — | 可启用 `Ctrl + Shift + F`（缺省关） | — |
 | 切换到其他输入法 | `⌃ + Space`（系统） | `Win + Space`（系统） | Fcitx 的切换热键 |
 
 macOS 上若在系统设置里打开了用 Caps Lock 切换「ABC」的选项，Caps Lock 会被系统拿去切换输入法，青简自己的英文模式就用不到了，见 [中英文](../input/english-mode.md)。
@@ -103,7 +104,3 @@ Windows 上小键盘数字缺省也是选候选；在「设置 → 候选」把�
 | `u` + 拼音 | 问字（需开启 AI 服务） |
 
 三个平台相同，详见 [日期、算式与特殊字符](../input/shortcuts.md)。双拼与混输下 `v`、`u` 改为 `Shift + V`、`Shift + U`。
-
-## Windows 简繁输出
-
-`Ctrl + Shift + F` 切换简体 / 繁体输出，候选立即更新，保留正在输入的拼音，不改应用里已有的文字。组合可在「设置 → 快捷键 → 切换简繁输出」更换或关闭，也可修改 `[shortcut] toggle_traditional`；状态保存到「通用 → 繁体输出」。其他平台暂不使用此快捷键。

@@ -15,6 +15,7 @@ For keys you can change, see [Changing keys](../personalize/keys-settings.md); A
 | Type uppercase English directly | Hold `⇧` in English mode | `Caps Lock` on (in either mode) | `Caps Lock` on |
 | Type one capital letter while typing pinyin | `⇧ + letter` | `Shift + letter` | `Shift + letter` |
 | Switch full-width / half-width punctuation | `⌃ + .` can be enabled (off by default) | Click the ，。 cell on the floating status bar; `Ctrl + .` can be enabled (off by default) | — |
+| Switch Simplified / Traditional output | — | `Ctrl + Shift + F` can be enabled (off by default) | — |
 | Switch to another input method | `⌃ + Space` (system) | `Win + Space` (system) | Fcitx's switch hotkey |
 
 On macOS, if you turn on the system option that uses Caps Lock to switch to "ABC", the system takes Caps Lock for switching input methods and Qingjian's own English mode is no longer reachable; see [Chinese and English](../input/english-mode.md).
