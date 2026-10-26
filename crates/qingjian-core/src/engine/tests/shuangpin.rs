@@ -180,6 +180,20 @@ fn shuangpin_raw_commit_does_not_learn_decodable_keys_as_english() {
 }
 
 #[test]
+fn unmatched_keys_get_abbreviated_candidates() {
+    // 拼音加加：`im` / `zm` 配不出任何音节，按每键一个声母读 → 什么 / 怎么
+    let dictionary =
+        Dictionary::parse("什么\tshen me\t9000\n怎么\tzen me\t8000\n说明\tshuo ming\t500\n")
+            .unwrap();
+    let mut engine = Engine::new(dictionary);
+    engine.set_shuangpin(Some(Scheme::Jiajia));
+    engine.set_input("im");
+    assert_eq!(texts_of(&engine)[0], "什么");
+    engine.set_input("zm");
+    assert_eq!(texts_of(&engine)[0], "怎么");
+}
+
+#[test]
 fn pending_key_that_spells_a_whole_word_keeps_english_out_of_first() {
     // 拼音加加：`veg` = zhe g…（末尾落单的一键），词级已有「这个」逐音节对上全部输入
     let word_of = |dict: &str| {
