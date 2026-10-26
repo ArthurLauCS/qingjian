@@ -336,11 +336,15 @@ impl Engine {
     }
 
     /// 问字模式下正在敲的还可能是 Unicode 码点（前缀后为空，或到目前为止全是十六进制 / 开头 `+`）：
-    /// 此时壳应把数字交给 [`Self::push`] 而不是当选词键。
+    /// 此时壳应把数字交给 [`Self::push`] 而不是当选词键。全是字母又拆得出字（`udada`）时数字留给选字。
     pub fn unicode_entry(&self) -> bool {
         let text = self.composition.text();
-        self.modes().is_question(text, self.zhuyin)
-            && shortcut::could_be_unicode(self.modes().question_body(text, self.zhuyin))
+        if !self.modes().is_question(text, self.zhuyin) {
+            return false;
+        }
+        let body = self.modes().question_body(text, self.zhuyin);
+        shortcut::could_be_unicode(body)
+            && !(body.bytes().all(|b| b.is_ascii_alphabetic()) && crate::chaizi::has_match(body))
     }
 
     /// 缓冲区里只有一个 `?`：还没决定是问字还是标点。壳在确认标点时调用 [`Self::restore_bare_question`]。

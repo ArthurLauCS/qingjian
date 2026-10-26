@@ -2,6 +2,7 @@
 
 mod aux_code;
 mod candidate_menu;
+mod chaizi;
 mod cloud;
 mod cloud_trigger;
 mod code;
