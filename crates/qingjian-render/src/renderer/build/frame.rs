@@ -62,10 +62,10 @@ impl Builder<'_> {
                         ),
                         MaxTrackSizingFunction::auto(),
                     )],
-                    justify_content: Some(JustifyContent::START),
-                    align_content: Some(AlignContent::START),
-                    align_items: Some(AlignItems::START),
-                    justify_items: Some(AlignItems::START),
+                    justify_content: JustifyContent::START,
+                    align_content: AlignContent::START,
+                    align_items: AlignItems::START,
+                    justify_items: AlignItems::START,
                     ..base
                 };
                 self.scene.node(style, visual, &cells)?

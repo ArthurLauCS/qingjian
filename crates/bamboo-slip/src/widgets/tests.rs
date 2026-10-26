@@ -419,7 +419,7 @@ fn a_long_select_value_stays_inside_its_box() {
         .node(
             Style {
                 flex_direction: FlexDirection::Column,
-                align_items: Some(taffy::AlignItems::FLEX_START),
+                align_items: taffy::AlignItems::FLEX_START,
                 ..Style::default()
             },
             Visual::Group,

@@ -156,16 +156,16 @@ impl<'a> TextField<'a> {
                 } else {
                     FlexDirection::Row
                 },
-                justify_content: Some(if !multiline && overflowing && at_end {
+                justify_content: if !multiline && overflowing && at_end {
                     JustifyContent::FLEX_END
                 } else {
                     JustifyContent::FLEX_START
-                }),
-                align_items: Some(if multiline {
+                },
+                align_items: if multiline {
                     AlignItems::FLEX_START
                 } else {
                     AlignItems::CENTER
-                }),
+                },
                 ..Style::default()
             },
             Visual::Group,
@@ -222,11 +222,11 @@ impl<'a> TextField<'a> {
                     height: LengthPercentageAuto::length(min_height),
                 },
                 flex_shrink: 0.0,
-                align_items: Some(if multiline {
+                align_items: if multiline {
                     AlignItems::STRETCH
                 } else {
                     AlignItems::CENTER
-                }),
+                },
                 ..row(theme, 7.0)
             },
             paint,
@@ -353,7 +353,7 @@ impl<'a> TextField<'a> {
         ui.scene().node(
             Style {
                 flex_shrink: 0.0,
-                align_items: Some(AlignItems::CENTER),
+                align_items: AlignItems::CENTER,
                 min_size: Size {
                     width: LengthPercentageAuto::auto(),
                     height: LengthPercentageAuto::length(height),

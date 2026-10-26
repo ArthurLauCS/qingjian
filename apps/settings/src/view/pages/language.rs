@@ -220,7 +220,7 @@ fn switch_keys(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderError>
     let column = ui.scene().node(
         Style {
             flex_direction: FlexDirection::Column,
-            align_items: Some(bamboo_slip::taffy::AlignItems::FLEX_START),
+            align_items: bamboo_slip::taffy::AlignItems::FLEX_START,
             gap: page.gap(8.0),
             ..Style::default()
         },

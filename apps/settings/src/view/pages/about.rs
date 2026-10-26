@@ -208,7 +208,7 @@ fn header(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderError> {
     let brand = ui.scene().node(
         Style {
             flex_direction: FlexDirection::Row,
-            align_items: Some(AlignItems::CENTER),
+            align_items: AlignItems::CENTER,
             gap: page.gap(14.0),
             flex_grow: 1.0,
             ..Style::default()
@@ -227,7 +227,7 @@ fn header(ui: &mut Ui<Message>, page: &Page) -> Result<NodeId, RenderError> {
     ui.scene().node(
         Style {
             flex_direction: FlexDirection::Row,
-            align_items: Some(AlignItems::CENTER),
+            align_items: AlignItems::CENTER,
             padding: Rect {
                 left: LengthPercentage::length(page.px(4.0)),
                 right: LengthPercentage::length(page.px(4.0)),
