@@ -446,6 +446,10 @@ PKG_CONFIG_PATH="$onig" PKG_CONFIG_ALLOW_CROSS=1 RUSTONIG_SYSTEM_LIBONIG=1 \
 
 新版 `apps/settings` 的云联想节奏与录键入口登记为 Windows 支持项；旧版 WinUI 设置保留同样的配置写入。两版共用 `[predict] automatic/debounce_ms/min_interval_ms` 和 `[shortcut] predict`，不改其他平台的自动联想入口。
 
+`[general] numpad_digit`（`NumpadDigit`）控制普通中文组句中的小键盘数字：`select`（缺省）选当前页候选，
+`direct` 将数字送入 Core 缓冲区，按输入顺序原样上屏。`RouterConfig::from` 同时供启动与配置热加载使用；
+Windows 设置「通用」页用同一枚举生成选项。主键盘数字、英文、注音、表达式与问字模式保持现有行为。
+
 一个产品两个 package：`server`（Server 进程：IPC 分派 + Engine + 命名管道 + 自绘候选窗与悬浮状态条）与 `tsf`（TSF 文本服务 DLL，lib 名固定 `qingjian_tsf`），
 外加 `settings`（旧版 WinUI 3 设置程序 `qingjian-settings-legacy.exe`，兜底用）与 `installer`（Inno Setup，同时装 `apps/settings` 的 `qingjian-settings.exe`）。
 Server 侧辅码接线：`RouterConfig.aux_code_key` / `aux_code_show`（`apply_config` 热加载）、`assembly` 按 `AuxCodeSources` 装 `codes/` 与辅码方案

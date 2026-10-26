@@ -2,7 +2,7 @@ use qingjian_core::TraditionalVariant;
 use qingjian_platform::protocol::KeyModifiers;
 use qingjian_platform::{
     Appearance, AppsConfig, CandidateRenderer, Config, FontSize, HighlightKeys, KeyCombo,
-    KeyHintMode, LayoutMode, PageKeys, PreeditMode, Scheme, SwitchKeys,
+    KeyHintMode, LayoutMode, NumpadDigit, PageKeys, PreeditMode, Scheme, SwitchKeys,
 };
 
 use super::RenderSettings;
@@ -25,6 +25,9 @@ pub struct RouterConfig {
     /// 中文模式下 Shift+字母收进组句缓冲区（`[general] shift_letter = "compose"`）。
     /// 关着（缺省）时壳把大写字母交给应用，与以前一致。
     pub shift_letter_compose: bool,
+
+    /// 中文组句中小键盘数字的用途（`[general] numpad_digit`）。
+    pub numpad_digit: NumpadDigit,
 
     /// 候选排布（`[general] layout`）。
     pub layout: LayoutMode,
@@ -177,6 +180,7 @@ impl From<&Config> for RouterConfig {
             cloud_enabled: config.predict.enabled,
             sentence_translation: config.predict.sentence_translation,
             shift_letter_compose: config.general.shift_letter.compose(),
+            numpad_digit: config.general.numpad_digit,
             layout: config.general.layout,
             horizontal_grid: config.general.horizontal_grid,
             appearance: config.general.appearance(),

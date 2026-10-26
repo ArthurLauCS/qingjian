@@ -15,6 +15,7 @@ mod legacy_traditional;
 mod log_level;
 mod model;
 mod modifiers;
+mod numpad_digit;
 mod optional_key_combo;
 mod page_keys;
 mod phrases;
@@ -59,6 +60,7 @@ pub use legacy_traditional::LegacyTraditional;
 pub use log_level::LogLevel;
 pub use model::{LocalModel, LocalModelConfig, ZhiyiTier};
 pub use modifiers::Modifiers;
+pub use numpad_digit::NumpadDigit;
 pub use page_keys::PageKeys;
 pub use preedit_mode::PreeditMode;
 pub use scheme::{Scheme, scheme_label, scheme_name};
@@ -279,6 +281,8 @@ auto_space = false
 # 中文模式下按住 Shift 敲的字母：passthrough 拼音原样上屏、字母交给应用（缺省，与以前一致）/ compose 收进组句
 # 缓冲区参与匹配，这样 Cpan 与 cpan 一样能出「C盘」。英文模式与英文直输段（no-Way）不受影响
 shift_letter = "passthrough"
+# Windows 中文组句中的小键盘数字：select 选择候选（缺省）/ direct 直接输入数字；主键盘数字不受影响
+numpad_digit = "select"
 # 内置英文模式：开着时单击切换键（[shortcut] switch_mode）或 Caps Lock 亮着进英文模式
 # 关掉后青简保持中文模式，切换键与语言栏按钮都不再切过去；要打英文请用系统快捷键（Win+Space）切到别的输入法。Windows 与 Linux 用，macOS 的中英切换是 Caps Lock
 english_mode = true
