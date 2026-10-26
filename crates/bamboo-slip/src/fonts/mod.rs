@@ -13,6 +13,7 @@ mod linux;
 mod macos;
 mod trak;
 mod ui_font;
+mod weight_aliases;
 #[cfg(target_os = "windows")]
 mod windows;
 
@@ -25,6 +26,7 @@ use crate::error::RenderError;
 
 pub use trak::Trak;
 pub use ui_font::UiFont;
+pub(crate) use weight_aliases::WeightAliases;
 
 #[cfg(target_os = "windows")]
 use self::windows as platform;
