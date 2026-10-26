@@ -99,7 +99,7 @@ fn ctrl_alt_space_switches_when_chosen() {
 fn default_english_starts_new_sessions_in_english() {
     let mut router = router_with(RouterConfig {
         default_english: true,
-        ..Default::default()
+        ..config(&[SwitchKey::Shift])
     });
     assert!(english(&mut router));
     tap(&mut router, SHIFT);
