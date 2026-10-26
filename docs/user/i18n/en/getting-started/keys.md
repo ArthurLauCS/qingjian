@@ -17,6 +17,8 @@ For keys you can change, see [Changing keys](../personalize/keys-settings.md); A
 | Switch full-width / half-width punctuation | `⌃ + .` can be enabled (off by default) | Click the ，。 cell on the floating status bar; `Ctrl + .` can be enabled (off by default) | — |
 | Switch to another input method | `⌃ + Space` (system) | `Win + Space` (system) | Fcitx's switch hotkey |
 
+On macOS, if you turn on the system option that uses Caps Lock to switch to "ABC", the system takes Caps Lock for switching input methods and Qingjian's own English mode is no longer reachable; see [Chinese and English](../input/english-mode.md).
+
 On Windows and Linux, the Chinese / English switch can also be a tap of `Ctrl` or `Ctrl + Alt + Space`; see [Chinese and English](../input/english-mode.md#Changing-or-turning-off-the-Chinese-English-switch).
 
 ## While typing pinyin

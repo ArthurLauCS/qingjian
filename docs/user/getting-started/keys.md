@@ -17,7 +17,7 @@ description: 青简在 macOS、Windows 与 Linux 上的缺省按键：切换、�
 | 切换全角 / 半角标点 | 可启用 `⌃ + .`（缺省关） | 点悬浮状态条上的「，。」格；可启用 `Ctrl + .`（缺省关） | — |
 | 切换到其他输入法 | `⌃ + Space`（系统） | `Win + Space`（系统） | Fcitx 的切换热键 |
 
-macOS 上若系统开启了「使用大写锁定键切换 ABC」（「系统设置 → 键盘 → 输入法 → 编辑」里），Caps Lock 会被系统截走用于切换输入源，青简的中英文切换就按不出来；按习惯取舍，见 [安装](install.md#caps-lock-与系统的切换-abc-开关)。
+macOS 上若在系统设置里打开了用 Caps Lock 切换「ABC」的选项，Caps Lock 会被系统拿去切换输入法，青简自己的英文模式就用不到了，见 [中英文](../input/english-mode.md)。
 
 Windows 与 Linux 的中 / 英切换键还可以选单击 `Ctrl` 或 `Ctrl + Alt + Space`，见 [中英文](../input/english-mode.md#改掉或关掉中-英切换)。
 
