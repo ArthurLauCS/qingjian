@@ -15,7 +15,7 @@ use cosmic_text::fontdb::{Family, ID};
 use cosmic_text::{Attrs, Buffer, FontSystem, Metrics, Shaping, Style, SwashCache, SwashContent};
 
 use crate::canvas::Canvas;
-use crate::fonts::{FontLibrary, Trak, UI_FAMILY};
+use crate::fonts::{FontLibrary, Trak, UI_FAMILY, drawable};
 
 pub use decoration::Decoration;
 pub use size::TextSize;
@@ -379,8 +379,12 @@ impl TextPainter {
     }
 }
 
-/// 文件能解析就加载进字体库；返回是否加载了。
+/// 文件能解析、有 swash 能画的轮廓（见 [`drawable`]）就加载进字体库；返回是否加载了。
 fn load_font(font_system: &mut FontSystem, path: &Path) -> bool {
+    if !drawable(path) {
+        tracing::warn!(path = %path.display(), "字体文件不存在、读不进来或没有能画的轮廓，跳过");
+        return false;
+    }
     match font_system.db_mut().load_font_file(path) {
         Ok(()) => {
             tracing::debug!(path = %path.display(), "加载字体文件");

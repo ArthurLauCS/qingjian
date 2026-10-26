@@ -72,6 +72,34 @@ fn missing_families_fall_back_to_the_ui_font() {
     );
 }
 
+/// macOS 27 的苹方把轮廓放进私有的 `hvgl` 表：这种文件不进字体库，回退链落到后面的字族，不能选中它画成空白。
+#[test]
+fn undrawable_family_falls_back_instead_of_drawing_blank() {
+    let (Some(file), Some(mut renderer)) = (georgia(), renderer()) else {
+        eprintln!("没有 Georgia 或系统字体，跳过");
+        return;
+    };
+    let mut data = std::fs::read(&file).unwrap();
+    let tables = usize::from(u16::from_be_bytes([data[4], data[5]]));
+    let glyf = (0..tables)
+        .map(|i| 12 + 16 * i)
+        .find(|&at| &data[at..at + 4] == b"glyf")
+        .unwrap();
+    data[glyf..glyf + 4].copy_from_slice(b"hvgl");
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("undrawable-font");
+    std::fs::create_dir_all(&dir).unwrap();
+    let outline_less = dir.join("georgia-hvgl.ttf");
+    std::fs::write(&outline_less, data).unwrap();
+
+    let plain = Theme::light();
+    let theme = Theme::from_json(&theme_json(r#"["Georgia", "system"]"#, "[]"), false).unwrap();
+    renderer.load_theme_fonts(&theme, |_| vec![outline_less.clone()]);
+    assert_eq!(
+        renderer.trace_families("Abc", &theme),
+        renderer.trace_families("Abc", &plain)
+    );
+}
+
 #[test]
 fn bundled_font_loads_from_the_theme_directory() {
     let (Some(file), Some(mut renderer)) = (georgia(), renderer()) else {
