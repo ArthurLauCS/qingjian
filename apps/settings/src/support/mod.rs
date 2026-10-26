@@ -44,11 +44,13 @@ pub enum Feature {
     ShowTones,
     /// 「实验功能」页：下载、启用知意与含章·知微。
     ExperimentalModels,
+    /// 中文组句中的小键盘数字：选候选还是进组句。
+    NumpadDigit,
 }
 
 impl Feature {
     #[cfg(test)]
-    pub const ALL: [Self; 20] = [
+    pub const ALL: [Self; 21] = [
         Self::AuxCode,
         Self::Schemes,
         Self::SwitchKeys,
@@ -69,6 +71,7 @@ impl Feature {
         Self::KeyHint,
         Self::ShowTones,
         Self::ExperimentalModels,
+        Self::NumpadDigit,
     ];
 
     /// 当前平台显示这一项。
@@ -116,6 +119,7 @@ impl Feature {
             Self::ShowTones => [Yes, Yes, Todo],
             // Windows、Linux 的服务进程还没接知意；没有 GPU 时 CPU 上打分要发烫，先只开 macOS（Metal）
             Self::ExperimentalModels => [Yes, Yes, Todo],
+            Self::NumpadDigit => [Todo, Yes, Todo],
         }
     }
 
@@ -143,6 +147,7 @@ impl Feature {
             Self::KeyHint => "双拼键位提示",
             Self::ShowTones => "拼音行显示声调",
             Self::ExperimentalModels => "实验功能（知意、含章·知微）",
+            Self::NumpadDigit => "小键盘数字",
         }
     }
 
@@ -173,6 +178,7 @@ impl Feature {
             Self::VocabularyTranslation => &[(PageId::Cloud, "生词本整句翻译")],
             Self::KeyHint => &[(PageId::Input, "键位提示")],
             Self::ShowTones => &[(PageId::Candidates, "拼音行显示声调")],
+            Self::NumpadDigit => &[(PageId::Candidates, "小键盘数字")],
             Self::SystemCtrlSpace
             | Self::EnglishPunctuation
             | Self::StatusBar
