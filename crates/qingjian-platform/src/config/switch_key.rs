@@ -67,13 +67,13 @@ pub struct SwitchKeys {
 }
 
 impl Default for SwitchKeys {
-    /// Windows 缺省单击 Shift（与微软拼音一致）；macOS 的中英切换是 Caps Lock（系统级），
-    /// 缺省不勾（`[]`），要单击 Shift 切中英得在偏好设置里勾上。
+    /// Windows、Linux 缺省单击 Shift（与微软拼音一致）；macOS 原先只用 Caps Lock，缺省不勾（`[]`），
+    /// 免得老用户升级后打大写字母被切走，要单击 Shift 切中英得在设置里勾上。
     fn default() -> Self {
-        if cfg!(windows) {
-            Self::NONE.with(SwitchKey::Shift, true)
-        } else {
+        if cfg!(target_os = "macos") {
             Self::NONE
+        } else {
+            Self::NONE.with(SwitchKey::Shift, true)
         }
     }
 }
