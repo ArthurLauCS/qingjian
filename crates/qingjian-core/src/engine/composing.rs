@@ -179,7 +179,7 @@ impl Engine {
         if self.composition.is_empty() {
             // 新一段组句：从这一键起算耗时、翻页与重打
             self.composition_started = Some(Instant::now());
-            *self.uuid_forms.borrow_mut() = None;
+            *self.generated_forms.borrow_mut() = None;
             self.page_turns = 0;
             self.retype_snapshot = None;
             self.typing.restart();
@@ -307,16 +307,13 @@ impl Engine {
     }
 
     /// 表达式模式下这个字符进算式（数字与运算符），壳据此决定交给 [`Self::push`] 还是当选词键。
-    /// `vuuid` 不是算式：数字留给选词。
+    /// `vuuid`、`vts` 不是算式：数字留给选词。
     pub fn expression_input(&self, c: char) -> bool {
-        self.expression_mode() && shortcut::is_expression_char(c) && !self.uuid_keyword()
-    }
-
-    /// 缓冲区是表达式键加 `uuid`（`vuuid`，双拼下 `Vuuid`）。
-    pub(in crate::engine) fn uuid_keyword(&self) -> bool {
         self.expression_mode()
-            && self.composition.text()[self.modes().expression.len_utf8()..]
-                == *shortcut::UUID_KEYWORD
+            && shortcut::is_expression_char(c)
+            && !shortcut::is_generated_keyword(
+                &self.composition.text()[self.modes().expression.len_utf8()..],
+            )
     }
 
     /// 英文直输段：缓冲区里有拼音以外的字符（`no-way`），整段原样上屏、不解析拼音。

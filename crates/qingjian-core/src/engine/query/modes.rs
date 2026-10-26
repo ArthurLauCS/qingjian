@@ -11,12 +11,12 @@ impl Engine {
         rest: String,
         start: Instant,
     ) -> Query {
-        let mut items =
-            if scope.strip_prefix(self.modes().expression) == Some(shortcut::UUID_KEYWORD) {
-                self.uuid_candidates()
-            } else {
-                shortcut::candidates(scope, self.modes().expression, &jiff::Zoned::now())
-            };
+        let body = scope.strip_prefix(self.modes().expression).unwrap_or(scope);
+        let mut items = if shortcut::is_generated_keyword(body) {
+            self.generated_candidates(body)
+        } else {
+            shortcut::candidates(scope, self.modes().expression, &jiff::Zoned::now())
+        };
         if let Some(candidate) = self.english_word_candidate(scope) {
             items.push(candidate);
         }
@@ -170,7 +170,7 @@ impl Engine {
                 Some(candidate) => {
                     let mut items = vec![candidate];
                     if scope == shortcut::UUID_KEYWORD {
-                        items.extend(self.uuid_candidates());
+                        items.extend(self.generated_candidates(shortcut::UUID_KEYWORD));
                     }
                     (CandidateList { items }, scope.to_owned())
                 }
@@ -222,13 +222,17 @@ impl Engine {
         })
     }
 
-    /// 这段组句的 UUID 候选：第一次查时生成，同一段组句里反复查都是同一组。
-    fn uuid_candidates(&self) -> Vec<Candidate> {
-        let forms = self
-            .uuid_forms
-            .borrow_mut()
-            .get_or_insert_with(shortcut::uuid_forms)
-            .clone();
+    /// `keyword`（`uuid` / `ts`）的候选：这段组句第一次查时生成，之后反复查都是同一组，换了词才重新生成。
+    fn generated_candidates(&self, keyword: &str) -> Vec<Candidate> {
+        let mut cache = self.generated_forms.borrow_mut();
+        if cache.as_ref().is_none_or(|(cached, _)| cached != keyword) {
+            let forms = shortcut::generated_forms(keyword, &jiff::Zoned::now()).unwrap_or_default();
+            *cache = Some((keyword.to_owned(), forms));
+        }
+        let forms = cache
+            .as_ref()
+            .map(|(_, forms)| forms.clone())
+            .unwrap_or_default();
         shortcut::as_candidates(forms)
     }
 }

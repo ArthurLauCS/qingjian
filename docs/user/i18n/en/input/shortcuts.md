@@ -1,7 +1,7 @@
 ---
 title: Dates, calculations and special characters
 order: 4
-description: "Typing dates, times and weekdays with rq / sj / xq; calculating, writing Chinese numerals and amounts, Chinese dates and UUIDs with a v prefix; typing characters by code point with a u prefix."
+description: "Typing dates, times and weekdays with rq / sj / xq; calculating, writing Chinese numerals and amounts, Chinese dates, timestamps and UUIDs with a v prefix; typing characters by code point with a u prefix."
 ---
 
 ## Dates, times and weekdays
@@ -25,6 +25,10 @@ Start with `v`:
 - A date is recognized as **a four-digit year + month + day**; if the year isn't four digits (`v98-3-8`) or the month and day aren't valid (`v1998-2-30`), it's treated as a calculation.
 - After a `v`, digits and operators all go into the expression and are no longer used to pick or page; to pick the second item, use `↑` / `↓` and `Space`. `Enter` outputs what you typed as is.
 - English words starting with `v` (`very`) aren't affected and still get English candidates.
+
+## Timestamps
+
+`vts` gives four candidates: Unix seconds, UTC in RFC 3339 (`2026-09-03T11:06:23Z`), Unix milliseconds and ISO 8601 with your time zone (`2026-09-03T19:06:23+08:00`). Number keys select candidates as usual; the values are taken when you type `vts` and don't change before you pick one.
 
 ## UUID
 
