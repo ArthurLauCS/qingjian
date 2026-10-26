@@ -3,11 +3,11 @@
 //! 状态只按前一个词分（束宽内），个人三元要的前二词取前驱节点的回指（它那条最优路径上的前一个词）：
 //! 不扩状态，代价是三元上下文是近似的，个人数据量下够用。
 
-use qingjian_dictionary::{Dictionary, Match, SyllablePattern};
+use qingjian_dictionary::{Match, SyllablePattern};
 
 use super::{
     Context, Conversion, LanguageModel, MAX_WORD_SYLLABLES, MIN_PARTIAL_LETTERS, Personal,
-    SECONDARY_PENALTY, SearchLimits, SentenceWord, SpanCache, SpanWord, TONE_PENALTY,
+    SECONDARY_PENALTY, SearchInput, SentenceWord, SpanCache, SpanWord, TONE_PENALTY,
     fallback_log_prob, reading_cost, transition_log_prob,
 };
 use crate::ranking::weight_bonus;
@@ -44,109 +44,55 @@ struct Node {
 }
 
 /// 把音节序列转成最可能的词序列。`positions` 每个位置是若干写法（第一种是敲的，其余是模糊音 / 敲错变体），
-/// `cost(位置, 命中的音节)` 是那个位置命中这种写法要扣的分（敲的原样 0），
-/// `weight` 是用户选择次数，`personal` 是个人 n-gram 与插值参数（没有个人数据就传 [`Personal::NONE`]），`cache` 是格子候选的缓存
+/// 打分用的词库、模型、个人数据与搜索规模在 `input` 里；`cache` 是格子候选的缓存
 /// （调用方保证它与词库、`weight`、`personal`、`cost` 一致，这些一变就清）。
-/// 搜索规模用 [`SearchLimits::DEFAULT`]；要试别的值走 [`convert_with`]。
 ///
 /// 简拼位置（`w x q`）按前缀取词：每个格子的候选会多得多，由语言模型在路径上分辨。
 /// 全拼句子末尾落单的声母也当前缀读（`youdiandongx` → 有点东西）；落单的单元音（i / u）与短于
 /// 两个字母的其他前缀多半是没打完的韵母，不算它；前面已有简拼的句子里末尾单字母就是一个音节。
-pub fn convert(
-    dictionaries: &[&Dictionary],
+pub fn convert<W, C>(
+    input: &SearchInput<'_, W, C>,
     positions: &[Vec<SyllablePattern<'_>>],
-    model: &dyn LanguageModel,
-    personal: Personal<'_>,
-    weight: impl Fn(&str) -> u32,
-    cost: impl Fn(usize, &str) -> f64,
     cache: &mut SpanCache,
-) -> Option<Conversion> {
-    convert_with(
-        dictionaries,
-        positions,
-        false,
-        model,
-        personal,
-        weight,
-        cost,
-        cache,
-        SearchLimits::DEFAULT,
-    )
+) -> Option<Conversion>
+where
+    W: Fn(&str) -> u32,
+    C: Fn(usize, &str) -> f64,
+{
+    convert_paths(input, positions, false, 1, cache)
+        .into_iter()
+        .next()
 }
 
 /// 同 [`convert`]，但全拼句子末尾的单字母也当一个音节读（`huo z…` → 或者）：
 /// 给「整段拼音读法」与别的读法比分用，比分要两边覆盖同样多的字母。
-/// 搜索规模用 [`SearchLimits::DEFAULT`]。
-pub fn convert_whole(
-    dictionaries: &[&Dictionary],
+pub fn convert_whole<W, C>(
+    input: &SearchInput<'_, W, C>,
     positions: &[Vec<SyllablePattern<'_>>],
-    model: &dyn LanguageModel,
-    personal: Personal<'_>,
-    weight: impl Fn(&str) -> u32,
-    cost: impl Fn(usize, &str) -> f64,
     cache: &mut SpanCache,
-) -> Option<Conversion> {
-    convert_with(
-        dictionaries,
-        positions,
-        true,
-        model,
-        personal,
-        weight,
-        cost,
-        cache,
-        SearchLimits::DEFAULT,
-    )
-}
-
-/// [`convert`] 与 [`convert_whole`] 的共同实现，`keep_partial` 选哪种；只要最优的一条。
-/// `limits` 是搜索规模，见 [`SearchLimits`]。
-#[allow(clippy::too_many_arguments)]
-pub fn convert_with(
-    dictionaries: &[&Dictionary],
-    positions: &[Vec<SyllablePattern<'_>>],
-    keep_partial: bool,
-    model: &dyn LanguageModel,
-    personal: Personal<'_>,
-    weight: impl Fn(&str) -> u32,
-    cost: impl Fn(usize, &str) -> f64,
-    cache: &mut SpanCache,
-    limits: SearchLimits,
-) -> Option<Conversion> {
-    convert_paths(
-        dictionaries,
-        positions,
-        keep_partial,
-        1,
-        model,
-        personal,
-        weight,
-        cost,
-        &[],
-        cache,
-        limits,
-    )
-    .into_iter()
-    .next()
+) -> Option<Conversion>
+where
+    W: Fn(&str) -> u32,
+    C: Fn(usize, &str) -> f64,
+{
+    convert_paths(input, positions, true, 1, cache)
+        .into_iter()
+        .next()
 }
 
 /// 得分最高的前 `k` 条路径（最多束宽条，按得分降序，文本相同的只留一条）：给重打分用。
-/// `tones` 是注音每个位置敲的声调（与 `positions` 对齐，可以更短；全拼 / 双拼给空），按 [`TONE_PENALTY`] 给格子选词打折、给路径扣分。
-/// `limits` 是搜索规模，见 [`SearchLimits`]。
-#[allow(clippy::too_many_arguments)]
-pub fn convert_paths(
-    dictionaries: &[&Dictionary],
+/// `keep_partial` 为真时同 [`convert_whole`]；注音的声调按 [`TONE_PENALTY`] 给格子选词打折、给路径扣分。
+pub fn convert_paths<W, C>(
+    input: &SearchInput<'_, W, C>,
     positions: &[Vec<SyllablePattern<'_>>],
     keep_partial: bool,
     k: usize,
-    model: &dyn LanguageModel,
-    personal: Personal<'_>,
-    weight: impl Fn(&str) -> u32,
-    cost: impl Fn(usize, &str) -> f64,
-    tones: &[Option<u8>],
     cache: &mut SpanCache,
-    limits: SearchLimits,
-) -> Vec<Conversion> {
+) -> Vec<Conversion>
+where
+    W: Fn(&str) -> u32,
+    C: Fn(usize, &str) -> f64,
+{
     let Some((last, head)) = positions.split_last() else {
         return Vec::new();
     };
@@ -170,7 +116,8 @@ pub fn convert_paths(
     if n == 0 || k == 0 {
         return Vec::new();
     }
-    let total: f64 = dictionaries
+    let total: f64 = input
+        .dictionaries
         .iter()
         .map(|d| d.total_frequency() as f64)
         .sum::<f64>()
@@ -190,38 +137,36 @@ pub fn convert_paths(
         penalty: 0.0,
     });
     for start in 0..n {
-        prune(&mut nodes[start], limits.beam_width);
+        prune(&mut nodes[start], input.limits.beam_width);
         if nodes[start].is_empty() {
             continue;
         }
         let mut any = false;
         for end in start + 1..=n.min(start + MAX_WORD_SYLLABLES) {
             let span = &positions[start..end];
-            let span_tones = tones.get(start..end).unwrap_or(&[]);
+            let span_tones = input.tones.get(start..end).unwrap_or(&[]);
             let hits = cache.get_or_insert_with(SpanCache::toned_key(span, span_tones), || {
-                span_candidates(
-                    dictionaries,
-                    span,
-                    start,
-                    personal,
-                    &weight,
-                    &cost,
-                    span_tones,
-                    limits,
-                )
+                span_candidates(input, span, start, span_tones)
             });
             if hits.is_empty() {
                 continue;
             }
             any = true;
             for hit in hits.iter() {
-                let bonus = weight_bonus(weight(&hit.text));
+                let bonus = weight_bonus((input.weight)(&hit.text));
                 let fallback = fallback_log_prob(hit.frequency, hit.secondary, log_total);
-                let (score, back) =
-                    best_predecessor(&nodes, start, &hit.text, model, personal, fallback);
+                let (score, back) = best_predecessor(
+                    &nodes,
+                    start,
+                    &hit.text,
+                    input.model,
+                    input.personal,
+                    fallback,
+                );
                 let previous = &nodes[start][back];
                 let penalty = previous.penalty + hit.penalty;
-                let static_step = model
+                let static_step = input
+                    .model
                     .log_prob((start > 0).then_some(previous.text.as_str()), &hit.text)
                     .unwrap_or(fallback);
                 let static_score = previous.static_score + static_step;
@@ -262,7 +207,7 @@ pub fn convert_paths(
             });
         }
     }
-    prune(&mut nodes[n], limits.beam_width);
+    prune(&mut nodes[n], input.limits.beam_width);
     let mut paths: Vec<Conversion> = Vec::with_capacity(k.min(nodes[n].len()));
     for index in 0..nodes[n].len() {
         if paths.len() >= k {
@@ -321,18 +266,17 @@ impl LanguageModel for NoModel {
 /// 一个格子里的候选词：所有词库的精确命中，按词频（加用户选择次数与个人出现次数，替代写法命中的按代价打折）取前几个。
 /// 个人次数只在这里保证用户常用的同音词进得了格子，不进路径打分（那是 n-gram 的事）；
 /// 打折让敲错变体命中的词只在原样命中不够多时才进格子，而常用词（关系）即使打折也留得住。
-/// 格子里有简拼位置时命中的是一大片不同读音的词，多留一些让语言模型去挑。
-#[allow(clippy::too_many_arguments)]
-fn span_candidates(
-    dictionaries: &[&Dictionary],
+/// 格子里有简拼位置时命中的是一大片不同读音的词，多留一些让语言模型去挑。`tones` 是这个格子那几位的声调。
+fn span_candidates<W, C>(
+    input: &SearchInput<'_, W, C>,
     span: &[Vec<SyllablePattern<'_>>],
     start: usize,
-    personal: Personal<'_>,
-    weight: &impl Fn(&str) -> u32,
-    cost: &impl Fn(usize, &str) -> f64,
     tones: &[Option<u8>],
-    limits: SearchLimits,
-) -> Vec<SpanWord> {
+) -> Vec<SpanWord>
+where
+    W: Fn(&str) -> u32,
+    C: Fn(usize, &str) -> f64,
+{
     let alternatives = span.iter().any(|p| p.len() > 1);
     let penalty_of = |m: &Match<'_>| {
         if !alternatives {
@@ -340,16 +284,17 @@ fn span_candidates(
         }
         m.syllables()
             .enumerate()
-            .map(|(index, syllable)| cost(start + index, syllable))
+            .map(|(index, syllable)| (input.cost)(start + index, syllable))
             .sum::<f64>()
     };
     // 得分先算好再排：单字母简拼的格子能命中几千条，比较器里每次查两张表会让排序占掉十几毫秒
     // 词频 0 的生僻字不进词图，用户自己选过的除外：`keneng` 按 `ken eng` 切时有了 鞥 就会读出 肯鞥，压过敲错边读出的 可能
-    let mut scored: Vec<(f64, f64, f64, Match<'_>)> = dictionaries
+    let mut scored: Vec<(f64, f64, f64, Match<'_>)> = input
+        .dictionaries
         .iter()
         .flat_map(|d| d.lookup_exact_alt(span))
         .filter_map(|m| {
-            let seen = weight(m.text) + personal.count(m.text);
+            let seen = (input.weight)(m.text) + input.personal.count(m.text);
             if m.frequency == 0 && seen == 0 {
                 return None;
             }
@@ -367,9 +312,9 @@ fn span_candidates(
     scored.dedup_by(|a, b| a.3.text == b.3.text);
     let abbreviated = span.iter().any(|p| p.iter().any(|t| !t.complete));
     scored.truncate(if abbreviated {
-        limits.abbreviated_span_candidates
+        input.limits.abbreviated_span_candidates
     } else {
-        limits.span_candidates
+        input.limits.span_candidates
     });
     scored
         .into_iter()
@@ -414,7 +359,7 @@ fn best_predecessor(
     best
 }
 
-/// 按得分降序只留束宽条。`beam_width` 见 [`SearchLimits::beam_width`]。
+/// 按得分降序只留束宽条。`beam_width` 见 [`super::SearchLimits::beam_width`]。
 fn prune(nodes: &mut Vec<Node>, beam_width: usize) {
     nodes.sort_by(|a, b| {
         b.score
