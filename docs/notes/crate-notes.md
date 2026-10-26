@@ -513,6 +513,10 @@ Windows 可选的 `[shortcut] toggle_punctuation` 经 `InputSettings` 下发，�
 首次获焦可能早于 `Activate` 设置 `thread_mgr`，因此保留键同步必须在设置值缓存命中前执行，管理器就绪后才能补登记。
 `extra_page_keys` 与主翻页键并用，只影响候选翻页，不覆盖表达式、直输段或辅码触发键。
 
+### Windows 简繁快捷键
+
+`[shortcut] toggle_traditional` 是可关闭的组合键（空字符串关闭，Windows 缺省 Ctrl+Shift+F）。Server 经 `InputSettings` 下发有效组合，与选区翻译冲突时禁用简繁键。TSF 在激活 / 热加载时替换保留键登记、停用时撤销，命中后转发按键；Server 复用 Core 的繁体模式并重查候选，不上屏或清空当前组句，保存 `[general] traditional`。老 Server 不下发此字段时 DLL 不登记。激活早期焦点回调可能在 `thread_mgr` 就绪前连接 Server，因此保留键同步先于配置去重，下一次相同设置也能补登记或重试。
+
 ## assets
 
 - `assets/sample/`：手写样例词库与释义表，不是产品数据。

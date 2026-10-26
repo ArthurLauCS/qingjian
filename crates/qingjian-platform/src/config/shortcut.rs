@@ -39,6 +39,10 @@ pub struct ShortcutConfig {
 
     /// 组句中按需调用 AI（缺省 Ctrl+Alt+J，macOS 是 ⌃⌥J）。
     pub predict: KeyCombo,
+
+    /// Windows 简繁切换；空字符串关闭，缺省 Ctrl + Shift + F。
+    #[serde(with = "super::optional_key_combo")]
+    pub toggle_traditional: Option<KeyCombo>,
 }
 
 impl Default for ShortcutConfig {
@@ -69,6 +73,7 @@ impl Default for ShortcutConfig {
             translation_second,
             translate_selection,
             predict: KeyCombo::PREDICT_DEFAULT,
+            toggle_traditional: cfg!(windows).then_some(KeyCombo::TRADITIONAL_DEFAULT),
         }
     }
 }
@@ -118,6 +123,24 @@ mod tests {
         );
         assert!(toml::from_str::<ShortcutConfig>("extra_page_keys = ['ab']").is_err());
         assert!(toml::from_str::<ShortcutConfig>("toggle_punctuation = 'ctrl+unknown'").is_err());
+    }
+
+    #[test]
+    fn traditional_shortcut_roundtrips_and_can_be_disabled() {
+        let default: ShortcutConfig = toml::from_str("").unwrap();
+        assert_eq!(
+            default.toggle_traditional,
+            cfg!(windows).then_some(KeyCombo::TRADITIONAL_DEFAULT)
+        );
+        for text in ["", "ctrl+shift+f", "ctrl+alt+g"] {
+            let source = format!("toggle_traditional = {text:?}");
+            let config: ShortcutConfig = toml::from_str(&source).unwrap();
+            let restored: ShortcutConfig =
+                toml::from_str(&toml::to_string(&config).unwrap()).unwrap();
+            assert_eq!(restored.toggle_traditional, config.toggle_traditional);
+            assert_eq!(config.toggle_traditional.is_none(), text.is_empty());
+        }
+        assert!(toml::from_str::<ShortcutConfig>("toggle_traditional = \"f\"").is_err());
     }
 
     #[test]

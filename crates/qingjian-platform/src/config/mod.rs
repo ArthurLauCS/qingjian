@@ -220,6 +220,8 @@ translation_second = "shift+ctrl"
 translate_selection = "ctrl+alt+t"
 # Windows 组句中按需调用 AI
 predict = "ctrl+alt+j"
+# Windows 简繁切换，空字符串关闭；只换字形，不改输入方案。
+toggle_traditional = "ctrl+shift+f"
 "#
     };
 }

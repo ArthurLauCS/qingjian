@@ -112,6 +112,9 @@ pub struct RouterConfig {
     /// 组句中按需调用 AI 的快捷键（`[shortcut] predict`）。
     pub predict: KeyCombo,
 
+    /// 简繁切换快捷键；与选区翻译相同时不登记，保留翻译行为。
+    pub toggle_traditional: Option<KeyCombo>,
+
     /// 悬浮状态条开关（`[status_bar] enabled`）。
     pub status_enabled: bool,
 
@@ -214,6 +217,10 @@ impl From<&Config> for RouterConfig {
             },
             translate_selection: config.shortcut.translate_selection,
             predict: config.shortcut.predict,
+            toggle_traditional: config
+                .shortcut
+                .toggle_traditional
+                .filter(|key| *key != config.shortcut.translate_selection),
             status_enabled: config.status_bar.enabled,
             status_pos: config.status_bar.x.zip(config.status_bar.y),
             status_size: config.status_bar.size.clamp(60, 150),

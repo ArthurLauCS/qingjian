@@ -219,6 +219,7 @@ impl Router {
             english_mode: self.config.english_mode,
             shift_letter_compose: self.config.shift_letter_compose,
             restore_mode: self.config.default_english || self.config.remember_mode_per_app,
+            toggle_traditional: self.config.toggle_traditional,
             english_candidates: self.config.english_candidates_in(app),
             predict: (self.config.cloud_enabled && self.engine.prediction_enabled())
                 .then_some(self.config.predict),
