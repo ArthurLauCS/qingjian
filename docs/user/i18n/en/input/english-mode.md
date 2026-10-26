@@ -12,7 +12,8 @@ description: "Entering English mode, changing or turning off the Chinese/English
 - **Windows**: tap `Shift` (press and release on its own, without another key) to switch between Chinese and English. The taskbar shows 中 or 英 to match, and A while Caps Lock is on.
   Clicking the 中 / 英 icon on the taskbar also switches.
   On Windows, `Caps Lock` only controls case: while it's on, capital letters are typed directly in either mode (as with Microsoft Pinyin).
-- **Linux**: tap `Shift` to switch between Chinese and English; holding `Shift` while typing letters doesn't switch. While `Caps Lock` is on, capital letters are typed directly.
+- **Linux**: tap `Shift` to switch between Chinese and English; Fcitx5 briefly shows 中 or 英 when you switch (it disappears after about a second). Holding `Shift` while typing letters doesn't switch. While `Caps Lock` is on, capital letters are typed directly.
+  The hint shares Fcitx5's "Show Input Method Information when switch input method" setting with the input method switching popup; turn that off and it no longer appears.
 
 On Windows, the Chinese/English mode is **shared by all apps** by default: switch to English in one app and other apps, including newly opened ones, are in English too. On Linux, **each window keeps its own**, and new windows start in Chinese.
 
