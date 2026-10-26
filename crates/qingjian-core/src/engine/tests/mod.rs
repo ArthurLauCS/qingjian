@@ -25,6 +25,7 @@ mod shuangpin;
 mod spacing;
 mod spelling;
 mod traditional;
+mod uuid;
 mod vocabulary;
 mod voice;
 mod zhuyin;

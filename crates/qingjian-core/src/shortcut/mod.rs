@@ -8,10 +8,12 @@
 //!   `1998年3月8日` / `1998-03-08`，年份不是四位或月日不合法时回落到算式（见 [`input_date_forms`]）。
 //!   表达式模式下缓冲区允许数字与运算符，候选不走拼音解析。
 //! - 问字键（缺省 `u`）后跟十六进制码点出那个字符：`u4e00` → 一，`u+1f600` → 😀。模式键本身在 `engine::ModeKeys`。
+//! - `vuuid`（全拼下问字键是 `u` 时直接 `uuid`）出 UUID（[`uuid_forms`]）；值是随机的，由 Engine 按组句缓存，不走 [`candidates`]。
 
 mod calendar;
 mod evaluator;
 mod numeral;
+mod uuid_forms;
 
 use jiff::Zoned;
 
@@ -23,6 +25,7 @@ pub use numeral::{
     amount_lower, amount_upper, chinese_decimal_lower, chinese_decimal_upper, chinese_lower,
     chinese_upper,
 };
+pub use uuid_forms::{UUID_KEYWORD, uuid_forms};
 
 /// 表达式模式的缺省前缀。`v` 不是任何拼音音节的开头，用它不会和拼音冲突。
 pub const EXPRESSION_PREFIX: char = 'v';

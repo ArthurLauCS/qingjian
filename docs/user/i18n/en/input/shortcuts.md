@@ -1,7 +1,7 @@
 ---
 title: Dates, calculations and special characters
 order: 4
-description: "Typing dates, times and weekdays with rq / sj / xq; calculating, writing Chinese numerals and amounts, and Chinese dates with a v prefix; typing characters by code point with a u prefix."
+description: "Typing dates, times and weekdays with rq / sj / xq; calculating, writing Chinese numerals and amounts, Chinese dates and UUIDs with a v prefix; typing characters by code point with a u prefix."
 ---
 
 ## Dates, times and weekdays
@@ -25,6 +25,11 @@ Start with `v`:
 - A date is recognized as **a four-digit year + month + day**; if the year isn't four digits (`v98-3-8`) or the month and day aren't valid (`v1998-2-30`), it's treated as a calculation.
 - After a `v`, digits and operators all go into the expression and are no longer used to pick or page; to pick the second item, use `↑` / `↓` and `Space`. `Enter` outputs what you typed as is.
 - English words starting with `v` (`very`) aren't affected and still get English candidates.
+
+## UUID
+
+`vuuid` gives four candidates: a random UUID v4, a time-ordered v7, and the same v4 in uppercase and without hyphens. Number keys select candidates as usual.
+With full pinyin you can also just type `uuid`; the UUIDs follow the English word uuid. Every new input gives a fresh set.
 
 ## Typing characters by code point
 

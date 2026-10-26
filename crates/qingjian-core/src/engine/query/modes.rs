@@ -11,7 +11,12 @@ impl Engine {
         rest: String,
         start: Instant,
     ) -> Query {
-        let mut items = shortcut::candidates(scope, self.modes().expression, &jiff::Zoned::now());
+        let mut items =
+            if scope.strip_prefix(self.modes().expression) == Some(shortcut::UUID_KEYWORD) {
+                self.uuid_candidates()
+            } else {
+                shortcut::candidates(scope, self.modes().expression, &jiff::Zoned::now())
+            };
         if let Some(candidate) = self.english_word_candidate(scope) {
             items.push(candidate);
         }
@@ -162,12 +167,13 @@ impl Engine {
             ),
             None => match self.english_word_candidate(scope) {
                 // u 开头的英文词不当成问字问题：原样给词，空格可直接上屏
-                Some(candidate) => (
-                    CandidateList {
-                        items: vec![candidate],
-                    },
-                    scope.to_owned(),
-                ),
+                Some(candidate) => {
+                    let mut items = vec![candidate];
+                    if scope == shortcut::UUID_KEYWORD {
+                        items.extend(self.uuid_candidates());
+                    }
+                    (CandidateList { items }, scope.to_owned())
+                }
                 None => (
                     CandidateList::default(),
                     format!("{prefix}{}", self.marked_rest(body)),
@@ -214,5 +220,15 @@ impl Engine {
             translation: None,
             aux_code: None,
         })
+    }
+
+    /// 这段组句的 UUID 候选：第一次查时生成，同一段组句里反复查都是同一组。
+    fn uuid_candidates(&self) -> Vec<Candidate> {
+        let forms = self
+            .uuid_forms
+            .borrow_mut()
+            .get_or_insert_with(shortcut::uuid_forms)
+            .clone();
+        shortcut::as_candidates(forms)
     }
 }

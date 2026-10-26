@@ -177,7 +177,7 @@ impl QingjianInputController {
         if c.is_ascii_lowercase()
             || (composing && c == '\'')
             || semicolon
-            || (expression && qingjian_core::shortcut::is_expression_char(c))
+            || (expression && host::with(|h| h.engine.expression_input(c)).unwrap_or(false))
             || (raw && c.is_ascii_graphic())
             || (unicode && (c.is_ascii_digit() || c == '+'))
             || hyphen
