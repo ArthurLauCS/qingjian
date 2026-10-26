@@ -10,7 +10,7 @@ description: "Entering English mode, changing or turning off the Chinese/English
   If you want `Caps Lock` to switch between Qingjian and "ABC" the way the system pinyin input does, turn on the option to switch to ABC with Caps Lock in System Settings → Keyboard → Text Input → Edit:
   a quick press of `Caps Lock` then switches input methods and holding it still locks capitals; Qingjian's own English mode is no longer needed.
   You can also tick 单击 Shift (Tap Shift) under 切换键 (Switch key) in 设置 → 中英文 (Settings → Chinese/English): a tap of `Shift` (press and release on its own) then switches between Chinese and English.
-  Leave it off if you often hit Shift by accident while typing. Once it's on, `Caps Lock` only controls capitals, so with it lit you type capital letters directly.
+  Holding `Shift` for more than 0.3 seconds before releasing it doesn't count as a tap, so selecting text with Shift held doesn't switch. Leave it off if you often hit Shift by accident while typing. Once it's on, `Caps Lock` only controls capitals, so with it lit you type capital letters directly.
   A 中 / 英 hint flashes in the top-right corner of the screen when you switch (with Tap Shift on, toggling `Caps Lock` flashes 大写 / 小写, capitals / lowercase).
   **Tapping Shift while typing pinyin**: the letters you've typed are committed as they are (`nihao` → `nihao`) and English mode starts, so you don't need to press Enter first.
 - **Windows**: tap `Shift` (press and release on its own, without another key) to switch between Chinese and English. The taskbar shows 中 or 英 to match, and A while Caps Lock is on.

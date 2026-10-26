@@ -8,9 +8,18 @@
 //! 所以「按住 Shift 按了系统快捷键再松开」会被误判成一次单击。
 //! 勾上之后中英由本模块决定，Caps Lock 退化成只管大小写。
 
+use std::time::{Duration, Instant};
+
 use crate::imk::modifiers;
 
 use super::Host;
+
+/// 切换之后这么久内的 Shift 边沿都不算：有些外接键盘松开 Shift 后 8–10 ms 又补一对按下 / 抬起，
+/// 不挡的话一次单击会切过去又切回来。人手连按两次在 200 ms 以上。
+const TOGGLE_COOLDOWN: Duration = Duration::from_millis(150);
+
+/// 按住超过这么久再松开不算单击：鼠标事件不进 IMK 会话，按住 Shift 拖选文字时没有别的键能作废这次单击。
+const TAP_WINDOW: Duration = Duration::from_millis(300);
 
 /// 左右两个 Shift 的键码。只有 Shift 自己不算「插进来的别的键」：按下它本来就是这次单击的一部分；
 /// 别的修饰键（Cmd / Ctrl / Option / Caps Lock）按下一律作废，与 Windows 的 `tap_key` 同口径。
@@ -24,8 +33,11 @@ pub struct ModeSwitch {
     /// 配置里勾了「单击 Shift」（`[shortcut] switch_mode` 含 shift）。
     enabled: bool,
 
-    /// Shift 按下之后还没有别的键插进来，抬起就算一次单击。
-    pending: bool,
+    /// Shift 按下之后还没有别的键插进来时，按下的时刻；抬起时没超过 [`TAP_WINDOW`] 就算一次单击。
+    pending: Option<Instant>,
+
+    /// 上次切换的时刻，[`TOGGLE_COOLDOWN`] 内的 Shift 边沿当抖动丢掉。
+    toggled_at: Option<Instant>,
 
     /// 单击 Shift 切出来的持久英文模式；`enabled` 为假时无意义（`set_enabled(false)` 会清零）。
     english: bool,
@@ -57,31 +69,46 @@ impl ModeSwitch {
     /// 焦点切换 / 停用：忘掉这次还没抬起的 Shift，
     /// 免得「按着 Shift 切走再切回、然后松开」被当成一次单击。
     pub fn reset(&mut self) {
-        self.pending = false;
+        self.pending = None;
     }
 
     /// 任一普通按键按下：Shift 按下到抬起之间插了别的键，这次不算单击。
     pub fn note_key(&mut self) {
-        self.pending = false;
+        self.pending = None;
     }
 
     /// 修饰键事件：`key_code` 那次按下（`down`）。构成一次「单击 Shift」返回 `true`。
     pub fn shift_event(&mut self, key_code: u16, down: bool) -> bool {
+        self.shift_event_at(key_code, down, Instant::now())
+    }
+
+    fn shift_event_at(&mut self, key_code: u16, down: bool, now: Instant) -> bool {
         if !self.enabled {
             return false;
         }
         // 别的修饰键（Cmd / Ctrl / Option / Caps Lock）：这次不算单击
         if !is_shift_key(key_code) {
-            self.pending = false;
+            self.pending = None;
+            return false;
+        }
+        if self
+            .toggled_at
+            .is_some_and(|at| now.duration_since(at) < TOGGLE_COOLDOWN)
+        {
+            self.pending = None;
             return false;
         }
         if down {
-            self.pending = true;
+            self.pending = Some(now);
             return false;
         }
-        let clicked = std::mem::take(&mut self.pending);
+        let clicked = self
+            .pending
+            .take()
+            .is_some_and(|at| now.duration_since(at) <= TAP_WINDOW);
         if clicked {
             self.english = !self.english;
+            self.toggled_at = Some(now);
         }
         clicked
     }
@@ -149,5 +176,46 @@ impl Host {
         if !is_shift_key(key_code) {
             self.mode_switch.note_key();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::{Duration, Instant};
+
+    use super::ModeSwitch;
+
+    const LEFT_SHIFT: u16 = 56;
+
+    fn enabled() -> ModeSwitch {
+        let mut switch = ModeSwitch::default();
+        switch.set_enabled(true);
+        switch
+    }
+
+    #[test]
+    fn a_bounce_right_after_switching_is_ignored() {
+        let mut switch = enabled();
+        let start = Instant::now();
+        let at = |ms| start + Duration::from_millis(ms);
+        assert!(!switch.shift_event_at(LEFT_SHIFT, true, at(0)));
+        assert!(switch.shift_event_at(LEFT_SHIFT, false, at(80)));
+        // 松开后 10 ms 补来的一对按下 / 抬起
+        assert!(!switch.shift_event_at(LEFT_SHIFT, true, at(90)));
+        assert!(!switch.shift_event_at(LEFT_SHIFT, false, at(95)));
+        assert!(switch.english());
+        // 冷却过后的下一次单击照常切回
+        assert!(!switch.shift_event_at(LEFT_SHIFT, true, at(400)));
+        assert!(switch.shift_event_at(LEFT_SHIFT, false, at(480)));
+        assert!(!switch.english());
+    }
+
+    #[test]
+    fn holding_shift_too_long_is_not_a_tap() {
+        let mut switch = enabled();
+        let start = Instant::now();
+        assert!(!switch.shift_event_at(LEFT_SHIFT, true, start));
+        assert!(!switch.shift_event_at(LEFT_SHIFT, false, start + Duration::from_millis(900)));
+        assert!(!switch.english());
     }
 }
