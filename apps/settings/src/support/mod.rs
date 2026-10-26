@@ -18,6 +18,8 @@ pub enum Feature {
     Schemes,
     /// 中英文切换键。
     SwitchKeys,
+    /// 切换键里的单击 Ctrl 与 Ctrl + Alt + Space：macOS 只认单击 Shift。
+    SwitchKeyCombos,
     /// 切换键里的「Ctrl + Space（系统）」：改的是 Windows 的系统热键。
     SystemCtrlSpace,
     DefaultEnglish,
@@ -50,10 +52,11 @@ pub enum Feature {
 
 impl Feature {
     #[cfg(test)]
-    pub const ALL: [Self; 21] = [
+    pub const ALL: [Self; 22] = [
         Self::AuxCode,
         Self::Schemes,
         Self::SwitchKeys,
+        Self::SwitchKeyCombos,
         Self::SystemCtrlSpace,
         Self::DefaultEnglish,
         Self::RememberModePerApp,
@@ -94,8 +97,9 @@ impl Feature {
         match self {
             Self::AuxCode => [Yes, Yes, Todo],
             Self::Schemes => [Yes, Yes, Todo],
-            // macOS 用 Caps Lock，由系统决定
-            Self::SwitchKeys => [No, Yes, Yes],
+            Self::SwitchKeys => [Yes, Yes, Yes],
+            // macOS 只做了单击 Shift，Caps Lock 仍是系统那一套
+            Self::SwitchKeyCombos => [No, Yes, Yes],
             Self::SystemCtrlSpace => [No, Yes, No],
             Self::DefaultEnglish => [Todo, Yes, Yes],
             Self::RememberModePerApp => [Todo, Yes, Todo],
@@ -130,6 +134,7 @@ impl Feature {
             Self::AuxCode => "辅码",
             Self::Schemes => "形码与自定义方案",
             Self::SwitchKeys => "中英文切换键",
+            Self::SwitchKeyCombos => "单击 Ctrl 与 Ctrl + Alt + Space 切换",
             Self::SystemCtrlSpace => "系统的 Ctrl + Space",
             Self::DefaultEnglish => "默认英文模式",
             Self::RememberModePerApp => "按应用记住中英模式",
@@ -179,7 +184,8 @@ impl Feature {
             Self::KeyHint => &[(PageId::Input, "键位提示")],
             Self::ShowTones => &[(PageId::Candidates, "拼音行显示声调")],
             Self::NumpadDigit => &[(PageId::Candidates, "小键盘数字")],
-            Self::SystemCtrlSpace
+            Self::SwitchKeyCombos
+            | Self::SystemCtrlSpace
             | Self::EnglishPunctuation
             | Self::StatusBar
             | Self::HorizontalGrid
