@@ -1,13 +1,14 @@
 //! 简繁转换器。
 
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use ferrous_opencc::OpenCC;
 use ferrous_opencc::config::BuiltinConfig;
 
 use super::TraditionalVariant;
-use crate::candidate::{CandidateKind, CandidateList, Language, Translation};
+use super::alternatives::alternatives;
+use crate::candidate::{Candidate, CandidateKind, CandidateList, Language, Translation};
 
 /// 简繁转换。
 ///
@@ -17,12 +18,16 @@ use crate::candidate::{CandidateKind, CandidateList, Language, Translation};
 ///
 /// 不把繁体直接写进学习数据有两个原因：反向转换不可靠（一个繁体字常对应多个简体字），
 /// 而且用户改回简体输出后，之前学到的繁体词就再也匹配不上了。
+/// 用户给某个词选了哪种繁体写法另记一张表（[`crate::Learner::record_traditional`]），只影响写法的先后。
 pub struct Traditional {
     /// 配置里选的变体，转换器没建起来时也是它；实际有没有在转看 [`Self::is_on`]。
     variant: TraditionalVariant,
 
-    /// OpenCC 转换器；变体为 [`TraditionalVariant::Off`] 或字典建不起来时为 `None`。
+    /// 只换字形的 OpenCC 转换器（软件 → 軟件）；变体为 [`TraditionalVariant::Off`] 或字典建不起来时为 `None`。
     converter: Option<OpenCC>,
+
+    /// 连用语一起换的转换器（软件 → 軟體），只有台湾那档有：OpenCC 只给台湾做了用语表。
+    vocabulary: Option<OpenCC>,
 
     /// 上一次 [`Self::apply`] 换过的候选：繁体文本 → 简体原文，只记两者不同的。
     restore: RefCell<HashMap<String, String>>,
@@ -43,16 +48,21 @@ impl Traditional {
             TraditionalVariant::Hongkong => Some(BuiltinConfig::S2hk),
             TraditionalVariant::Standard => Some(BuiltinConfig::S2t),
         };
-        let converter = config.and_then(|config| match OpenCC::from_config(config) {
+        let build = |config| match OpenCC::from_config(config) {
             Ok(converter) => Some(converter),
             Err(error) => {
                 tracing::error!(%error, ?variant, "简繁转换字典建不起来，按简体输出");
                 None
             }
-        });
+        };
+        let converter = config.and_then(build);
+        let vocabulary = (variant == TraditionalVariant::Taiwan && converter.is_some())
+            .then(|| build(BuiltinConfig::S2twp))
+            .flatten();
         Self {
             variant,
             converter,
+            vocabulary,
             restore: RefCell::new(HashMap::new()),
         }
     }
@@ -68,17 +78,22 @@ impl Traditional {
     }
 
     /// 把一轮候选换成繁体，并记下「繁体 → 简体」。没开转换时什么都不做。
+    /// 中文词与码表词展开成它的几种写法（[`Self::forms`]），`preferred` 查用户上次给这个简体词选的写法；
+    /// 同一个写法在一轮里只出一次（干 的 乾 与后面的 乾 是同一个字）。整句、云端词这些只换成 [`Self::convert`] 那一种。
     /// 自定义短语不转：它是用户写下的原文，原样上屏（与自动空格跳过它是同一条规矩）。
     ///
     /// 表不在这里清：云端联想词是在 [`crate::Engine::poll_prediction`] 那条路上转的，
     /// 每轮查询清一次会把它的映射冲掉，之后上屏就还原不回简体。清表在组句边界，见 [`Self::forget`]。
-    pub fn apply(&self, list: &mut CandidateList) {
-        let Some(converter) = &self.converter else {
+    pub fn apply(&self, list: &mut CandidateList, preferred: impl Fn(&str) -> Option<String>) {
+        if !self.is_on() {
             return;
-        };
+        }
         let mut restore = self.restore.borrow_mut();
-        for item in &mut list.items {
+        let mut shown = HashSet::new();
+        let mut items = Vec::with_capacity(list.items.len());
+        for mut item in std::mem::take(&mut list.items) {
             if matches!(item.kind, CandidateKind::Custom(_)) {
+                items.push(item);
                 continue;
             }
             // emoji、颜文字、符号的 reading 是它跟着的那个中文词（🧑‍💻 跟着 软件），也要换，
@@ -86,24 +101,60 @@ impl Traditional {
             if item.kind.follows_word()
                 && let Some(reading) = &mut item.reading
             {
-                *reading = converter.convert(reading);
+                *reading = self.convert(reading);
             }
             if let Some(translation) = &mut item.translation {
-                convert_chinese_senses(converter, translation);
+                self.apply_translation(translation);
             }
-            let converted = converter.convert(&item.text);
-            if converted != item.text {
-                let simplified = std::mem::replace(&mut item.text, converted.clone());
-                restore.insert(converted, simplified);
+            let word = matches!(item.kind, CandidateKind::Chinese | CandidateKind::Code);
+            let forms = match word {
+                true => self.forms(&item.text, preferred(&item.text)),
+                false => vec![self.convert(&item.text)],
+            };
+            for form in forms {
+                if word && !shown.insert(form.clone()) {
+                    continue;
+                }
+                if form != item.text {
+                    restore.insert(form.clone(), item.text.clone());
+                }
+                items.push(Candidate {
+                    text: form,
+                    ..item.clone()
+                });
             }
         }
+        list.items = items;
+    }
+
+    /// 一个中文词的几种繁体写法，好的在前：用户上次选的、台湾用语（软件 → 軟體）、只换字形的（軟件）；
+    /// 单字再列出它对应的每个繁体字（干 → 幹 乾 干）。重复的只留第一个。
+    fn forms(&self, simplified: &str, preferred: Option<String>) -> Vec<String> {
+        let mut chars = simplified.chars();
+        let single = chars.next().filter(|_| chars.next().is_none());
+        let mut forms: Vec<String> = preferred
+            .into_iter()
+            .chain(self.vocabulary.iter().map(|v| v.convert(simplified)))
+            .chain(self.converter.iter().map(|c| c.convert(simplified)))
+            .chain(
+                single
+                    .into_iter()
+                    .flat_map(|ch| alternatives(self.variant, ch)),
+            )
+            .collect();
+        let mut seen = HashSet::new();
+        forms.retain(|form| seen.insert(form.clone()));
+        forms
     }
 
     /// 转中文译词：英文候选的中文释义走这条（它在 [`crate::Engine::annotate`] 里才挂上，赶不上 [`Self::apply`]）。
-    /// 学习语言是英语 / 日语时原样不动。
+    /// 学习语言是英语 / 日语时原样不动：那些译词不是中文，简繁转换碰了只会出错。
     pub fn apply_translation(&self, translation: &mut Translation) {
-        if let Some(converter) = &self.converter {
-            convert_chinese_senses(converter, translation);
+        if !self.is_on() || translation.language != Language::Chinese {
+            return;
+        }
+        for sense in translation.senses_mut() {
+            sense.text = self.convert(&sense.text);
         }
     }
 
@@ -111,10 +162,10 @@ impl Traditional {
     /// 它们在 [`crate::Engine::poll_prediction`] 里出 Core，赶不上 [`Self::apply`]）。
     /// 没开转换时原样返回、不记表。
     pub fn convert_remember(&self, text: &str) -> String {
-        let Some(converter) = &self.converter else {
+        if !self.is_on() {
             return text.to_owned();
-        };
-        let converted = converter.convert(text);
+        }
+        let converted = self.convert(text);
         if converted != text {
             self.restore
                 .borrow_mut()
@@ -133,22 +184,12 @@ impl Traditional {
         self.restore.borrow().get(text).cloned()
     }
 
-    /// 单独转一段文本。没开转换时原样返回。
+    /// 单独转一段文本，换成缺省的那种写法：台湾那档连用语一起换，别的档只换字形。没开转换时原样返回。
     pub fn convert(&self, text: &str) -> String {
-        match &self.converter {
+        match self.vocabulary.as_ref().or(self.converter.as_ref()) {
             Some(converter) => converter.convert(text),
             None => text.to_owned(),
         }
-    }
-}
-
-/// 把中文释义换成繁体。学习语言是英语 / 日语时不动：那些译词不是中文，简繁转换碰了只会出错。
-fn convert_chinese_senses(converter: &OpenCC, translation: &mut Translation) {
-    if translation.language != Language::Chinese {
-        return;
-    }
-    for sense in translation.senses_mut() {
-        sense.text = converter.convert(&sense.text);
     }
 }
 
@@ -165,7 +206,7 @@ impl std::fmt::Debug for Traditional {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::candidate::{Candidate, Sense};
+    use crate::candidate::Sense;
 
     fn list(texts: &[&str]) -> CandidateList {
         CandidateList {
@@ -189,40 +230,56 @@ mod tests {
         let traditional = Traditional::new(TraditionalVariant::Off);
         assert!(!traditional.is_on());
         let mut candidates = list(&["软件", "中华"]);
-        traditional.apply(&mut candidates);
+        traditional.apply(&mut candidates, |_| None);
         assert_eq!(candidates.items[0].text, "软件");
         assert_eq!(traditional.restore("軟件"), None);
         assert_eq!(traditional.convert("软件"), "软件");
     }
 
-    /// 台湾那档只换成台湾字形、不换用语（与 0.2.1 的 `traditional = true` 相同）：软件 → 軟件，里 → 裡。
+    /// 台湾那档缺省连用语一起换：软件 → 軟體，里 → 裡。
     #[test]
-    fn taiwan_uses_taiwan_glyphs_without_changing_vocabulary() {
+    fn taiwan_converts_vocabulary() {
         let traditional = Traditional::new(TraditionalVariant::Taiwan);
         assert!(traditional.is_on());
-        assert_eq!(traditional.convert("软件"), "軟件");
+        assert_eq!(traditional.convert("软件"), "軟體");
         assert_eq!(traditional.convert("这里"), "這裡");
     }
 
-    /// 通用那档只换字形，用语照旧；字形与台湾那档不同（裏 / 裡）。
+    /// 通用与香港那档没有用语表，只换字形；通用的字形与台湾那档不同（裏 / 裡）。
     #[test]
-    fn standard_keeps_vocabulary() {
+    fn standard_and_hongkong_keep_vocabulary() {
         let traditional = Traditional::new(TraditionalVariant::Standard);
         assert_eq!(traditional.convert("软件"), "軟件");
         assert_eq!(traditional.convert("这里"), "這裏");
+        let traditional = Traditional::new(TraditionalVariant::Hongkong);
+        assert_eq!(traditional.convert("软件"), "軟件");
     }
 
-    /// 换过的候选能按繁体文本找回简体原文，没换过的返回 `None`。
+    /// 中文词展开成用语与字形两条，都能按繁体文本找回简体原文；两种写法一样的不进还原表。
     #[test]
-    fn restores_converted_candidates_to_simplified() {
+    fn words_expand_to_vocabulary_then_glyphs() {
         let traditional = Traditional::new(TraditionalVariant::Taiwan);
-        // 你好 两种写法一样，不进还原表；上屏时按原样走，学习照旧
         let mut candidates = list(&["软件", "你好"]);
-        traditional.apply(&mut candidates);
-        assert_eq!(candidates.items[0].text, "軟件");
-        assert_eq!(candidates.items[1].text, "你好");
+        traditional.apply(&mut candidates, |_| None);
+        let texts: Vec<&str> = candidates.items.iter().map(|c| c.text.as_str()).collect();
+        assert_eq!(texts, ["軟體", "軟件", "你好"]);
+        assert_eq!(traditional.restore("軟體").as_deref(), Some("软件"));
         assert_eq!(traditional.restore("軟件").as_deref(), Some("软件"));
         assert_eq!(traditional.restore("你好"), None);
+    }
+
+    /// 用户上次选的写法排第一；单字列出每个繁体字，别的候选撞上已出过的写法就不再出。
+    #[test]
+    fn preferred_form_first_and_each_form_once() {
+        let traditional = Traditional::new(TraditionalVariant::Taiwan);
+        let mut candidates = list(&["软件", "干", "乾"]);
+        traditional.apply(&mut candidates, |text| {
+            (text == "软件").then(|| "軟件".to_owned())
+        });
+        let texts: Vec<&str> = candidates.items.iter().map(|c| c.text.as_str()).collect();
+        assert_eq!(texts, ["軟件", "軟體", "幹", "乾", "干"]);
+        assert_eq!(traditional.restore("乾").as_deref(), Some("干"));
+        assert_eq!(traditional.restore("干"), None);
     }
 
     /// emoji 跟着的那个中文词、以及中文释义都要一起换，免得一屏里混两种字形；
@@ -264,11 +321,11 @@ mod tests {
                 },
             ],
         };
-        traditional.apply(&mut candidates);
-        assert_eq!(candidates.items[0].reading.as_deref(), Some("軟件"));
+        traditional.apply(&mut candidates, |_| None);
+        assert_eq!(candidates.items[0].reading.as_deref(), Some("軟體"));
         assert_eq!(
             candidates.items[1].translation.as_ref().unwrap().senses()[0].text,
-            "軟件工程"
+            "軟體工程"
         );
         // 英语那条的语言不是中文：原样留着
         assert_eq!(
@@ -281,8 +338,8 @@ mod tests {
     #[test]
     fn restore_table_spans_rounds_until_forget() {
         let traditional = Traditional::new(TraditionalVariant::Taiwan);
-        traditional.apply(&mut list(&["软件"]));
-        traditional.apply(&mut list(&["内存"]));
+        traditional.apply(&mut list(&["软件"]), |_| None);
+        traditional.apply(&mut list(&["内存"]), |_| None);
         assert_eq!(traditional.restore("軟件").as_deref(), Some("软件"));
         assert_eq!(traditional.restore("內存").as_deref(), Some("内存"));
 
@@ -295,8 +352,8 @@ mod tests {
     #[test]
     fn convert_remember_records_the_mapping() {
         let traditional = Traditional::new(TraditionalVariant::Taiwan);
-        assert_eq!(traditional.convert_remember("软件"), "軟件");
-        assert_eq!(traditional.restore("軟件").as_deref(), Some("软件"));
+        assert_eq!(traditional.convert_remember("软件"), "軟體");
+        assert_eq!(traditional.restore("軟體").as_deref(), Some("软件"));
     }
 
     /// 自定义短语是用户写的原文：开着繁体也原样上屏，不进还原表。
@@ -305,7 +362,7 @@ mod tests {
         let traditional = Traditional::new(TraditionalVariant::Taiwan);
         let mut candidates = list(&["软件园"]);
         candidates.items[0].kind = CandidateKind::Custom(1);
-        traditional.apply(&mut candidates);
+        traditional.apply(&mut candidates, |_| None);
         assert_eq!(candidates.items[0].text, "软件园");
         assert_eq!(traditional.restore("軟件園"), None);
     }

@@ -2,6 +2,7 @@ mod decay;
 mod demotions;
 mod learner_impl;
 mod tables;
+mod traditional;
 
 use std::cell::Cell;
 use std::collections::BTreeMap;
@@ -32,6 +33,9 @@ const USER_CHOICES_FILE: &str = "user-choices.tsv";
 
 /// 候选菜单里降权的词，与词频文件同目录：`输入串\t词\t降了几次`。
 const USER_DEMOTED_FILE: &str = "user-demoted.tsv";
+
+/// 繁体输出时用户给简体词选的写法，与词频文件同目录：`档\t简体词\t写法`（档是 `taiwan` 这类配置写法）。
+const USER_TRADITIONAL_FILE: &str = "user-traditional.tsv";
 
 /// 一个词在一个输入串下最多降几次。
 const MAX_DEMOTION: u32 = 99;
@@ -118,6 +122,12 @@ pub struct FrequencyLearner {
 
     /// 降权表自上次保存后是否有变化。
     demoted_dirty: bool,
+
+    /// 档 → (简体词 → 用户选的繁体写法)。
+    traditional: HashMap<String, HashMap<String, String>>,
+
+    /// 繁体写法表自上次保存后是否有变化。
+    traditional_dirty: bool,
 }
 
 impl Default for FrequencyLearner {
@@ -142,6 +152,8 @@ impl Default for FrequencyLearner {
             typos_dirty: false,
             demoted: HashMap::default(),
             demoted_dirty: false,
+            traditional: HashMap::default(),
+            traditional_dirty: false,
         }
     }
 }
@@ -258,6 +270,11 @@ impl FrequencyLearner {
             let skipped = learner.load_demoted(&source);
             note_skipped(&demoted_path, skipped);
         }
+        let traditional_path = Self::traditional_path(&path);
+        if let Some(source) = read_text_lossy(&traditional_path)? {
+            let skipped = learner.load_traditional(&source);
+            note_skipped(&traditional_path, skipped);
+        }
         learner.path = Some(path);
         Ok(learner)
     }
@@ -279,6 +296,7 @@ impl FrequencyLearner {
             Self::typos_path(frequency_path),
             Self::typos_days_path(frequency_path),
             Self::demoted_path(frequency_path),
+            Self::traditional_path(frequency_path),
         ]
     }
 
@@ -340,6 +358,7 @@ impl FrequencyLearner {
             || self.choices_dirty
             || self.typos_dirty
             || self.demoted_dirty
+            || self.traditional_dirty
     }
 }
 

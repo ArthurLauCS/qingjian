@@ -109,6 +109,15 @@ pub trait Learner: Send {
         0
     }
 
+    /// 繁体输出时用户上屏简体词 `simplified` 用的写法 `form`，`variant` 是那一档的配置写法（`taiwan`）；
+    /// 用的是缺省写法时 `form` 为 `None`，清掉记过的。
+    fn record_traditional(&mut self, _variant: &str, _simplified: &str, _form: Option<&str>) {}
+
+    /// 记过的写法，下次这个词的几种写法里排第一；没记过返回 `None`。
+    fn traditional_form(&self, _variant: &str, _simplified: &str) -> Option<&str> {
+        None
+    }
+
     /// 把学习数据落盘。壳在退出或停用输入法时调用；内存实现留空即可。
     ///
     /// 失败只记日志不返回错误：输入优先于学习，持久化失败不该影响壳的流程。

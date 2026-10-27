@@ -267,6 +267,31 @@ impl Learner for FrequencyLearner {
         lookup_choice(&self.demoted, input, text)
     }
 
+    fn record_traditional(&mut self, variant: &str, simplified: &str, form: Option<&str>) {
+        let changed = match form {
+            Some(form) => {
+                let forms = self.traditional.entry(variant.to_owned()).or_default();
+                forms
+                    .insert(simplified.to_owned(), form.to_owned())
+                    .as_deref()
+                    != Some(form)
+            }
+            None => self
+                .traditional
+                .get_mut(variant)
+                .and_then(|forms| forms.remove(simplified))
+                .is_some(),
+        };
+        self.traditional_dirty |= changed;
+    }
+
+    fn traditional_form(&self, variant: &str, simplified: &str) -> Option<&str> {
+        self.traditional
+            .get(variant)?
+            .get(simplified)
+            .map(String::as_str)
+    }
+
     fn forget_english(&mut self, word: &str) -> bool {
         if self.english.remove(&word.to_ascii_lowercase()).is_none() {
             return false;
@@ -352,6 +377,17 @@ impl Learner for FrequencyLearner {
                 }
                 Err(error) => {
                     tracing::warn!(path = %typos_path.display(), %error, "个人敲错表保存失败")
+                }
+            }
+        }
+        if self.traditional_dirty {
+            let traditional_path = Self::traditional_path(&path);
+            match self.save_traditional_to(&traditional_path) {
+                Ok(()) => {
+                    tracing::info!(path = %traditional_path.display(), entries = self.traditional_count(), "繁体写法表已保存")
+                }
+                Err(error) => {
+                    tracing::warn!(path = %traditional_path.display(), %error, "繁体写法表保存失败")
                 }
             }
         }

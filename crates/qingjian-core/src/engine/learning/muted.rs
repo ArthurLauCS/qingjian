@@ -175,6 +175,16 @@ impl Learner for MutedLearner {
         self.inner.demotion(input, text)
     }
 
+    fn record_traditional(&mut self, variant: &str, simplified: &str, form: Option<&str>) {
+        if !self.muted() {
+            self.inner.record_traditional(variant, simplified, form);
+        }
+    }
+
+    fn traditional_form(&self, variant: &str, simplified: &str) -> Option<&str> {
+        self.inner.traditional_form(variant, simplified)
+    }
+
     fn flush(&mut self) {
         self.inner.flush();
     }
