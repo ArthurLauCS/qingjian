@@ -182,6 +182,20 @@ use `when` so that only one of two texts appears, and `"bind": "mode.scheme"` fo
 - `mode.scheme` is the scheme name, such as 全拼, 小鹤双拼 or 五笔（86） + 全拼; in `when` it means "there is a scheme name".
 - These nodes go in the window's `children`; `children` has to be written out in full (writing only the new nodes replaces the original contents entirely), so copy one from a built-in theme's `theme.json` and edit it.
 
+## Frosted glass
+
+To let the window show what's behind it like the system's popovers, add `material` at the top level:
+
+```json
+"material": { "kind": "glass", "appearance": "auto" }
+```
+
+- `kind`: `glass` is the glass effect of macOS 26 and later, replaced by frosted glass on earlier versions; `blur` is frosted glass.
+- `appearance`: with `auto`, the glass turns darker or lighter with what's behind it and the text switches to the theme's light or dark colors to match, so write both `light` and `dark` in `variables`;
+  without it, the text follows the system's light or dark mode and `glass` becomes frosted glass, since the new glass changes color on its own. A theme that locks its appearance in `meta` doesn't follow even with `auto`.
+- With it, the system draws the window's `fill` and shadow. To lay a color over the material, write a translucent color such as `"tint": "#ffffff33"`.
+- Only macOS supports it for now. Windows still draws the window's `fill`, so keep `fill` an opaque color.
+
 ## Page arrows
 
 To make the arrows beside the page number clickable, give the node an `action`: `previous_page` or `next_page`. On a frame, the whole frame and everything in it can be clicked;

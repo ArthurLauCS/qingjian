@@ -18,9 +18,11 @@ use bamboo_slip::{
     Color, FontLibrary, FontSpec, RenderError, Scene, Stage, TextPainter, TextStyle,
 };
 
+use crate::MaterialBacking;
 use crate::frame::Frame;
 use crate::layout::Layout;
 use crate::theme::Theme;
+use crate::theme::file::MaterialAppearance;
 
 use build::Builder;
 
@@ -40,6 +42,12 @@ pub struct Renderer {
 
     /// 上一帧候选窗的点击区域，动画帧照抄（布局不变）。
     hits: Vec<HitRegion>,
+
+    /// 壳能在窗口底下垫系统材质（见 [`Self::set_material_support`]）。
+    material_support: bool,
+
+    /// 上一帧要垫的材质，动画帧照抄。
+    material: Option<MaterialBacking>,
 }
 
 impl Renderer {
@@ -49,7 +57,15 @@ impl Renderer {
         Self {
             stage,
             hits: Vec::new(),
+            material_support: false,
+            material: None,
         }
+    }
+
+    /// 壳能不能在窗口底下垫系统材质。能的话，写了 `material` 的主题不画窗口底色与投影，
+    /// 由 [`Rendered::material`] 告诉壳垫哪种、圆角多大、文字深浅跟谁；不能的话照旧画主题的 `fill`。
+    pub fn set_material_support(&mut self, supported: bool) {
+        self.material_support = supported;
     }
 
     fn text(&mut self) -> &mut TextPainter {
@@ -94,6 +110,11 @@ impl Renderer {
     ) -> Result<Rendered, RenderError> {
         self.text().use_families(theme.families());
         self.stage.set_animations(theme.animations());
+        let material = theme
+            .file()
+            .material
+            .as_ref()
+            .filter(|_| self.material_support);
         let mut scene = Scene::new();
         let mut builder = Builder {
             scene: &mut scene,
@@ -104,8 +125,18 @@ impl Renderer {
             candidate_nodes: Vec::new(),
             sense_nodes: Vec::new(),
             action_nodes: Vec::new(),
+            material_root: material.map(|spec| spec.tint.clone()),
+            root_radius: 0.0,
         };
         let root = builder.window(frame, layout)?;
+        let locked_dark = theme.locked_dark();
+        self.material = material.map(|spec| MaterialBacking {
+            kind: spec.kind,
+            radius: builder.root_radius,
+            // 锁定了外观的主题只有一套颜色，跟不了
+            follows_backdrop: spec.appearance == MaterialAppearance::Auto && locked_dark.is_none(),
+            locked_dark,
+        });
         let nodes = HitNodes {
             candidates: builder.candidate_nodes,
             senses: builder.sense_nodes,
@@ -117,7 +148,7 @@ impl Renderer {
         let painted = self
             .stage
             .present(scene, root, content, layout as u64, scale, now)?;
-        Ok(Rendered::new(painted, self.hits.clone()))
+        Ok(Rendered::new(painted, self.hits.clone()).with_material(self.material))
     }
 
     /// 跟随系统的「减少动态效果」：开着时过渡直接跳到终点。
@@ -133,7 +164,8 @@ impl Renderer {
     /// 有过渡或循环动画在播时，按 `now` 重画一帧（不重建树、不排版）；没有在播的返回 `None`。
     pub fn tick_at(&mut self, now: Instant) -> Result<Option<Rendered>, RenderError> {
         let painted = self.stage.tick_at(now)?;
-        Ok(painted.map(|painted| Rendered::new(painted, self.hits.clone())))
+        Ok(painted
+            .map(|painted| Rendered::new(painted, self.hits.clone()).with_material(self.material)))
     }
 
     /// 同 [`Self::tick_at`]，用当前时间。

@@ -3882,6 +3882,7 @@ dependencies = [
 name = "qingjian-macos"
 version = "0.3.2-dev"
 dependencies = [
+ "block2 0.6.2",
  "dotenvy",
  "jiff",
  "objc2 0.6.5",

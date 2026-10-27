@@ -4,12 +4,13 @@ use objc2::MainThreadMarker;
 use objc2::rc::Retained;
 use objc2_app_kit::{
     NSAppearance, NSAppearanceCustomization, NSAppearanceNameAqua, NSAppearanceNameDarkAqua,
-    NSBackingStoreType, NSColor, NSEvent, NSPanel, NSScreen, NSWindowCollectionBehavior,
+    NSBackingStoreType, NSColor, NSEvent, NSPanel, NSScreen, NSView, NSWindowCollectionBehavior,
     NSWindowLevel, NSWindowStyleMask,
 };
 use objc2_foundation::{NSPoint, NSRect, NSSize};
 use qingjian_platform::{Appearance, CandidateRenderer, LayoutMode};
 
+use super::backdrop::Backdrop;
 use super::frame::Frame;
 use super::key_hint::KeyHintPanel;
 use super::theme::Theme;
@@ -28,8 +29,11 @@ pub struct CandidateWindow {
     /// 面板本体。不在当前 Space 时会整个换新（见 [`Self::order_front_on_active_space`]）。
     panel: Retained<NSPanel>,
 
-    /// 内容视图；换面板时搬过去。
+    /// 候选视图。
     view: Retained<CandidateView>,
+
+    /// 面板的内容视图：候选视图装在里面，主题要系统材质时垫在它底下；换面板时整个搬过去。
+    backdrop: Backdrop,
 
     /// 当前外观（跟随系统时为 `None`）；换面板时要重设。
     appearance: Option<Retained<NSAppearance>>,
@@ -44,10 +48,12 @@ pub struct CandidateWindow {
 impl CandidateWindow {
     pub fn new(mtm: MainThreadMarker) -> Self {
         let view = CandidateView::new(mtm, Theme::system_default());
-        let panel = build_panel(mtm, &view);
+        let backdrop = Backdrop::new(mtm, &view);
+        let panel = build_panel(mtm, backdrop.container());
         Self {
             panel,
             view,
+            backdrop,
             appearance: None,
             key_hint: KeyHintPanel::new(mtm),
             mtm,
@@ -69,10 +75,12 @@ impl CandidateWindow {
             content.x - bounds.content.origin.x,
             content.y - bounds.content.origin.y,
         );
+        let material = self.view.material();
+        self.backdrop.update(material, bounds.content);
         self.panel
             .setFrame_display(NSRect::new(origin, bounds.size), true);
         self.order_front_on_active_space();
-        self.apply_chrome(panel);
+        self.apply_chrome(panel, material.is_some());
         match keyboard {
             Some(keyboard) => {
                 let (caret, screen) = self.caret(anchor);
@@ -93,11 +101,15 @@ impl CandidateWindow {
         }
     }
 
-    /// 阴影与鼠标：系统绘制要系统阴影，青简渲染器的阴影画在位图里；青简渲染器与符号面板收鼠标（点候选、点格子），
-    /// 系统绘制的候选没有点击区域，点击穿过去。
-    fn apply_chrome(&self, panel: bool) {
+    /// 阴影与鼠标：系统绘制要系统阴影，青简渲染器的阴影画在位图里，垫了系统材质时又交回系统按窗口形状算；
+    /// 青简渲染器与符号面板收鼠标（点候选、点格子），系统绘制的候选没有点击区域，点击穿过去。
+    fn apply_chrome(&self, panel: bool, material: bool) {
         let bitmap = self.view.uses_bitmap() && !panel;
-        self.panel.setHasShadow(!bitmap);
+        self.panel.setHasShadow(!bitmap || material);
+        if material {
+            // 窗口形状每帧都变，系统阴影不会自己重算
+            self.panel.invalidateShadow();
+        }
         self.panel.setIgnoresMouseEvents(!bitmap && !panel);
     }
 
@@ -121,7 +133,7 @@ impl CandidateWindow {
         }
         let frame = self.panel.frame();
         self.panel.orderOut(None);
-        let panel = build_panel(self.mtm, &self.view);
+        let panel = build_panel(self.mtm, self.backdrop.container());
         panel.setAppearance(self.appearance.as_deref());
         panel.setHasShadow(!self.view.uses_bitmap());
         panel.setIgnoresMouseEvents(!self.view.uses_bitmap());
@@ -256,7 +268,7 @@ impl CandidateWindow {
 
 /// 建一块面板并把内容视图装进去：无边框、不抢焦点、透明背景带系统阴影（用青简渲染器时再关）、
 /// 先不吃鼠标（用青简渲染器时再开，见 [`CandidateWindow::set_renderer`]）。
-fn build_panel(mtm: MainThreadMarker, view: &CandidateView) -> Retained<NSPanel> {
+fn build_panel(mtm: MainThreadMarker, view: &NSView) -> Retained<NSPanel> {
     let panel = NSPanel::initWithContentRect_styleMask_backing_defer(
         mtm.alloc::<NSPanel>(),
         NSRect::new(NSPoint::ZERO, NSSize::new(200.0, 100.0)),

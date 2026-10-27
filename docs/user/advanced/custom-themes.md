@@ -183,6 +183,20 @@ themes/
 - `mode.scheme` 是方案名，如「全拼」「小鹤双拼」「五笔（86） + 全拼」；写在 `when` 里表示「有方案名」。
 - 这几个节点放在窗口的 `children` 里；`children` 要整组写出来（只写新加的会把原来的内容整个换掉），可以从内置主题的 `theme.json` 复制一份再改。
 
+## 毛玻璃
+
+想让窗口像系统的弹出层一样透出后面的内容，在顶层写 `material`：
+
+```json
+"material": { "kind": "glass", "appearance": "auto" }
+```
+
+- `kind`：`glass` 是 macOS 26 起的玻璃效果，更早的系统自动换成毛玻璃；`blur` 是毛玻璃。
+- `appearance`：写 `auto` 时，玻璃跟着背后的内容变深变浅，文字随之换成主题的浅色或深色那一套颜色，所以 `variables` 的 `light`、`dark` 两套都要写好；
+  不写时文字跟系统的浅色 / 深色模式走，`glass` 也换成毛玻璃，因为新玻璃会自己变色。主题在 `meta` 里锁定了外观的，写了 `auto` 也不跟。
+- 写了之后窗口的 `fill` 和阴影交给系统来画；想在材质上叠一层颜色，写 `"tint": "#ffffff33"` 这样的半透明颜色。
+- 目前只有 macOS 支持。Windows 上照旧画窗口的 `fill`，所以 `fill` 还要写成不透明的颜色。
+
 ## 翻页箭头
 
 页码两侧的箭头要能点，给节点写上 `action`：`previous_page` 上一页，`next_page` 下一页。写在框上，整个框连同里面的内容都能点；
