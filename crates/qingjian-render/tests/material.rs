@@ -41,7 +41,7 @@ fn material_replaces_the_window_fill_only_when_the_shell_supports_it() {
         Some(MaterialBacking {
             kind: Material::Glass,
             radius: 24.0,
-            follows_backdrop: false,
+            follows_backdrop: true,
             locked_dark: None,
         })
     );
@@ -63,7 +63,7 @@ fn pixel(rendered: &qingjian_render::Rendered, x: u32, y: u32) -> [u8; 4] {
     pixmap.data()[i..i + 4].try_into().unwrap()
 }
 
-/// `appearance: "auto"` 才让文字跟着材质反色；锁定了外观的主题只有一套颜色，写了 auto 也不跟。
+/// 文字跟不跟着材质反色：`glass` 缺省跟，写 `system` 不跟，`blur` 缺省不跟；锁定了外观的主题只有一套颜色，写了 auto 也不跟。
 #[test]
 fn only_auto_follows_the_backdrop_and_a_locked_theme_never_does() {
     let Ok(library) = FontLibrary::system("zh-CN") else {

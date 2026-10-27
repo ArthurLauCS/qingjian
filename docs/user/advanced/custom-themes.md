@@ -188,12 +188,12 @@ themes/
 想让窗口像系统的弹出层一样透出后面的内容，在顶层写 `material`：
 
 ```json
-"material": { "kind": "glass", "appearance": "auto" }
+"material": { "kind": "glass" }
 ```
 
 - `kind`：`glass` 是 macOS 26 起的玻璃效果，更早的系统自动换成毛玻璃；`blur` 是毛玻璃。
-- `appearance`：写 `auto` 时，玻璃跟着背后的内容变深变浅，文字随之换成主题的浅色或深色那一套颜色，所以 `variables` 的 `light`、`dark` 两套都要写好；
-  不写时文字跟系统的浅色 / 深色模式走，`glass` 也换成毛玻璃，因为新玻璃会自己变色。主题在 `meta` 里锁定了外观的，写了 `auto` 也不跟。
+- `appearance`：`glass` 缺省是 `auto`，玻璃跟着背后的内容变深变浅，文字随之换成主题的浅色或深色那一套颜色，所以 `variables` 的 `light`、`dark` 两套都要写好；
+  写 `system` 时文字跟系统的浅色 / 深色模式走，玻璃会换成毛玻璃，因为新玻璃会自己变色。`blur` 缺省就是 `system`。主题在 `meta` 里锁定了外观的，始终跟锁定的外观。
 - 写了之后窗口的 `fill` 和阴影交给系统来画；想在材质上叠一层颜色，写 `"tint": "#ffffff33"` 这样的半透明颜色。
 - 目前只有 macOS 支持。Windows 上照旧画窗口的 `fill`，所以 `fill` 还要写成不透明的颜色。
 

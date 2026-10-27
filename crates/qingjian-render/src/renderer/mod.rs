@@ -134,7 +134,8 @@ impl Renderer {
             kind: spec.kind,
             radius: builder.root_radius,
             // 锁定了外观的主题只有一套颜色，跟不了
-            follows_backdrop: spec.appearance == MaterialAppearance::Auto && locked_dark.is_none(),
+            follows_backdrop: spec.appearance() == MaterialAppearance::Auto
+                && locked_dark.is_none(),
             locked_dark,
         });
         let nodes = HitNodes {

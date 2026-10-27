@@ -30,6 +30,7 @@ fn candidates_and_their_translations_are_clickable() {
         ("qingjian", Theme::light()),
         ("system-blue", Theme::builtin("system-blue", false).unwrap()),
         ("wechat", Theme::builtin("wechat", false).unwrap()),
+        ("glass", Theme::builtin("glass", false).unwrap()),
         ("sakura", Theme::builtin("sakura", false).unwrap()),
     ];
     for (name, theme) in &themes {
@@ -94,6 +95,7 @@ fn page_arrows_are_clickable_in_every_builtin_theme() {
         "qingjian",
         "system-blue",
         "wechat",
+        "glass",
         "sakura",
         "dafeiyu",
         "miku",

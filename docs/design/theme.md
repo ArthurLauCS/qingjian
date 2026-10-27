@@ -6,7 +6,7 @@
 ## 主题文件
 
 - 一个主题一个目录：`theme.json`，加上它引用的 `images/…`（PNG、SVG）与 `fonts/…`（TTF / OTF / TTC）。包内路径一律相对 `theme.json`，拒绝 `..` 与绝对路径。
-- 内置主题七个，随 crate 编进来（`crates/qingjian-render/themes/<id>/theme.json`）：`qingjian` 青简绿（缺省）、`system-blue` 系统蓝、`wechat` 微信绿、`sakura` 樱花、`dafeiyu` 大肥鱼、`miku` 初音未来、`bocchi` 波奇酱；系统蓝、微信绿 `extends` 青简绿、只改颜色变量，后四个整套重写了窗口、组件与状态条（只有浅色）。
+- 内置主题八个，随 crate 编进来（`crates/qingjian-render/themes/<id>/theme.json`）：`qingjian` 青简绿（缺省）、`system-blue` 系统蓝、`wechat` 微信绿、`glass` 玻璃、`sakura` 樱花、`dafeiyu` 大肥鱼、`miku` 初音未来、`bocchi` 波奇酱；系统蓝、微信绿 `extends` 青简绿、只改颜色变量，玻璃 `extends` 青简绿、改了窗口与高亮组件并写了 `material`（照 macOS 26 自带简体拼音的胶囊条），后四个整套重写了窗口、组件与状态条（只有浅色）。
   内置主题的图片用 `include_bytes!` 编进程序（`theme/mod.rs` 的 `BUILTINS` 里每个主题一张「路径 → 内容」表，与用户主题走同一套解码），不带字体文件、只用系统字体；测试检查内置主题用到的图片都编进去了。用户主题 `extends` 内置主题时，主题目录里没有的图片到那个内置主题编进程序的文件里找（只看顶层 `extends` 那一层）。
 - 用户主题放在 `<用户数据目录>/themes/<id>/`，由 `ThemeLibrary` 与内置主题合成一个列表（内置在前、用户按 id 排）。目录名必须等于 `meta.id`，不能与内置主题重名，
   不能是 `system` / `light` / `dark`；读不进来的跳过并记警告。设置界面（mac 偏好设置、Windows 设置程序「候选窗口」页）按显示名列出，写回 `[general] theme` 的 id。
@@ -34,7 +34,7 @@
 | `fonts` | 随主题带的字体文件 `[{ "file": "fonts/x.ttf" }]` |
 | `components` | 可复用的节点，`use` / `repeat` 按名字引用 |
 | `windows` | `vertical` / `horizontal` 两个根节点，按用户选的排布取一个 |
-| `material` | 窗口底下垫的系统材质：`{ "kind": "glass" \| "blur", "tint": 颜色, "appearance": "auto" }`（见「填充与效果」） |
+| `material` | 窗口底下垫的系统材质：`{ "kind": "glass" \| "blur", "tint": 颜色, "appearance": "auto" \| "system" }`（`glass` 缺省 `auto`、`blur` 缺省 `system`）（见「填充与效果」） |
 | `status` | 悬浮状态条（只有 Windows 有）：字体、内边距、圆角、各处颜色、`effects`，排法固定；写了 `root` 就按节点树画（见「状态条」） |
 | `keyboard` | 双拼键位提示的键盘：键名与小字的字体、键的宽高与间距、圆角、各状态（平常 / 刚敲下 / 能接 / 拼不出）的填充与文字颜色、`effects`，排法固定（三排错位）；整块跟着候选字比例缩放，透明度由壳设在窗口上 |
 
@@ -101,7 +101,7 @@
   根节点不画 `effects`，位图不再为投影留边；`Rendered::material` 给出种类与根节点圆角（像素），壳在内容区底下垫系统视图、按圆角裁，阴影交给系统按窗口形状算。
   mac：面板的内容视图是个容器，材质视图在候选视图下面（`candidates/backdrop.rs`）；`glass` 用 macOS 26 的 `NSGlassEffectView`，没有这个类时与 `blur` 一样用
   `NSVisualEffectView`（弹出层材质、窗口后面混合、常亮，圆角靠九宫格遮罩图）；每帧 `invalidateShadow`。
-  新玻璃会随背后内容变深变浅并改它里面视图的外观。`appearance: "auto"`（且主题没锁定外观）时玻璃里放一个不画东西的探针视图，候选视图按探针的深浅取主题、它一变就重画，文字因此跟着反色；
+  新玻璃会随背后内容变深变浅并改它里面视图的外观。`appearance` 为 `auto`（`glass` 的缺省；且主题没锁定外观）时玻璃里放一个不画东西的探针视图，候选视图按探针的深浅取主题、它一变就重画，文字因此跟着反色；
   否则文字照常跟系统，材质视图的外观钉在锁定的外观或系统外观上（`MaterialBacking::follows_backdrop` / `locked_dark`）；
   新玻璃不认设给它的外观（macOS 26.6 实测压在深色背景上照样变深），这时 `glass` 换成毛玻璃。垫不了的壳照旧画 `fill` 与投影，所以 `fill` 要写成不透明的兜底。
 - **锁定外观**：`meta.appearance` 写了就不跟随外观设置切换；用浅色图片做底的主题要锁浅色。

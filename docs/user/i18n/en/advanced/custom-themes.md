@@ -187,12 +187,12 @@ use `when` so that only one of two texts appears, and `"bind": "mode.scheme"` fo
 To let the window show what's behind it like the system's popovers, add `material` at the top level:
 
 ```json
-"material": { "kind": "glass", "appearance": "auto" }
+"material": { "kind": "glass" }
 ```
 
 - `kind`: `glass` is the glass effect of macOS 26 and later, replaced by frosted glass on earlier versions; `blur` is frosted glass.
-- `appearance`: with `auto`, the glass turns darker or lighter with what's behind it and the text switches to the theme's light or dark colors to match, so write both `light` and `dark` in `variables`;
-  without it, the text follows the system's light or dark mode and `glass` becomes frosted glass, since the new glass changes color on its own. A theme that locks its appearance in `meta` doesn't follow even with `auto`.
+- `appearance`: for `glass` the default is `auto`: the glass turns darker or lighter with what's behind it and the text switches to the theme's light or dark colors to match, so write both `light` and `dark` in `variables`;
+  with `system`, the text follows the system's light or dark mode and the glass becomes frosted glass, since the new glass changes color on its own. For `blur` the default is `system`. A theme that locks its appearance in `meta` always uses that appearance.
 - With it, the system draws the window's `fill` and shadow. To lay a color over the material, write a translucent color such as `"tint": "#ffffff33"`.
 - Only macOS supports it for now. Windows still draws the window's `fill`, so keep `fill` an opaque color.
 
