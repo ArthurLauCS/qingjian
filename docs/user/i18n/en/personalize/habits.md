@@ -10,7 +10,7 @@ Qingjian remembers your typing habits so that words you use often rank higher. E
 
 - Words you've picked, and which word you picked for a given stretch of pinyin.
 - Which words you tend to type together, which sentence conversion adjusts to.
-- Words you've created: when two words picked one after the other aren't in the dictionary together but you've picked them a few times, they're saved as one word; when you pick a stretch of pinyin in several steps and type it the same way a second time, it's saved as one word.
+- Words you've created: a word that isn't in the dictionary is saved the first time you type it within one stretch of pinyin (picked in several steps, or committed as a sentence made up of single characters), and from then on abbreviated or partial pinyin finds it too; two words typed separately and picked one after the other a few times are also saved as one word.
 - AI candidates you've picked (recorded by the reading you typed).
 - English words you've committed as typed.
 - Spelling corrections you've accepted; see [Sentences, abbreviations and correction](../input/sentence.md#Remembering-habitual-typos).

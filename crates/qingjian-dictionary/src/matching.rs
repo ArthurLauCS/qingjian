@@ -21,6 +21,9 @@ pub struct Match<'a> {
     /// 来自补充词库（[`crate::Dictionary::set_secondary`]）：精确命中不压过主词库的纠错，整句里多扣一点分。
     pub secondary: bool,
 
+    /// 来自用户词库（[`crate::Dictionary::set_user`]）：简拼、半截拼音时排在同一档的其他词前面。
+    pub user: bool,
+
     /// 音节数与查询模式的长度一致（而不是以查询为前缀的更长词）。
     pub exact: bool,
 }

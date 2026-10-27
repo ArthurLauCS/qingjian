@@ -52,5 +52,5 @@ When you pick a stretch of pinyin in several steps, the words picked so far stay
 If you notice an earlier pick was wrong, `Backspace` undoes the last pick and turns that part back into pinyin so you can pick again; once all picks are undone, `Backspace` deletes letters.
 If you'd rather commit each pick right away, turn off 分次选词先不上屏 (Keep partial picks until done) under 设置 → 输入 (Settings → Input).
 
-When you pick a stretch of pinyin in several steps (pick one character first, then commit the rest as a sentence) and type it the same way a second time, the combined word is saved as a user word and from then on comes first when you type that stretch.
+A word that isn't in the dictionary is saved as a user word the first time you type it within one stretch of pinyin: picked in several steps (`touchuan`, pick 透 and then 传), or committed as a sentence made up of single characters. From then on it comes first when you type that stretch, and abbreviated (`tc`) or partial (`touc`) pinyin finds it too, ahead of other words of the same length. A sentence containing dictionary words (版本 + 好) isn't saved, so one slip doesn't teach a wrong word; if a word was saved by mistake, delete it right away and pick something else for the same pinyin, and the word is dropped.
 For the other ways Qingjian learns your habits, see [Typing habits](../personalize/habits.md).

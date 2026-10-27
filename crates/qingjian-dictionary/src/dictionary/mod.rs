@@ -102,6 +102,9 @@ pub struct Dictionary {
     /// 补充词库（通用大词库）：命中带上 [`Match::secondary`]，排序与整句里低主词库一档。不落盘，由装配方标。
     secondary: bool,
 
+    /// 用户词库（用户选过、造出的词）：命中带上 [`Match::user`]。不落盘，由装配方标。
+    user: bool,
+
     /// 多音字全部读音的词频之和，加载时从单音节的键算出来，不落盘。
     readings: Readings,
 }
@@ -240,6 +243,7 @@ impl Dictionary {
             total_frequency,
             metadata: None,
             secondary: false,
+            user: false,
             readings: Readings::default(),
         }
         .with_readings()
@@ -370,6 +374,7 @@ impl Dictionary {
             total_frequency,
             metadata: Some(container.metadata().clone()),
             secondary: false,
+            user: false,
             readings: Readings::default(),
         }
         .with_readings())
@@ -409,6 +414,11 @@ impl Dictionary {
         self.secondary
     }
 
+    /// 标成用户词库，见 [`Match::user`]。
+    pub fn set_user(&mut self, user: bool) {
+        self.user = user;
+    }
+
     /// `.qj` 里的来历；TSV 解析的返回 `None`。
     pub fn metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
@@ -442,6 +452,7 @@ impl Dictionary {
                     reading_total: self.reading_total(key, self.text(slot)),
                     tones: self.tones(position, slot),
                     secondary: self.secondary,
+                    user: self.user,
                     exact: true,
                 }
             })
@@ -677,6 +688,7 @@ impl Dictionary {
                 reading_total: self.reading_total(key, self.text(slot)),
                 tones: self.tones(position, slot),
                 secondary: self.secondary,
+                user: self.user,
                 exact,
             });
         }

@@ -335,7 +335,10 @@ impl FrequencyLearner {
             .map(|(text, pinyin)| format!("{text}\t{pinyin}\t{USER_WORD_FREQUENCY}\n"))
             .collect();
         match Dictionary::parse(&tsv) {
-            Ok(dictionary) => self.user_dictionary = Some(dictionary),
+            Ok(mut dictionary) => {
+                dictionary.set_user(true);
+                self.user_dictionary = Some(dictionary);
+            }
             Err(error) => tracing::warn!(%error, "用户词库重建失败"),
         }
     }

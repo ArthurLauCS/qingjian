@@ -30,14 +30,14 @@ pub struct Scored<'a> {
     pub tone_cost: u8,
 }
 
-/// 预选键：结构项之后按用户选择次数与词库词频，命中太多时先用它砍到够排的量（不必算上下文得分）。
+/// 预选键：结构项之后按用户词、用户选择次数与词库词频，命中太多时先用它砍到够排的量（不必算上下文得分）。
 /// 打包成一个整数、越大越靠前：单字母简拼一键命中几万条，逐条比元组太慢。
-/// 位从高到低：精确(1) 覆盖字母数(8) 简拼数的补(8) 末音节完整(1) 声调代价的补(8) 选择次数(32) 打折后词频(32) 原样命中(1) 字数的补(8)；
+/// 位从高到低：精确(1) 覆盖字母数(8) 简拼数的补(8) 末音节完整(1) 声调代价的补(8) 没打全时的用户词(1) 选择次数(32) 打折后词频(32) 原样命中(1) 字数的补(8)；
 /// 与 [`SortKey`] 的前几项同序，只是不拿文本做最后的平手项（预选边界上的平手谁留下无所谓）。
 pub type PreselectKey = u128;
 
 /// 排序键，越小越靠前。元组的顺序即排序规则，见模块文档；第五项是注音的声调代价，第六项是同输入串下的选择次数，
-/// 第七项是上下文得分（毫分，整数才能比较）。文本借自词库，键可以脱离 `Scored` 存放。
+/// 第七项是没打全时的用户词，第八项是上下文得分（毫分，整数才能比较）。文本借自词库，键可以脱离 `Scored` 存放。
 pub type SortKey<'a> = (
     Reverse<bool>,
     Reverse<usize>,
@@ -45,6 +45,7 @@ pub type SortKey<'a> = (
     Reverse<bool>,
     u8,
     Reverse<u32>,
+    Reverse<bool>,
     Reverse<i64>,
     bool,
     usize,
@@ -56,6 +57,12 @@ impl<'a> Scored<'a> {
     /// 否则一百多万条里总有个片段读音正好对上，`zanen` 的 咱们 就被 咋嫩 压在后面。
     fn first_tier(&self) -> bool {
         self.hit.exact && !self.hit.secondary
+    }
+
+    /// 用户词靠没打全的音节命中（简拼、半截拼音）：词库词频压不过系统词，这时按用户造过它排前面。
+    /// 拼音打全了不提前，那时同输入串下的选择次数已经把它排上来。
+    fn user_partial(&self) -> bool {
+        self.hit.user && (self.abbreviated > 0 || !self.full_last)
     }
 
     /// 命中不是敲的原样（模糊音或敲错变体）。
@@ -72,11 +79,12 @@ impl<'a> Scored<'a> {
         let chars = u128::from(u8::try_from(self.hit.text.chars().count()).unwrap_or(u8::MAX));
         let coverage = u128::from(u8::try_from(self.coverage).unwrap_or(u8::MAX));
         let abbreviated = u128::from(u8::try_from(self.abbreviated).unwrap_or(u8::MAX));
-        (u128::from(self.first_tier()) << 98)
-            | (coverage << 90)
-            | ((0xFF - abbreviated) << 82)
-            | (u128::from(self.full_last) << 81)
-            | (u128::from(0xFF - self.tone_cost) << 73)
+        (u128::from(self.first_tier()) << 99)
+            | (coverage << 91)
+            | ((0xFF - abbreviated) << 83)
+            | (u128::from(self.full_last) << 82)
+            | (u128::from(0xFF - self.tone_cost) << 74)
+            | (u128::from(self.user_partial()) << 73)
             | (u128::from(self.weight) << 41)
             | (u128::from(frequency) << 9)
             | (u128::from(!self.altered()) << 8)
@@ -92,6 +100,7 @@ impl<'a> Scored<'a> {
             Reverse(self.full_last),
             self.tone_cost,
             Reverse(choice),
+            Reverse(self.user_partial()),
             Reverse((score * 1000.0).round() as i64),
             self.altered(),
             self.hit.text.chars().count(),

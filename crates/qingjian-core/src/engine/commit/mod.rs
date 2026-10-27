@@ -5,16 +5,13 @@ use super::annotation::AnnotationReport;
 use super::input_log::{InputLogEntry, InputLogger, InputSource};
 use super::learning::Learner;
 use super::query::EnglishTail;
-use super::{
-    AUTO_WORD_MAX_CHARS, AUTO_WORD_THRESHOLD, AUTO_WORD_THRESHOLD_SAME_BUFFER,
-    EXPLICIT_TRANSITION_WEIGHT, Engine, choice_key, reading_key, segment_longest_prefix,
-};
+use super::{EXPLICIT_TRANSITION_WEIGHT, Engine, choice_key, reading_key, segment_longest_prefix};
 use crate::candidate::{Candidate, CandidateKind, CandidateList, Language};
 use crate::correction::typo;
 use crate::{parser, sentence};
-use qingjian_dictionary::Dictionary;
 use std::time::Instant;
 
+mod auto_word;
 mod chain;
 mod last;
 mod transition;
@@ -290,12 +287,13 @@ impl Engine {
             | CandidateKind::Symbol
             | CandidateKind::Generated => self.chain.reset(),
         }
-        // 一次整句上屏里的几个词不算分段选，只有这段拼音经过至少两次上屏才合起来看
-        let phrase = if split && !buffer_left {
-            self.finish_buffer()
-        } else {
-            None
-        };
+        // 这段拼音上屏完了：分几次选完的、一次整句上屏的，合起来看要不要造词（见 [`Self::finish_buffer`]）
+        let (phrase, coined) =
+            if !buffer_left && (split || candidate.kind == CandidateKind::Sentence) {
+                self.finish_buffer(split)
+            } else {
+                (None, None)
+            };
         self.punctuation.note_committed(&candidate.text);
         self.note_text(&candidate.text);
         let learned = matches!(
@@ -340,6 +338,7 @@ impl Engine {
                 erased: 0,
                 log_id,
                 phrase,
+                coined,
             }
         } else {
             let mut plain = LastCommit::plain(&candidate.text);
@@ -349,47 +348,6 @@ impl Engine {
         };
         self.remember_commit(commit);
         text
-    }
-
-    /// 一段拼音分几次选完了（`jidiaole` 先选 挤、剩下的走整句 掉了）：这几个词合起来就是用户对这段拼音的答案。
-    /// 记一次「整段拼音 → 合成词」的选择；选到 [`AUTO_WORD_THRESHOLD_SAME_BUFFER`] 次、词库里没有、
-    /// 不超过 [`AUTO_WORD_MAX_CHARS`] 字就造成用户词，下次整段打出来它直接排第一。返回记下的选择，撤销时退回。
-    pub(super) fn finish_buffer(&mut self) -> Option<(String, Choice)> {
-        let words = self.chain.buffer_words();
-        if words.len() < 2 {
-            return None;
-        }
-        let text: String = words.iter().map(|(t, _)| t.as_str()).collect();
-        let syllables: Vec<String> = words.iter().flat_map(|(_, s)| s.iter().cloned()).collect();
-        let chars = text.chars().count();
-        let key = self.chain.buffer_key().to_owned();
-        if key.is_empty() || chars > AUTO_WORD_MAX_CHARS || chars != syllables.len() {
-            return None;
-        }
-        let candidate = Candidate {
-            text,
-            kind: CandidateKind::Chinese,
-            syllables,
-            reading: None,
-            translation: None,
-            aux_code: None,
-        };
-        let reading = reading_key(candidate.syllables.iter().map(String::as_str));
-        self.learner.record_choice(&key, &reading, &candidate.text);
-        if !self.knows_word(&candidate)
-            && self.learner.choice_weight(&key, &candidate.text) >= AUTO_WORD_THRESHOLD_SAME_BUFFER
-        {
-            tracing::debug!(text = %candidate.text, "整段拼音分次选完，自动造词");
-            self.learner
-                .learn_word(&candidate.text, &candidate.syllables);
-        }
-        Some((
-            key,
-            Choice {
-                reading,
-                text: candidate.text,
-            },
-        ))
     }
 
     /// 最近删掉的上屏里有一次是同一段拼音（或它的前缀）、这次却选了别的词：把那次记的学习退回去。
@@ -447,6 +405,9 @@ impl Engine {
         if let Some((key, choice)) = &last.phrase {
             self.learner
                 .unrecord_choice(key, &choice.reading, &choice.text);
+        }
+        if let Some(word) = &last.coined {
+            self.learner.forget(word);
         }
     }
 
@@ -669,82 +630,6 @@ impl Engine {
             None => choice_key(keys, keys.len()),
         };
         (keys.len(), input)
-    }
-
-    /// 一个中文词上屏了：记 `times` 份转移、推进链；`auto_word` 为真（用户自己选的词）时，
-    /// 紧接着上一个词、合起来词库里没有、且这条接续记够次数还自动造词。
-    pub(super) fn record_word(
-        &mut self,
-        text: &str,
-        syllables: &[String],
-        times: u32,
-        auto_word: bool,
-        buffer_left: bool,
-    ) {
-        self.learner
-            .record_transition(self.chain.context(), text, times);
-        self.recording
-            .push(Transition::new(self.chain.context(), text, times));
-        if auto_word {
-            let threshold = if self.chain.same_buffer() {
-                AUTO_WORD_THRESHOLD_SAME_BUFFER
-            } else {
-                AUTO_WORD_THRESHOLD
-            };
-            self.try_auto_word(text, syllables, threshold);
-        }
-        self.chain.advance(text, syllables, buffer_left);
-    }
-
-    /// 上一个词 + 这个词合成用户词的条件见 [`AUTO_WORD_THRESHOLD`]。
-    pub(super) fn try_auto_word(&mut self, text: &str, syllables: &[String], threshold: u32) {
-        let Some(previous) = self.chain.previous().map(str::to_owned) else {
-            return;
-        };
-        let joined = format!("{previous}{text}");
-        let chars = joined.chars().count();
-        let mut joined_syllables = self.chain.previous_syllables().to_vec();
-        joined_syllables.extend(syllables.iter().cloned());
-        if chars > AUTO_WORD_MAX_CHARS || chars != joined_syllables.len() {
-            return;
-        }
-        // 这条转移刚记过，计数已含本次；阈值按「选了几次」算，计数是按份记的
-        let seen = self
-            .learner
-            .user_ngram()
-            .map_or(0, |b| b.pair(Some(&previous), text));
-        if seen < threshold * EXPLICIT_TRANSITION_WEIGHT {
-            return;
-        }
-        let candidate = Candidate {
-            text: joined,
-            kind: CandidateKind::Chinese,
-            syllables: joined_syllables,
-            reading: None,
-            translation: None,
-            aux_code: None,
-        };
-        if self.knows_word(&candidate) {
-            return;
-        }
-        tracing::debug!(text = %candidate.text, "自动造词");
-        self.learner
-            .learn_word(&candidate.text, &candidate.syllables);
-    }
-
-    /// 主词库或用户词里是否已有这个词（同音节）。
-    pub(super) fn knows_word(&self, candidate: &Candidate) -> bool {
-        let syllables: Vec<&str> = candidate.syllables.iter().map(String::as_str).collect();
-        if syllables.is_empty() {
-            return true;
-        }
-        let known = |dictionary: &Dictionary| {
-            dictionary
-                .lookup(&syllables, false)
-                .iter()
-                .any(|hit| hit.exact && hit.text == candidate.text)
-        };
-        self.all_dictionaries().into_iter().any(known)
     }
 }
 
