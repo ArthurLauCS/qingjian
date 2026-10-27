@@ -1,7 +1,7 @@
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use windows::Win32::UI::TextServices::{ITfComposition, ITfContext};
+use windows::Win32::UI::TextServices::{ITfComposition, ITfContext, ITfSource};
 
 use qingjian_platform::protocol::ScreenRect;
 
@@ -11,6 +11,9 @@ use crate::com::service::SharedClient;
 pub(crate) struct Shared {
     /// 当前活动的组句，跨按键存活。
     composition: RefCell<Option<ITfComposition>>,
+
+    /// 组句期间挂在文档上的排版通知（source + cookie，见 [`super::layout`]）；组句收掉就撤。
+    layout_sink: RefCell<Option<(ITfSource, u32)>>,
 
     /// Server 上次回的帧非空；决定 `OnTestKeyDown` 要不要吃功能键。
     composing: Cell<bool>,
@@ -42,6 +45,7 @@ impl Shared {
     pub(crate) fn new(client: SharedClient) -> Rc<Self> {
         Rc::new(Self {
             composition: RefCell::new(None),
+            layout_sink: RefCell::new(None),
             composing: Cell::new(false),
             anchor: Cell::new(None),
             context_reported: Cell::new(false),
@@ -128,12 +132,24 @@ impl Shared {
         self.composition.borrow().clone()
     }
 
+    /// 置 `None`（组句收掉）时一并撤排版通知。
     pub(super) fn set_composition(&self, composition: Option<ITfComposition>) {
+        if composition.is_none() {
+            self.set_layout_sink(None);
+        }
         *self.composition.borrow_mut() = composition;
     }
 
     pub(super) fn take_composition(&self) -> Option<ITfComposition> {
+        self.set_layout_sink(None);
         self.composition.borrow_mut().take()
+    }
+
+    /// 换上新的排版通知，撤掉旧的。
+    pub(super) fn set_layout_sink(&self, advice: Option<(ITfSource, u32)>) {
+        if let Some((source, cookie)) = self.layout_sink.replace(advice) {
+            let _ = unsafe { source.UnadviseSink(cookie) };
+        }
     }
 
     /// 组句结束（应用终止组句 / 断线 / 失焦上屏）：不再当作在组句，并让 Server 收候选窗口。
