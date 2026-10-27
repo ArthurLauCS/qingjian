@@ -3,6 +3,8 @@ use std::rc::Rc;
 
 use windows::Win32::UI::TextServices::{ITfComposition, ITfContext};
 
+use qingjian_platform::protocol::ScreenRect;
+
 use crate::com::service::SharedClient;
 
 /// `TextService`、编辑会话、组句 sink、轮询定时器之间共享的组句状态（STA 单线程，`Rc` 传递）。
@@ -12,6 +14,9 @@ pub(crate) struct Shared {
 
     /// Server 上次回的帧非空；决定 `OnTestKeyDown` 要不要吃功能键。
     composing: Cell<bool>,
+
+    /// 这一段最近报给 Server 的候选窗锚点：之后量不到光标时沿用它，不追着鼠标走。组句结束时清掉。
+    anchor: Cell<Option<ScreenRect>>,
 
     /// 这一段的输入框状态（私密与否、光标前文）已经报给 Server 了。
     /// 行内模式下靠「组句刚起」判断，`preedit = window` 模式应用里没有组句，得另记一个标记。
@@ -38,6 +43,7 @@ impl Shared {
         Rc::new(Self {
             composition: RefCell::new(None),
             composing: Cell::new(false),
+            anchor: Cell::new(None),
             context_reported: Cell::new(false),
             translating: Cell::new(false),
             last_context: RefCell::new(None),
@@ -73,10 +79,19 @@ impl Shared {
 
     pub(crate) fn set_composing(&self, value: bool) {
         self.composing.set(value);
-        // 组句结束：下一段重新报输入框状态。
+        // 组句结束：下一段重新报输入框状态、重新定锚点。
         if !value {
             self.context_reported.set(false);
+            self.anchor.set(None);
         }
+    }
+
+    pub(crate) fn anchor(&self) -> Option<ScreenRect> {
+        self.anchor.get()
+    }
+
+    pub(crate) fn set_anchor(&self, anchor: Option<ScreenRect>) {
+        self.anchor.set(anchor);
     }
 
     pub(crate) fn context_reported(&self) -> bool {

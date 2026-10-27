@@ -41,6 +41,9 @@ pub struct CandidateWindow {
     /// 双拼键位提示，跟着候选窗显示与收起。
     key_hint: KeyHintPanel,
 
+    /// 这一段（候选窗从显示到收起）用过的光标行：应用中途给不出光标时沿用它，不追着鼠标走（#167）。
+    last_anchor: Option<NSRect>,
+
     /// 用来取屏幕尺寸。
     mtm: MainThreadMarker,
 }
@@ -56,6 +59,7 @@ impl CandidateWindow {
             backdrop,
             appearance: None,
             key_hint: KeyHintPanel::new(mtm),
+            last_anchor: None,
             mtm,
         }
     }
@@ -67,6 +71,7 @@ impl CandidateWindow {
             self.hide();
             return;
         }
+        let anchor = self.steady_anchor(anchor);
         let panel = frame.is_panel();
         let bounds = self.view.set_frame(&frame);
         let content = self.place(bounds.content.size, anchor);
@@ -113,7 +118,8 @@ impl CandidateWindow {
         self.panel.setIgnoresMouseEvents(!bitmap && !panel);
     }
 
-    pub fn hide(&self) {
+    pub fn hide(&mut self) {
+        self.last_anchor = None;
         self.view.close_menu();
         self.panel.orderOut(None);
         self.key_hint.hide();
@@ -245,6 +251,22 @@ impl CandidateWindow {
         // 无论怎么算，最后都要落在这块屏幕里：出屏等于不显示
         let max_y = (top - size.height).max(screen.origin.y);
         NSPoint::new(x, y.clamp(screen.origin.y, max_y))
+    }
+
+    /// 应用给得出光标就用它并记下；给不出时沿用这一段记下的，一段里第一次就给不出才用鼠标位置，同样记下。
+    fn steady_anchor(&mut self, anchor: NSRect) -> NSRect {
+        let known = !(anchor.size.height == 0.0 && anchor.origin == NSPoint::ZERO)
+            && screen_containing(self.mtm, anchor.origin).is_some();
+        let anchor = match (known, self.last_anchor) {
+            (true, _) => anchor,
+            (false, Some(last)) => last,
+            (false, None) => NSRect::new(
+                NSEvent::mouseLocation(),
+                NSSize::new(0.0, FALLBACK_LINE_HEIGHT),
+            ),
+        };
+        self.last_anchor = Some(anchor);
+        anchor
     }
 
     /// 光标行与它所在屏幕的可见区域。光标矩形是零或落在所有屏幕之外（应用不支持、或给的是胡话）时以鼠标位置为准。
