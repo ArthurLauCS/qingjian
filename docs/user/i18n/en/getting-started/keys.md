@@ -36,7 +36,7 @@ On Windows and Linux, the Chinese / English switch can also be a tap of `Ctrl` o
 | Delete all pinyin before the cursor | `⌘ + Backspace` | — | — |
 | Clear | `Esc` | `Esc` | `Esc` |
 | Move the highlight (pages automatically at the edge) | `↑` / `↓` | `↑` / `↓` | `↑` / `↓` |
-| Page | `[` `]`, `PageUp` / `PageDown`, `⇧ + Tab` (previous page) | `[` `]`, `PageUp` / `PageDown`, `Shift + Tab` (previous page) | Same as Windows |
+| Page | `[` `]`, `PageUp` / `PageDown`, `⇧ + Tab` (previous page); click the arrows beside the page number | `[` `]`, `PageUp` / `PageDown`, `Shift + Tab` (previous page); click the arrows beside the page number, or scroll the mouse wheel over the candidates | `[` `]`, `PageUp` / `PageDown`, `Shift + Tab` (previous page) |
 | Accept the AI sentence completion (next page if there is none) | `Tab` | `Tab` | `Tab` |
 | Move the pinyin cursor | `←` / `→` | `←` / `→` | `←` / `→` |
 | Move the cursor by syllable | `⌥ + ←` / `⌥ + →` | — | — |

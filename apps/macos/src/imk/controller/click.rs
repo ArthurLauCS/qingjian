@@ -164,6 +164,10 @@ impl QingjianInputController {
                 let index = host::with(|h| h.session.index_in_view(candidate)).flatten();
                 self.commit_translation_at(index, sense, client);
             }
+            // 主题里的翻页箭头：和翻页键一样
+            HitTarget::Page(step) => {
+                self.turn_page(step, client);
+            }
             // 菜单项在菜单自己的窗口里点，候选窗不会给出
             HitTarget::MenuItem(_) => {}
         }

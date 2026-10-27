@@ -103,11 +103,16 @@ impl Renderer {
             cell_nodes: Vec::new(),
             candidate_nodes: Vec::new(),
             sense_nodes: Vec::new(),
+            action_nodes: Vec::new(),
         };
         let root = builder.window(frame, layout)?;
-        let (candidate_nodes, sense_nodes) = (builder.candidate_nodes, builder.sense_nodes);
+        let nodes = HitNodes {
+            candidates: builder.candidate_nodes,
+            senses: builder.sense_nodes,
+            actions: builder.action_nodes,
+        };
         let content = scene.layout(root, self.stage.text())?;
-        self.hits = hit_regions(&scene, root, &candidate_nodes, &sense_nodes)?;
+        self.hits = hit_regions(&scene, root, &nodes, scale)?;
         // 排布变了位置不可比，不与上一帧配对过渡
         let painted = self
             .stage
@@ -151,12 +156,25 @@ impl Renderer {
     }
 }
 
-/// 各候选与各条译词的点击区域（内容区像素）：同一个候选 / 同一条译词的节点取外接矩形，译词排在前面先命中。
+/// 点击区域对应的场景节点，实例化时收集。
+struct HitNodes {
+    candidates: Vec<(usize, NodeId)>,
+
+    senses: Vec<(usize, usize, NodeId)>,
+
+    actions: Vec<(HitTarget, NodeId)>,
+}
+
+/// 翻页箭头这类小图标的点击区域往外放几点，免得难点中；和候选重叠的地方候选先命中。
+const ACTION_SLOP: f32 = 4.0;
+
+/// 各候选、各条译词与写了 `action` 的节点的点击区域（内容区像素）：同一个目标的节点取外接矩形，
+/// 译词排在前面先命中，`action` 排在最后。
 fn hit_regions(
     scene: &Scene,
     root: NodeId,
-    candidates: &[(usize, NodeId)],
-    senses: &[(usize, usize, NodeId)],
+    nodes: &HitNodes,
+    scale: f32,
 ) -> Result<Vec<HitRegion>, RenderError> {
     let mut regions: Vec<HitRegion> = Vec::new();
     let mut add = |target: HitTarget, node: NodeId| -> Result<(), RenderError> {
@@ -173,11 +191,27 @@ fn hit_regions(
         }
         Ok(())
     };
-    for &(candidate, sense, node) in senses {
+    for &(candidate, sense, node) in &nodes.senses {
         add(HitTarget::Translation { candidate, sense }, node)?;
     }
-    for &(candidate, node) in candidates {
+    for &(candidate, node) in &nodes.candidates {
         add(HitTarget::Candidate(candidate), node)?;
+    }
+    for &(target, node) in &nodes.actions {
+        add(target, node)?;
+    }
+    let slop = ACTION_SLOP * scale;
+    let actions = regions.iter_mut().filter(|region| {
+        nodes
+            .actions
+            .iter()
+            .any(|(target, _)| *target == region.target)
+    });
+    for region in actions {
+        region.x -= slop;
+        region.y -= slop;
+        region.width += 2.0 * slop;
+        region.height += 2.0 * slop;
     }
     Ok(regions)
 }

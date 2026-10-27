@@ -14,6 +14,7 @@ impl Router {
             CandidateMouse::Click(target) => self.handle_click(target),
             CandidateMouse::Menu { offset, point } => self.handle_candidate_menu(offset, point),
             CandidateMouse::MenuPick { offset, id } => self.handle_candidate_menu_pick(offset, id),
+            CandidateMouse::Page(step) => self.handle_page_turn(step),
         }
     }
 

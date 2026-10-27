@@ -62,6 +62,9 @@ pub enum CandidateMouse {
 
     /// 右键菜单里点中了编号 `id` 的项。
     MenuPick { offset: usize, id: u32 },
+
+    /// 滚轮翻页：正数往后翻（点翻页箭头走 `Click(HitTarget::Page)`）。
+    Page(isize),
 }
 
 /// 右键候选弹的菜单。

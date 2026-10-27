@@ -36,7 +36,7 @@ Windows 与 Linux 的中 / 英切换键还可以选单击 `Ctrl` 或 `Ctrl + Alt
 | 删除光标前全部拼音 | `⌘ + Backspace` | — | — |
 | 清空 | `Esc` | `Esc` | `Esc` |
 | 移动高亮（到页边自动翻页） | `↑` / `↓` | `↑` / `↓` | `↑` / `↓` |
-| 翻页 | `[` `]`、`PageUp` / `PageDown`、`⇧ + Tab`（上一页） | `[` `]`、`PageUp` / `PageDown`、`Shift + Tab`（上一页） | 同 Windows |
+| 翻页 | `[` `]`、`PageUp` / `PageDown`、`⇧ + Tab`（上一页）；点页码两侧的箭头 | `[` `]`、`PageUp` / `PageDown`、`Shift + Tab`（上一页）；点页码两侧的箭头，或在候选上滚动鼠标滚轮 | `[` `]`、`PageUp` / `PageDown`、`Shift + Tab`（上一页） |
 | 接受 AI 整句补全（无补全时下一页） | `Tab` | `Tab` | `Tab` |
 | 移动拼音光标 | `←` / `→` | `←` / `→` | `←` / `→` |
 | 按音节移动光标 | `⌥ + ←` / `⌥ + →` | — | — |

@@ -183,6 +183,24 @@ themes/
 - `mode.scheme` 是方案名，如「全拼」「小鹤双拼」「五笔（86） + 全拼」；写在 `when` 里表示「有方案名」。
 - 这几个节点放在窗口的 `children` 里；`children` 要整组写出来（只写新加的会把原来的内容整个换掉），可以从内置主题的 `theme.json` 复制一份再改。
 
+## 翻页箭头
+
+页码两侧的箭头要能点，给节点写上 `action`：`previous_page` 上一页，`next_page` 下一页。写在框上，整个框连同里面的内容都能点；
+箭头小的话也不用特意放大，点中的范围会往外放一点。翻不动的那一侧可以画淡，条件是 `page.previous`（前面还有页）和 `page.next`（后面还有页）：
+
+```json
+{ "type": "frame", "when": "page", "gap": 3, "children": [
+  { "type": "icon", "icon": "chevron-left", "size": 9, "height": 14, "action": "previous_page",
+    "color": { "if": "page.previous", "then": "@faint", "else": "@dim" } },
+  { "type": "text", "bind": "page", "font": "index", "color": "@faint" },
+  { "type": "icon", "icon": "chevron-right", "size": 9, "height": 14, "action": "next_page",
+    "color": { "if": "page.next", "then": "@faint", "else": "@dim" } }
+] }
+```
+
+- `chevron-left`、`chevron-right` 是自带的箭头图标，颜色跟着 `color` 走；用图片画的箭头，在写着图片的框上写 `action` 即可。
+- 图片改不了颜色，想画淡就写两份：`"when": "page.previous"` 一份，`"when": "!page.previous", "opacity": 0.4` 一份。
+
 ## 悬浮状态条（Windows）
 
 Windows 屏幕右下角的悬浮状态条也可以按主题画，写法与候选窗口相同：在 `status` 下写 `root`，格子用 `repeat` 绑定 `cells` 一格一格展开（现在是「中 / 英」「标点」「符号面板」「设置齿轮」四格，点哪格就是切换哪一项）：

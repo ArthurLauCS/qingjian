@@ -225,6 +225,7 @@ impl Host {
                 Vec::new()
             },
             footer,
+            pages_around: (page > 0, page + 1 < pages),
             sentence: self.sentence.clone(),
             status: self.status.clone(),
             mode: self.input_mode(),
