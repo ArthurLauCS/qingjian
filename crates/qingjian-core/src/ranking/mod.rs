@@ -7,11 +7,12 @@
 //! 4. 最后一个音节完整匹配优先（`kaifa` → 开发 排在 开放 前）
 //! 5. 注音敲了声调时，声调代价小者优先（ㄇㄚ 一声 → 妈 排在 吗 前；表与规则见 `zhuyin::tone`）
 //! 6. 同一输入串下用户选过的次数（Learner 的 `choice_weight`：`mgs` 选过 美国式，下次 `mgs` 它就是首选）
-//! 7. 上下文得分：语言模型给的 `log P(词 | 上一个上屏的词)`（个人 bigram 插值，模型不认识的按词库词频兜底并扣分，
+//! 7. 有音节没打全（简拼、半截拼音）时用户词优先（`touc` / `tc` → 用户造过的 透传 排在 偷吃 / 通常 前）
+//! 8. 上下文得分：语言模型给的 `log P(词 | 上一个上屏的词)`（个人 bigram 插值，模型不认识的按词库词频兜底并扣分，
 //!    见 `sentence::transition_log_prob`）加用户选择次数的加分（[`weight_bonus`]，对数且封顶），模糊音命中扣 ln 2、
 //!    敲错变体命中扣那类敲错的代价（`correction::TypoKind::cost`，个人敲错表打折）。
 //!    这样 `ba` 在「做了」后面出 吧、句首出 把；纯词频排序两处都只能出同一个
-//! 8. 敲的原音节优先，词长短者优先，最后按字符串稳定排序保证结果可复现
+//! 9. 敲的原音节优先，词长短者优先，最后按字符串稳定排序保证结果可复现
 //!
 //! 词库静态词频只用于预选（命中太多时先按词频砍到够排的量）与兜底。
 
@@ -90,6 +91,7 @@ mod tests {
             reading_total: 0,
             tones: Default::default(),
             secondary: false,
+            user: false,
             exact,
         }
     }
@@ -207,6 +209,38 @@ mod tests {
         ];
         rank(&mut items, usize::MAX, |_| (0, 0.0));
         assert_eq!(items[0].hit.text, "开放");
+    }
+
+    #[test]
+    fn user_words_lead_only_when_syllables_are_partial() {
+        let item = |text, frequency, user, full_last, abbreviated| Scored {
+            hit: Match {
+                user,
+                ..hit(text, "tou chuan", frequency, true)
+            },
+            full_last,
+            coverage: 2,
+            abbreviated,
+            weight: 0,
+            penalty: 0.0,
+            tone_cost: 0,
+        };
+        let by_frequency = |s: &Scored<'_>| (0, f64::from(s.hit.frequency).ln());
+        // `tc`：简拼命中一堆系统词，词频低的用户词照样排第一，预选也留得住
+        let mut items: Vec<_> = ["通常", "提出", "推出", "唐朝"]
+            .into_iter()
+            .map(|text| item(text, 90000, false, false, 1))
+            .collect();
+        items.push(item("透传", 100, true, false, 1));
+        rank(&mut items, 1, by_frequency);
+        assert_eq!(items[0].hit.text, "透传");
+        // 拼音打全了不提前
+        let mut items = vec![
+            item("偷穿", 90000, false, true, 0),
+            item("透传", 100, true, true, 0),
+        ];
+        rank(&mut items, usize::MAX, by_frequency);
+        assert_eq!(items[0].hit.text, "偷穿");
     }
 
     #[test]

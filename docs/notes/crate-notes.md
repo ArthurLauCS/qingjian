@@ -132,7 +132,7 @@ mac 存在 `Session::spelling`（`Host::follow_highlight`）、Windows / Linux �
   也不能读成「拼音头 + 英文尾」——打不出来时整串上屏的失败拼音学进去会反过来堵住混输那条路，越打不出来学得越多）、
   个人敲错表（`user-typos.tsv`，接受过的 (敲的, 要的) 音节对，词图敲错边与整段纠错的代价按它打折）与个人 n-gram（`user-ngram.tsv`，Core `sentence::UserNgram`，
   二元 + 三元在线计数，整句转换与词级排序里与静态模型插值；Tab 接受的云端整句按 `sentence::segment_text` 切词后也记；
-  连着选出的两个词记够次数自动造词进用户词，一段拼音分几次选完的合成词记两次也造）。
+  分开打、连着选出的两个词记够次数自动造词进用户词；一段拼音上屏完时合起来的词（分几次选完的，或整句路径全是单字的）选一次就造，退格撤销那次上屏时删掉（`Engine::finish_buffer`，`LastCommit::coined`）。用户词库标 `Dictionary::set_user`，命中带 `Match::user`：有音节没打全（简拼、半截）时排序键在「同输入串选择次数」之后把它提前，预选键也带这一位（`Scored::user_partial`）——用户词词频固定 100，不提前的话 `tc` 下的 透传 排到一百多位）。
   候选右键菜单的降权记在 `user-demoted.tsv`（`frequency_learner/demotions.rs`，输入串 → 词 → 降了几次，封顶 99，不衰减），私密输入与关学习时照记。
   繁体输出时给词选的写法记在 `user-traditional.tsv`（`frequency_learner/traditional.rs`，档 → 简体词 → 写法，选回缺省写法就删，不衰减），私密输入与关学习时不记。
   词频、个人英文词与敲错表三张表带**时间衰减**（`frequency_learner/decay.rs`，牛顿冷却）：最近使用日记在

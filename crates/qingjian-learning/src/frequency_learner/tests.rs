@@ -326,6 +326,8 @@ fn user_words_round_trip_through_tsv_and_form_a_dictionary() {
     assert_eq!(reloaded.word_count(), 1);
     let hits = reloaded.user_words().unwrap().lookup(&["zhang"], true);
     assert_eq!(hits[0].text, "账套");
+    // 命中标着来自用户词库，简拼时排序靠它把用户词提前
+    assert!(hits[0].user);
 }
 
 #[test]

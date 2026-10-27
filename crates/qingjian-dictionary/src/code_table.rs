@@ -181,6 +181,7 @@ impl CodeTable {
                 reading_total: 0,
                 tones: Tones::default(),
                 secondary: false,
+                user: false,
                 exact: entry.code == code,
             })
             .collect()

@@ -424,6 +424,7 @@ impl Engine {
             erased: 0,
             log_id,
             phrase: None,
+            coined: None,
         };
         self.remember_commit(commit);
         self.take_held() + &traditional_text

@@ -47,6 +47,9 @@ pub struct LastCommit {
 
     /// 整段拼音分几次选完时记的「整段 → 合成词」选择（学习键，选择记录），撤销时一并退回。
     pub phrase: Option<(String, Choice)>,
+
+    /// 这段拼音上屏完时选一次就造出的用户词，撤销时删掉。
+    pub coined: Option<String>,
 }
 
 impl LastCommit {
@@ -64,6 +67,7 @@ impl LastCommit {
             erased: 0,
             log_id: 0,
             phrase: None,
+            coined: None,
         }
     }
 

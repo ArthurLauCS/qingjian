@@ -1,5 +1,6 @@
 //! Engine 的测试：共用的样例词库、辅助函数与 mock 在这里，用例按主题分文件。
 
+mod auto_word;
 mod aux_code;
 mod candidate_menu;
 mod chaizi;
@@ -356,13 +357,15 @@ impl Learner for WordLearner {
 
     fn learn_word(&mut self, text: &str, syllables: &[String]) {
         self.words.push((text.to_owned(), syllables.to_vec()));
-        let tsv: String = self
-            .words
-            .iter()
-            .map(|(t, s)| format!("{t}\t{}\t100\n", s.join(" ")))
-            .collect();
-        self.dictionary = Some(Dictionary::parse(&tsv).unwrap());
+        self.rebuild();
         self.shared.lock().unwrap().0.push(text.to_owned());
+    }
+
+    fn forget(&mut self, text: &str) -> Forgotten {
+        self.words.retain(|(t, _)| t != text);
+        self.rebuild();
+        self.shared.lock().unwrap().0.retain(|t| t != text);
+        Forgotten::default()
     }
 
     fn user_words(&self) -> Option<&Dictionary> {
@@ -385,6 +388,21 @@ impl Learner for WordLearner {
 
     fn user_ngram(&self) -> Option<&sentence::UserNgram> {
         Some(&self.ngram)
+    }
+}
+
+impl WordLearner {
+    fn rebuild(&mut self) {
+        let tsv: String = self
+            .words
+            .iter()
+            .map(|(t, s)| format!("{t}\t{}\t100\n", s.join(" ")))
+            .collect();
+        self.dictionary = (!tsv.is_empty()).then(|| {
+            let mut dictionary = Dictionary::parse(&tsv).unwrap();
+            dictionary.set_user(true);
+            dictionary
+        });
     }
 }
 
