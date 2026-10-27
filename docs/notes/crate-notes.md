@@ -486,6 +486,8 @@ TSF 原有数字 / OEM 标点 / 空格键码按当前布局用 `ToUnicodeEx` 解
 时把结果缓进 `pending_digit`，`OnKeyDown` 再应用。拼音显示位置（`[general] preedit`）在 Windows 上分两处落地：
 Server 把它读进 `RouterConfig.preedit` 并随 `Frame.preedit_mode` 下发给 DLL，DLL（`com/service/key_sink.rs`）按
 `inline()` 决定要不要放行内拼音，Server（`ui/candidates/render_data.rs::window_preedit`）按 `in_window()` 决定候选窗口顶部画不画拼音行；`window` 模式没有组句范围，光标矩形改从 `com/edit/anchor.rs::caret_rect`（当前选区）量。
+行内组句期间 DLL 在文档上挂 `ITfTextLayoutSink`（`com/composition/layout.rs`，组句收掉即撤）：Chrome 系应用第一键时新组句还没交给页面，
+`GetTextExt` 回的是渲染进程上次异步报来的光标（常是上一段组句的末尾，#809）；页面排好版发 `OnLayoutChange`，DLL 开只读会话（`com/edit/caret.rs`）重量一次报给 Server。
 连不上 Server 时 DLL 自己拉起它（`tsf/src/com/service/launch.rs`）：`ShellExecuteW` 起与 DLL 同目录的 `qingjian-server.exe`
 （`uiAccess=true` 的 exe 用 `CreateProcess` 报 740），进程内 5 秒冷却 + 跨进程命名互斥体防止砸出一串 Server；
 起完清掉重连退避，下一键就试。Server 只在登录时由「启动」文件夹拉起，中途挂了以前只能等下次登录。

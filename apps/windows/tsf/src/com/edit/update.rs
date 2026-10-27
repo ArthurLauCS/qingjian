@@ -28,6 +28,9 @@ pub(crate) struct UpdateSession {
     /// 组句状态。
     shared: Rc<Shared>,
 
+    /// 本服务的 TSF client id：新起组句时挂排版通知用。
+    client_id: u32,
+
     /// 本次要落定上屏的文本。
     commit: Option<String>,
 
@@ -44,6 +47,7 @@ impl ITfEditSession_Impl for UpdateSession_Impl {
                 &self.engine,
                 &self.context,
                 ec,
+                self.client_id,
                 self.commit.as_deref(),
                 &self.preedit,
             )
@@ -75,6 +79,7 @@ pub(crate) fn request_update(
         context: context.clone(),
         engine,
         shared,
+        client_id,
         commit,
         preedit,
     };

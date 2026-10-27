@@ -1,6 +1,7 @@
 //! 组句 preedit：把 Server 回的拼音行经 TSF 组句（[`ITfComposition`]）显示在文档光标处（对应 macOS 的内联 marked text）。
 //! 只放最朴素的一行拼音；富样式的拼音行在候选窗口里另画。所有写操作都在异步读写编辑会话里做（理由见 `edit_session`）。
 
+mod layout;
 mod shared;
 mod sink;
 
@@ -33,11 +34,13 @@ pub(crate) fn preedit_string(frame: &Frame) -> String {
 
 /// 在编辑会话回调（持写锁 `ec`）里调：先落定 `commit`，再按 `preedit` 起 / 改 / 收组句，最后把光标位置报给 Server。
 /// 新起一段组句时顺手判输入框私密不私密（变了就告诉 Server）、把光标前的文字送给 Server（本地整句模型的前文）。
+/// `client_id` 是本服务的 TSF client id，新起组句时挂排版通知用（见 [`layout`]）。
 pub(crate) fn apply(
     shared: &Rc<Shared>,
     engine: &SharedClient,
     context: &ITfContext,
     ec: u32,
+    client_id: u32,
     commit: Option<&str>,
     preedit: &str,
 ) -> Result<()> {
@@ -54,7 +57,7 @@ pub(crate) fn apply(
     if preedit.is_empty() {
         end_composition(shared, ec)?;
     } else {
-        update_preedit(shared, context, ec, preedit)?;
+        update_preedit(shared, engine, context, ec, client_id, preedit)?;
     }
     if let Some(InputContext { private, before }) = input {
         report_privacy(engine, private);
@@ -92,7 +95,7 @@ fn report_surrounding(engine: &SharedClient, before: String) {
 /// 组句进行中才报位置；组句已收 Server 会按空帧 / `Commit` 自行收窗口。
 /// 量不到光标（Firefox 等应用的 GetTextExt 时灵时不灵）时沿用这一段先前的锚点，一段里第一次就量不到才用鼠标位置，
 /// 也记下来：否则候选窗逐键跟着鼠标跑（#167）。
-fn report_caret(shared: &Shared, engine: &SharedClient, context: &ITfContext, ec: u32) {
+pub(crate) fn report_caret(shared: &Shared, engine: &SharedClient, context: &ITfContext, ec: u32) {
     let measured = match shared.composition() {
         Some(composition) => {
             let Ok(range) = (unsafe { composition.GetRange() }) else {
@@ -151,10 +154,17 @@ fn commit_text(shared: &Shared, context: &ITfContext, ec: u32, text: &str) -> Re
     Ok(())
 }
 
-fn update_preedit(shared: &Rc<Shared>, context: &ITfContext, ec: u32, preedit: &str) -> Result<()> {
+fn update_preedit(
+    shared: &Rc<Shared>,
+    engine: &SharedClient,
+    context: &ITfContext,
+    ec: u32,
+    client_id: u32,
+    preedit: &str,
+) -> Result<()> {
     let composition = match shared.composition() {
         Some(composition) => composition,
-        None => start_composition(shared, context, ec)?,
+        None => start_composition(shared, engine, context, ec, client_id)?,
     };
     let utf16: Vec<u16> = preedit.encode_utf16().collect();
     let range = unsafe { composition.GetRange()? };
@@ -163,14 +173,24 @@ fn update_preedit(shared: &Rc<Shared>, context: &ITfContext, ec: u32, preedit: &
     move_selection_to_end(context, ec, &range)
 }
 
-/// 在当前选区处起一个空组句；组句 sink 交给框架持有。
-fn start_composition(shared: &Rc<Shared>, context: &ITfContext, ec: u32) -> Result<ITfComposition> {
+/// 在当前选区处起一个空组句；组句 sink 交给框架持有。顺带挂上排版通知（挂不上只是少一次重量，不致命）。
+fn start_composition(
+    shared: &Rc<Shared>,
+    engine: &SharedClient,
+    context: &ITfContext,
+    ec: u32,
+    client_id: u32,
+) -> Result<ITfComposition> {
     let insert: ITfInsertAtSelection = context.cast()?;
     let range = unsafe { insert.InsertTextAtSelection(ec, TF_IAS_QUERYONLY, &[])? };
     let context_composition: ITfContextComposition = context.cast()?;
     let sink: ITfCompositionSink = CompositionSink::new(shared.clone()).into();
     let composition = unsafe { context_composition.StartComposition(ec, &range, &sink)? };
     shared.set_composition(Some(composition.clone()));
+    match layout::advise(context, shared, engine, client_id) {
+        Ok(advice) => shared.set_layout_sink(Some(advice)),
+        Err(error) => super::log::log(&format!("挂排版通知失败: {error}")),
+    }
     Ok(composition)
 }
 
