@@ -165,10 +165,10 @@ mac 存在 `Session::spelling`（`Host::follow_highlight`）、Windows / Linux �
 
 TLS 由 feature 选：缺省 `native-tls`（系统 TLS，桌面各壳与 cli 都用这个）；`rustls`（关掉缺省时）走 ring + `webpki-roots` 内置的 Mozilla 根证书、`tls_backend_preconfigured` 交给 reqwest，不用平台证书库（`rustls-platform-verifier` 在安卓要 Java 侧组件），安卓 `apps/android/core` 直接按路径引、关缺省开 `rustls`。工作区的 `async-openai` 不带 TLS feature，直接用它的（`tools/gloss-gen`）自己开 `native-tls`。
 
-API 用量由 ChatClient 的单次发送入口计入：每次 HTTP 尝试分别累计，关思考参数兼容重试计两次；SDK 隐式重试关闭。CloudPredictor、CloudGlossFiller、ConnectionTest 的 `*_with_usage` 接口可指定共享统计文件，旧构造入口保持无统计行为。`api-usage.json` 只保存计数，文件锁合并跨线程／进程更新，原子写入；损坏文件保留并报告错误。缺失 usage 记未知，不估算 Token。
+API 用量由 ChatClient 的单次发送入口计入：每次 HTTP 尝试分别累计，关思考参数与回复格式的兼容重试都按实际次数计；SDK 隐式重试关闭。CloudPredictor、CloudGlossFiller、ConnectionTest 的 `*_with_usage` 接口可指定共享统计文件，旧构造入口保持无统计行为。`api-usage.json` 只保存计数，文件锁合并跨线程／进程更新，原子写入；损坏文件保留并报告错误。缺失 usage 记未知，不估算 Token。
 每个有结果的请求还在同一把锁里往旁边的 `api-usage-hourly.tsv` 追加一行（日期、时、请求、失败、输入、输出、合计），超过 256 KB 整理成一个时段一行，统计页画按天、按小时的图用（`ApiUsageHours`）。
 
-请求控制：默认防抖 300 ms、最短起始间隔 3000 ms。Engine 的自动入口尊重 `automatic`，显式入口 `request_manual_prediction` 跳过防抖但遵守间隔；取消通道消息清除待发输入，已发结果由序号过滤。缓存命中不受网络间隔限制。SDK 隐式重试关闭，保留模型拒绝关思考参数时的一次显式兼容重试，以及 401/402/403 暂停 10 分钟。
+请求控制：默认防抖 300 ms、最短起始间隔 3000 ms。Engine 的自动入口尊重 `automatic`，显式入口 `request_manual_prediction` 跳过防抖但遵守间隔；取消通道消息清除待发输入，已发结果由序号过滤。缓存命中不受网络间隔限制。SDK 隐式重试关闭，保留模型拒绝关思考参数时的一次显式兼容重试，以及 401/402/403 暂停 10 分钟。回复格式（`reply/`）按 `json_object` → `json_schema` → 不约束逐级降：报错提到 `response_format` 就降一级重发，客户端记住这一级；`json_schema` 用各调用方给的 `ReplySchema`（联想 / 问字 / 翻译在 `prompt.rs`，释义与整段翻译在 `gloss/`，测试连接在 `connection/test.rs`），改了提示词里的输出格式要同步改它；正文统一剥掉 Markdown 代码块围栏。
 翻译请求（`PredictionKind::Translate`）出错或撞上暂停时 worker 回一条空 `Prediction`，壳当场结束「翻译中」、报失败，不干等超时；联想照旧不回。回包解析前去掉 `service_tier`：async-openai 那边是封闭枚举，OpenRouter 回 `"asap"` 会让整条解析失败。
 
 Windows 的 `Router::recompose` 在输入清空时调用 `Engine::cancel_prediction`，同时撤销待发联想与译文；不能只作废各类结果的序号，否则 worker 仍会发送并占用请求间隔。输入未清空时保留按类作废，使未变化的整句候选译文可以继续返回。
