@@ -488,6 +488,11 @@ Server 把它读进 `RouterConfig.preedit` 并随 `Frame.preedit_mode` 下发给
 `inline()` 决定要不要放行内拼音，Server（`ui/candidates/render_data.rs::window_preedit`）按 `in_window()` 决定候选窗口顶部画不画拼音行；`window` 模式没有组句范围，光标矩形改从 `com/edit/anchor.rs::caret_rect`（当前选区）量。
 行内组句期间 DLL 在文档上挂 `ITfTextLayoutSink`（`com/composition/layout.rs`，组句收掉即撤）：Chrome 系应用第一键时新组句还没交给页面，
 `GetTextExt` 回的是渲染进程上次异步报来的光标（常是上一段组句的末尾，#809）；页面排好版发 `OnLayoutChange`，DLL 开只读会话（`com/edit/caret.rs`）重量一次报给 Server。
+自己画候选的应用（全屏游戏，TSF 的 UI-less）：DLL 把按键、轮询、点击上屏回的每一帧交给 `com/candidate_list`，组句开始时经 `ITfUIElementMgr::BeginUIElement`
+起一个 `ITfCandidateListUIElement`，帧变了才 `UpdateUIElement`，组句结束 / 断线 / 停用时 `EndUIElement`。应用回 `bShow = FALSE` 时
+`composition::report_caret` 不报光标位置，Server 没有 `last_rect` 就不画候选窗（不能改发 `HideCandidates`：它会顺带取消云联想）。
+线上帧只带当前页，给应用的列表就是这一页（只有一页、当前第 0 页）。端到端验证：注册 DLL、起 Server 后
+`cargo run -p qingjian-windows-tsf --example host -- tsf+uiless "nihao "`，宿主像游戏一样取候选并打印，也打印青简候选窗有没有弹出。
 连不上 Server 时 DLL 自己拉起它（`tsf/src/com/service/launch.rs`）：`ShellExecuteW` 起与 DLL 同目录的 `qingjian-server.exe`
 （`uiAccess=true` 的 exe 用 `CreateProcess` 报 740），进程内 5 秒冷却 + 跨进程命名互斥体防止砸出一串 Server；
 起完清掉重连退避，下一键就试。Server 只在登录时由「启动」文件夹拉起，中途挂了以前只能等下次登录。

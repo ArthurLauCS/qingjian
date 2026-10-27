@@ -95,7 +95,11 @@ fn report_surrounding(engine: &SharedClient, before: String) {
 /// 组句进行中才报位置；组句已收 Server 会按空帧 / `Commit` 自行收窗口。
 /// 量不到光标（Firefox 等应用的 GetTextExt 时灵时不灵）时沿用这一段先前的锚点，一段里第一次就量不到才用鼠标位置，
 /// 也记下来：否则候选窗逐键跟着鼠标跑（#167）。
+/// 应用（全屏游戏）自己画候选时也不报：Server 没收到位置就不画候选窗。
 pub(crate) fn report_caret(shared: &Shared, engine: &SharedClient, context: &ITfContext, ec: u32) {
+    if shared.candidate_list().app_draws() {
+        return;
+    }
     let measured = match shared.composition() {
         Some(composition) => {
             let Ok(range) = (unsafe { composition.GetRange() }) else {
