@@ -5,6 +5,7 @@ use windows::Win32::UI::TextServices::{ITfComposition, ITfContext};
 
 use qingjian_platform::protocol::ScreenRect;
 
+use crate::com::candidate_list::CandidateList;
 use crate::com::service::SharedClient;
 
 /// `TextService`、编辑会话、组句 sink、轮询定时器之间共享的组句状态（STA 单线程，`Rc` 传递）。
@@ -36,6 +37,9 @@ pub(crate) struct Shared {
 
     /// 与 `TextService` 共用的引擎客户端；DLL 侧结束组句时要通知 Server 收候选窗口（它无从知晓）。
     client: SharedClient,
+
+    /// 给自己画候选的应用（全屏游戏）的候选列表；应用自己画时不报光标位置，Server 就不画候选窗。
+    candidate_list: CandidateList,
 }
 
 impl Shared {
@@ -50,7 +54,12 @@ impl Shared {
             server_stale: Cell::new(false),
             foreground: Cell::new(false),
             client,
+            candidate_list: CandidateList::default(),
         })
+    }
+
+    pub(crate) fn candidate_list(&self) -> &CandidateList {
+        &self.candidate_list
     }
 
     pub(crate) fn foreground(&self) -> bool {
@@ -136,10 +145,11 @@ impl Shared {
         self.composition.borrow_mut().take()
     }
 
-    /// 组句结束（应用终止组句 / 断线 / 失焦上屏）：不再当作在组句，并让 Server 收候选窗口。
+    /// 组句结束（应用终止组句 / 断线 / 失焦上屏）：不再当作在组句，收起应用的候选列表，并让 Server 收候选窗口。
     pub(crate) fn end_composing(&self) {
         self.composing.set(false);
         self.translating.set(false);
+        self.candidate_list.end();
         self.hide_candidates();
     }
 
