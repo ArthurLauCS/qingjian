@@ -51,7 +51,7 @@ CandidateLayout 保持 `set_cloud` 的首页末尾布局与本地首项；`set_c
 
 模块：`composition`（缓冲区与光标；中文模式下 Shift+字母按小写进 `buffer` 参与匹配、大写记在 `shifted`，`typed_text` 还原后用于原样上屏）/ `parser` / `correction`（拼写纠错：整段一处编辑的候选纠正 + `typo` 音节级敲错变体表，后者进整句词图当带代价的边）/
 `candidate` / `ranking` / `shortcut` / `sentence` / `fuzzy` / `shuangpin`（双拼：`Layout` 是键位表 + 键 → 全拼解码与消耗换算，九套内置方案的常量表在 `table.rs`、`Scheme::layout` 取出，用户方案由平台层读 `scheme.toml` 拼成 `Layout`；整串一个音节都配不出时 `decode_fuzzy` 按每键一个声母再解一次（`im` → sh'm → 什么，`decode_initials`），能正常解出的输入不走这条；`Layout::check` 报写错的键与打不出来的音节——按全部两键组合实际解出哪些音节算，不是按能不能编码；`key_hint::KeyHint` 按 `Layout` 画键位提示，用户方案也画自己的键）/ `root_chart`（86 五笔字根图，字形表 `assets/schemes/wubi86/roots86-glyphs.tsv` 编进 Core，`Engine::root_chart` 只在挂着 86 五笔时给，别的形码方案不画）/ `zhuyin`（大千注音：键 → 注音符号 → 拼音，`[general] zhuyin` 开关；声调判音节完整，不进查询、只进排序：`zhuyin::tone` 按单字声调表 `data/tones.tsv` 给每个候选算声调代价——字的首读音 0、次要读音或表里没有 1、对不上 16，多字词非首字的轻声不计——排序键里排在「末音节完整」之后、「同输入串选择次数」之前，全拼 / 双拼恒为 0；整句词图同样用它：格子选词按 `sentence::TONE_PENALTY`（每点 ln 2）打折、路径得分扣同样的分，格子缓存键带上声调（`SpanCache::toned_key`），只在要转的音节正是当前注音输入解出的那串时才给声调，纠错与英文尾段换过切分的不给）/ `emoji` /
-`english`（英文模式候选）/ `traditional`（繁体输出：`[general] traditional_variant` 四选一，`off` / `taiwan` / `hongkong` / `standard` 对应 OpenCC 的 s2tw / s2hk / s2t，都只换字形；旧键 `traditional = true` 读成 taiwan，开发版在旧键里写过的字符串（`traditional = "off"`）按同一套写法读。新写法换键名是为了退回旧版本时旧版只认布尔、不会整个配置解析失败，字典由 `ferrous-opencc` 在编译期编进产物、运行时不读外部文件）/ `engine`（`query::EnglishTail`：句末英文词并入整句，`woxiangxuehaorust` → 我想学好rust，尾段也像拼音时按分数与拼音读法比）。
+`english`（英文模式候选）/ `traditional`（繁体输出：`[general] traditional_variant` 四选一，`off` / `taiwan` / `hongkong` / `standard` 对应 OpenCC 的 s2tw / s2hk / s2t（台湾那档另建 s2twp 换用语）；旧键 `traditional = true` 读成 taiwan，开发版在旧键里写过的字符串（`traditional = "off"`）按同一套写法读。新写法换键名是为了退回旧版本时旧版只认布尔、不会整个配置解析失败，字典由 `ferrous-opencc` 在编译期编进产物、运行时不读外部文件；单字列各个繁体字用 `data/opencc/` 的那几张表，`ferrous-opencc` 不公开它的字典）/ `engine`（`query::EnglishTail`：句末英文词并入整句，`woxiangxuehaorust` → 我想学好rust，尾段也像拼音时按分数与拼音读法比）。
 辅码（`engine/aux_code.rs`）：`Engine.aux_code: Option<String>` 是码段（`None` 拼音态，`Some("")` 刚触发或删空停在辅码态——`Engine.aux_keep_empty`，配置 `[general] aux_code_keep_empty` 缺省开），
 不进 `Composition`；`aux_trigger`（配的触发键 + 光标在段尾 + 作用域能完整切分 + 双拼韵母键优先）、`enter_aux`、
 `push_aux_code`（只收 a-z）、`clear_aux`；退格在辅码态内部分派（删码；删空按 `aux_keep_empty` 停在辅码态或回拼音态，空码段再退格退出），`commit_with` / `take_raw` /
@@ -77,7 +77,7 @@ mac 存在 `Session::spelling`（`Host::follow_highlight`）、Windows / Linux �
 拼音那套在纯形码下全部不适用，靠 `modes()` 返回 `ModeKeys::LETTERLESS` 与 `active_correction` 直接返回 `None` 关掉；
 译词标注、生词记录、输入日志、用户选择学习与个人 n-gram 仍照常工作。
 `Engine` 是对外唯一门面，`Translator` / `Learner` trait 在 `engine` 模块；词库是「主词库 + 附加词库（`set_extra_dictionaries`）+ 用户词」的列表。
-补充词库（`Match::secondary`，通用大词库一百多万条、不少是语料片段）低主词库一档：词级只查音节数正好对上的（`lookup_all`，不当前缀补全）、精确命中不进排序第一档（`Scored::first_tier`，与主词库的前缀词、敲错纠正一起按打分比）、兜底与词图格子预选再扣 `SECONDARY_PENALTY`、不计入总词频；整句那边「整段就是一个词就不走敲错路径 / 不出整句」只认主词库的词（`in_primary_dictionary`），词图选中的补充词库整词或撞上补充词库词的整句照样插到最前。扣分 1–4 冻结回放只差两三条，取 2。繁体输出是 `Traditional`（`crate::traditional`）：`Engine::query` 出口把候选换成繁体并记下「繁体 → 简体」，云端联想词与整句在 `poll_prediction` 那条路上走 `convert_remember` 单独转，`commit` / `annotate` / `forget` / `accept_prediction` 按这张表还原成简体，表在组句边界 `forget` 清；所以词库、词频、用户词、输入日志一律是简体。`LastCommit::chars` 按上屏的繁体算。
+补充词库（`Match::secondary`，通用大词库一百多万条、不少是语料片段）低主词库一档：词级只查音节数正好对上的（`lookup_all`，不当前缀补全）、精确命中不进排序第一档（`Scored::first_tier`，与主词库的前缀词、敲错纠正一起按打分比）、兜底与词图格子预选再扣 `SECONDARY_PENALTY`、不计入总词频；整句那边「整段就是一个词就不走敲错路径 / 不出整句」只认主词库的词（`in_primary_dictionary`），词图选中的补充词库整词或撞上补充词库词的整句照样插到最前。扣分 1–4 冻结回放只差两三条，取 2。繁体输出是 `Traditional`（`crate::traditional`）：`Engine::query` 出口把候选换成繁体并记下「繁体 → 简体」（中文词与码表词展开成用户选过的、台湾用语、只换字形的、单字各个繁体字几条，同一写法一轮只出一次；上屏时 `commit_with` 把选的写法记进学习器，是缺省写法就清），云端联想词与整句在 `poll_prediction` 那条路上走 `convert_remember` 单独转，`commit` / `annotate` / `forget` / `accept_prediction` 按这张表还原成简体，表在组句边界 `forget` 清；所以词库、词频、用户词、输入日志一律是简体。`LastCommit::chars` 按上屏的繁体算。
 读音占比进打分：语言模型按字形计数，`区` 的 qu 撑起来的分会原样落到 `ou` 上（`ou` 首选 区、`ditu` 拼出 的图），所以词级排序（`Engine::word_log_prob`）与整句词图（`SpanWord::reading`）都扣 `sentence::reading_cost` = `-ln(读音占比)`；用户选过的仍按「同输入串选择次数」排在前面。整句按哪种切分转由 `Engine::sentence_segmentation` 定：切分器只按结构排（音节少、完整的在前，打平时贪心），音节数与不完整音节数都与第一种相同的几种（最多 `TIED_SEGMENTATIONS`）各转一遍取路径分最高的（`shangou` 由 shang ou 换成 shan gou → 山沟）。2026-10-22 冻结回放：词 8167 → 8226、整句 2827 → 2788（掉的多是用 `di` 打 的、`du` 打 都 的习惯，和日志里当时选了错句的统计假象）。
 - 中英混输的英文词位置：`Engine::set_chinese_first`（配置 `[general] chinese_first`，缺省关）关着时拼音不像话的输入英文排第一（`extras::insert_english`，
   用户老选中文词时仍让中文在前），开着时整句先插、英文词紧随其后排第二（`query_inner` 里两步的先后按开关掉转）；句末英文词并入整句（`EnglishTail`）不受它影响。
@@ -134,6 +134,7 @@ mac 存在 `Session::spelling`（`Host::follow_highlight`）、Windows / Linux �
   二元 + 三元在线计数，整句转换与词级排序里与静态模型插值；Tab 接受的云端整句按 `sentence::segment_text` 切词后也记；
   连着选出的两个词记够次数自动造词进用户词，一段拼音分几次选完的合成词记两次也造）。
   候选右键菜单的降权记在 `user-demoted.tsv`（`frequency_learner/demotions.rs`，输入串 → 词 → 降了几次，封顶 99，不衰减），私密输入与关学习时照记。
+  繁体输出时给词选的写法记在 `user-traditional.tsv`（`frequency_learner/traditional.rs`，档 → 简体词 → 写法，选回缺省写法就删，不衰减），私密输入与关学习时不记。
   词频、个人英文词与敲错表三张表带**时间衰减**（`frequency_learner/decay.rs`，牛顿冷却）：最近使用日记在
   `user-days.tsv` 等 `*-days.tsv` 侧车文件里（主表保持旧格式两列 / 三列，旧版本读到新文件不丢数据；侧车丢了整份退回文件修改日），
   查询按 `count × 2^(−间隔天数/90)` 折算有效次数。衰减只用在排序权重上，记录本身不清——真要清等冷了一年

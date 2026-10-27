@@ -24,6 +24,7 @@ description: 青简数据文件夹的位置、每个文件记的是什么、运�
 | `user-words.tsv` | 自己造的词与选过的 AI 候选 | 选过的词 |
 | `user-choices.tsv` | 某段拼音下选过的词 | 拼音与选过的词 |
 | `user-demoted.tsv` | 候选右键菜单里降权的词（哪段字母、哪个词、降了几次） | 拼音与词 |
+| `user-traditional.tsv` | 繁体输出时给词选的写法（哪一档、简体词、选的繁体写法） | 选过的词 |
 | `user-days.tsv` 等 `*-days.tsv` | 上面几张表的最近使用日 | 否 |
 | `user-english.tsv` | 原样上屏过的英文词 | 英文词 |
 | `user-typos.tsv` | 被接受的拼写纠正（敲成了什么、本意是什么） | 拼音音节 |

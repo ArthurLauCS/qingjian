@@ -117,6 +117,15 @@ impl Engine {
                 ..candidate.clone()
             });
         let candidate = restored.as_ref().unwrap_or(candidate);
+        // 繁体输出时记下这个词用了哪种写法，下次排第一；用的是缺省写法就清掉记过的
+        if self.traditional.is_on()
+            && matches!(candidate.kind, CandidateKind::Chinese | CandidateKind::Code)
+        {
+            let form = (output != self.traditional.convert(&candidate.text)).then_some(&*output);
+            let variant = self.traditional.variant().key();
+            self.learner
+                .record_traditional(variant, &candidate.text, form);
+        }
         // 整句不是一个词，不记词频；按路径上的词逐条记转移（喂个人 n-gram），路径要在拼音消耗前重算
         let sentence_words = (candidate.kind == CandidateKind::Sentence)
             .then(|| self.sentence_words(candidate))

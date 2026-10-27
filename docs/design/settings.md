@@ -69,7 +69,7 @@
 |---|---|---|---|
 | 每页候选数 | 步进 1–9 | `general.page_size` | |
 | 译文 | 下拉：英语 / 日语 / 西班牙语 / 越南语 / 不显示 | `general.learning_language` | 不显示时生词标记也关掉 |
-| 繁体 | 开关 | `general.traditional` | 只换字形，不换用语 |
+| 繁体 | 开关 | `general.traditional` | 台湾那档先出用语再出字形，单字列出各个繁体字，选过的写法排第一 |
 | emoji | 开关 | `general.emoji` | |
 
 **排序**

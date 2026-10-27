@@ -59,7 +59,7 @@ pub fn candidates(ui: &mut Ui<Message>, page: &Page) -> Result<Vec<NodeId>, Rend
             .control(language)
             .build(ui, theme)?,
         SettingRow::new("输出字形")
-            .info("软件 → 軟件")
+            .info("软件 → 軟體、軟件")
             .control(traditional)
             .build(ui, theme)?,
         toggle_info(

@@ -24,6 +24,7 @@ Where the data folder is:
 | `user-words.tsv` | Words you created and AI candidates you picked | Words you picked |
 | `user-choices.tsv` | Words picked for a given stretch of pinyin | Pinyin and words you picked |
 | `user-demoted.tsv` | Words demoted from the candidate right-click menu (which letters, which word, how many times) | Pinyin and words |
+| `user-traditional.tsv` | The Traditional forms you picked for words with Traditional output on (which option, the Simplified word, the form picked) | Words you picked |
 | `user-days.tsv` and other `*-days.tsv` | When the entries in the tables above were last used | No |
 | `user-english.tsv` | English words committed as typed | English words |
 | `user-typos.tsv` | Spelling corrections you accepted (what you typed and what you meant) | Pinyin syllables |

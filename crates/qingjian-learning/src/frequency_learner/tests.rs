@@ -98,6 +98,31 @@ fn demotions_add_up_undo_and_round_trip() {
     std::fs::remove_dir_all(dir).unwrap();
 }
 
+/// 繁体写法按档分开记，选回缺省写法（`None`）就清掉；落盘后读得回来。
+#[test]
+fn traditional_forms_per_variant_round_trip() {
+    let dir = std::env::temp_dir().join("qingjian-user-traditional-test");
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("user.tsv");
+    let _ = std::fs::remove_file(dir.join(USER_TRADITIONAL_FILE));
+
+    let mut learner = FrequencyLearner::from_path(&path).unwrap();
+    learner.record_traditional("taiwan", "软件", Some("軟件"));
+    learner.record_traditional("taiwan", "干", Some("乾"));
+    learner.record_traditional("hongkong", "干", Some("榦"));
+    learner.record_traditional("taiwan", "干", None);
+    assert_eq!(learner.traditional_form("taiwan", "软件"), Some("軟件"));
+    assert_eq!(learner.traditional_form("taiwan", "干"), None);
+    learner.flush();
+
+    let reloaded = FrequencyLearner::from_path(&path).unwrap();
+    assert_eq!(reloaded.traditional_count(), 2);
+    assert_eq!(reloaded.traditional_form("taiwan", "软件"), Some("軟件"));
+    assert_eq!(reloaded.traditional_form("hongkong", "干"), Some("榦"));
+    assert_eq!(reloaded.traditional_form("standard", "软件"), None);
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
 #[test]
 fn unrecord_reverses_each_kind_of_record() {
     let mut learner = FrequencyLearner::default();

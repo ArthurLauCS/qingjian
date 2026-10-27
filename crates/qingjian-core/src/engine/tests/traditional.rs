@@ -87,3 +87,54 @@ fn custom_phrases_commit_verbatim() {
     assert_eq!(candidate.text, "我的地址：软件园");
     assert_eq!(engine.commit(&candidate), "我的地址：软件园");
 }
+
+/// 只记繁体写法的学习器桩：(档, 简体词) → 写法。
+#[derive(Default)]
+struct FormLearner(HashMap<(String, String), String>);
+
+impl Learner for FormLearner {
+    fn record(&mut self, _candidate: &Candidate) {}
+
+    fn weight(&self, _text: &str) -> u32 {
+        0
+    }
+
+    fn record_traditional(&mut self, variant: &str, simplified: &str, form: Option<&str>) {
+        let key = (variant.to_owned(), simplified.to_owned());
+        match form {
+            Some(form) => self.0.insert(key, form.to_owned()),
+            None => self.0.remove(&key),
+        };
+    }
+
+    fn traditional_form(&self, variant: &str, simplified: &str) -> Option<&str> {
+        self.0
+            .get(&(variant.to_owned(), simplified.to_owned()))
+            .map(String::as_str)
+    }
+}
+
+/// 台湾用语排第一；选了只换字形的 軟件，下次它排第一；选回 軟體 就恢复缺省。
+#[test]
+fn picked_form_comes_first_next_time() {
+    let mut engine = Engine::new(Dictionary::parse("软件\truan jian\t9000\n").unwrap())
+        .with_learner(Box::new(FormLearner::default()));
+    engine.set_traditional(TraditionalVariant::Taiwan);
+    let first_two = |engine: &mut Engine| {
+        engine.set_input("ruanjian");
+        let items = engine.query().unwrap().candidates.items;
+        (items[0].clone(), items[1].clone())
+    };
+    let (vocabulary, glyphs) = first_two(&mut engine);
+    assert_eq!((&*vocabulary.text, &*glyphs.text), ("軟體", "軟件"));
+    assert_eq!(engine.commit(&glyphs), "軟件");
+    assert_eq!(
+        engine.learner().traditional_form("taiwan", "软件"),
+        Some("軟件")
+    );
+
+    let (first, second) = first_two(&mut engine);
+    assert_eq!((&*first.text, &*second.text), ("軟件", "軟體"));
+    engine.commit(&second);
+    assert_eq!(engine.learner().traditional_form("taiwan", "软件"), None);
+}
